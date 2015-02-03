@@ -6,7 +6,6 @@
     <version>1.0</version>
   </parent>
   <artifactId>analytics-agent-java-web</artifactId>
-  <packaging>war</packaging>
   <dependencies>
   	<dependency>
   		<groupId>org.zeromq</groupId>
@@ -14,4 +13,5 @@
   		<version>0.3.4</version>
   	</dependency>
   </dependencies>
+  <packaging>war</packaging>
 </project>
