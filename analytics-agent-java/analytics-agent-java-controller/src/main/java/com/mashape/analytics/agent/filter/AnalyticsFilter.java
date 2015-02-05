@@ -23,8 +23,8 @@ public class AnalyticsFilter implements Filter {
 			FilterChain arg2) throws IOException, ServletException {
 		// TODO Auto-generated method stub
 		HttpServletRequest reuest = (HttpServletRequest) req;
-		
-		
+		String paramert = reuest.getQueryString();
+		System.out.print(paramert);
 	}
 
 	@Override
