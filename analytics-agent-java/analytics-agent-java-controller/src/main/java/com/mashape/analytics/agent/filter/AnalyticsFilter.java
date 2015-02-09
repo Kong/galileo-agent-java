@@ -12,6 +12,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 public class AnalyticsFilter implements Filter {
 	
@@ -25,15 +26,27 @@ public class AnalyticsFilter implements Filter {
 
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse res,
-			FilterChain arg2) throws IOException, ServletException {
+			FilterChain chain) throws IOException, ServletException {
 		// TODO Auto-generated method stub
 		HttpServletRequest request = (HttpServletRequest) req;
+		HttpServletResponse response = (HttpServletResponse) res;
 		request.startAsync();
+		chain.doFilter(request, response);
+		System.out.println(Thread.currentThread().getName());
 		analyticsServicexeExecutor.execute(new Runnable() {
 			
 			@Override
 			public void run() {
-				
+				System.out.println(Thread.currentThread().getName());
+				for(int i = 0; i <=1000; i++){
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					System.out.println("Play:" + i);
+				}
 				
 			}
 		});
