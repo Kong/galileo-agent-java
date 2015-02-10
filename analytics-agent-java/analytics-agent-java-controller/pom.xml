@@ -14,5 +14,10 @@
 			<version>3.0.1</version>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.mashape.analytics.agent</groupId>
+			<artifactId>analytics-agent-java-connection</artifactId>
+			<version>1.0</version>
+		</dependency>
 	</dependencies>
 </project>

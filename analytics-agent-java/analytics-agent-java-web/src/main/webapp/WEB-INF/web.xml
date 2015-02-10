@@ -16,7 +16,15 @@
 		<filter-class>com.mashape.analytics.agent.filter.AnalyticsFilter</filter-class>
 		<async-supported>true</async-supported>
 		<init-param>
-			<param-name>poolSize</param-name>
+			<param-name>analyticsServerUrl</param-name>
+			<param-value>tcp://socket.apianalytics.com</param-value>
+		</init-param>
+		<init-param>	
+			<param-name>analyticsServerPort</param-name>
+			<param-value>5000</param-value>
+		</init-param>
+		<init-param>
+		<param-name>poolSize</param-name>
 			<param-value>100</param-value>
 		</init-param>
 	</filter>
