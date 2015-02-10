@@ -16,14 +16,13 @@ import javax.servlet.http.HttpServletResponse;
 import com.mashape.analytics.agent.connection.client.ConnectionManager;
 
 public class AnalyticsFilter implements Filter {
-	
+
 	private ExecutorService analyticsServicexeExecutor;
-	private int poolSize ;
+	private int poolSize;
 	private String analyticsServerUrl;
 	private String analyticsServerPort;
 	private String analyticsKey;
-	
-	
+
 	@Override
 	public void destroy() {
 		analyticsServicexeExecutor.shutdown();
@@ -34,16 +33,19 @@ public class AnalyticsFilter implements Filter {
 			FilterChain chain) throws IOException, ServletException {
 		HttpServletRequest request = (HttpServletRequest) req;
 		HttpServletResponse response = (HttpServletResponse) res;
-		request.startAsync();
+
+		long startTime = System.currentTimeMillis();
 		chain.doFilter(request, response);
-		System.out.println(Thread.currentThread().getName());
+		long endTime = System.currentTimeMillis();
+		long timeElapsed = endTime - startTime;
+		
+		request.startAsync();
 		analyticsServicexeExecutor.execute(new Runnable() {
-			
-			
+
 			@Override
-			public void run() {				
+			public void run() {
 				System.out.println(Thread.currentThread().getName());
-				for(int i = 0; i <=1000; i++){
+				for (int i = 0; i <= 1000; i++) {
 					try {
 						Thread.sleep(1000);
 					} catch (InterruptedException e) {
@@ -52,7 +54,7 @@ public class AnalyticsFilter implements Filter {
 					}
 					System.out.println("Play:" + i);
 				}
-				
+
 			}
 		});
 	}
