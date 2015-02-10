@@ -1,26 +1,38 @@
 package com.mashape.analytics.agent.mapper;
 
+import javax.servlet.FilterConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.JsonObject;
 import com.mashape.analytics.agent.modal.Creator;
+import com.mashape.analytics.agent.modal.Entry;
 import com.mashape.analytics.agent.modal.Har;
 import com.mashape.analytics.agent.modal.Log;
 import com.mashape.analytics.agent.modal.Message;
 
 public class AnalyticsDataMapper {
 	
+	private static final String SERVICE_TOKEN = "serviceToken";
+	private static final String HAR_VERSION = "harVersion";
+	private static final String AGENT_NAME = "agentName";
+	private static final String AGENT_VERSION = "agentVersion";
 	private HttpServletRequest request;
 	private HttpServletResponse response;
+	private FilterConfig config;
 	
-	public JsonObject getAnalyticsData(HttpServletRequest req, HttpServletResponse res, String key){
-		JsonObject data = new JsonObject();
+	public AnalyticsDataMapper(HttpServletRequest request,
+			HttpServletResponse response, FilterConfig config) {
+		this.request = request;
+		this.response = response;
+		this.config = config;
+	}
+	
+	public Message getAnalyticsData(){
 		Message message = new Message();
-		message.setServiceToken(key);
-		message.setHar(setHar(req,res));
-		
-		return data;
+		message.setHar(setHar(request,response));
+		message.setServiceToken(config.getInitParameter(SERVICE_TOKEN));
+		return message;
 	}
 
 	private Har setHar(HttpServletRequest req, HttpServletResponse res) {
@@ -31,12 +43,24 @@ public class AnalyticsDataMapper {
 
 	private Log setLog(HttpServletRequest req, HttpServletResponse res) {
 		Log log = new Log();
-		log.setCreator(setCreator(req,res));
+		log.setVersion(config.getInitParameter(HAR_VERSION));
+		log.setCreator(setCreator());
+		Entry entry = getEntryPerRequest();
 		return log;
 	}
 
-	private Creator setCreator(HttpServletRequest req, HttpServletResponse res) {
-		// TODO Auto-generated method stub
+	private Entry getEntryPerRequest() {
+		Entry entry = new Entry();
+		entry.setClientIPAddress(request.getRemoteAddr());
+		entry.setServerIPAddress(request.getLocalAddr());
+		//entry.setStartedDateTime(value);
+		return null;
+	}
+
+	private Creator setCreator() {
+		Creator creator = new Creator();
+		creator.setName(config.getInitParameter(AGENT_NAME));
+		creator.setName(config.getInitParameter(AGENT_VERSION));
 		return null;
 	}
 

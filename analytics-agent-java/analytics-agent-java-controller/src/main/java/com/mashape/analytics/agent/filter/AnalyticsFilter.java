@@ -1,6 +1,8 @@
 package com.mashape.analytics.agent.filter;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -13,15 +15,24 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.gson.JsonObject;
 import com.mashape.analytics.agent.connection.client.ConnectionManager;
+import com.mashape.analytics.agent.mapper.AnalyticsDataMapper;
+import com.mashape.analytics.agent.modal.Message;
 
 public class AnalyticsFilter implements Filter {
 
+	public static final String ANALYTICS_SERVER_URL = "analyticsServerUrl";
+	public static final String ANALYTICS_SERVER_PORT = "analyticsServerPort";
 	private ExecutorService analyticsServicexeExecutor;
 	private int poolSize;
+	FilterConfig config;
 	private String analyticsServerUrl;
 	private String analyticsServerPort;
 	private String analyticsKey;
+	private String formatVersion;
+	private String agentVersion;
+	
 
 	@Override
 	public void destroy() {
@@ -44,17 +55,12 @@ public class AnalyticsFilter implements Filter {
 
 			@Override
 			public void run() {
-				System.out.println(Thread.currentThread().getName());
-				for (int i = 0; i <= 1000; i++) {
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					System.out.println("Play:" + i);
-				}
-
+				Map<String, String> messageProperties= new HashMap<String, String>();
+				messageProperties.put(ANALYTICS_SERVER_URL, analyticsServerUrl);
+				messageProperties.put(ANALYTICS_SERVER_PORT, analyticsServerPort);
+				AnalyticsDataMapper mapper = new AnalyticsDataMapper(request, response, config);
+				Message analyticsData = mapper.getAnalyticsData();
+				ConnectionManager.sendMessage(messageProperties);
 			}
 		});
 	}
