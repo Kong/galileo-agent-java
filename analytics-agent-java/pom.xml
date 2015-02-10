@@ -11,6 +11,7 @@
 		<module>analytics-agent-java-web</module>
 		<module>analytics-agent-java-controller</module>
 		<module>analytics-agent-java-connection</module>
+		<module>analytics-agent-java-mapper</module>
 	</modules>
 	<build>
 		<plugins>
