@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.mashape.com/analyticsHar" xmlns:tns="http://www.mashape.com/analyticsHar" elementFormDefault="qualified">
+
+    <element name="Message" type="tns:Message"></element>
+    
+    <complexType name="Message">
+    	<sequence>
+    		<element name="serviceToken" type="string"></element>
+    		<element name="har" type="tns:Har"></element>
+    	</sequence>
+    </complexType>
+
+    <complexType name="Har">
+    	<sequence>
+    		<element name="log" type="tns:Log"></element>
+    	</sequence>
+    </complexType>
+    
+     <complexType name="Log">
+    	<sequence>
+    		<element name="version" type="string"></element>
+    		<element name="creator" type="tns:Creator"></element>
+    		<element name="entries" type="tns:Entry" maxOccurs="unbounded" minOccurs="0"></element>
+    	</sequence>
+    </complexType>
+
+    <complexType name="Timings">
+    	<sequence>
+    		<element name="send" type="int"></element>
+    		<element name="wait" type="int"></element>
+    		<element name="receive" type="int"></element>
+    	</sequence>
+    </complexType>
+
+    <complexType name="Content">
+    	<sequence>
+    		<element name="size" type="int"></element>
+    		<element name="mimeType" type="string"></element>
+    		<element name="encoding" type="string" maxOccurs="1"
+    			minOccurs="0">
+    		</element>
+    		<element name="text" type="string" maxOccurs="1" minOccurs="0"></element>
+    	</sequence>
+    </complexType>
+
+    <complexType name="NameValuePair">
+    	<sequence>
+    		<element name="name" type="string"></element>
+    		<element name="value" type="string"></element>
+    	</sequence>
+    </complexType>
+
+    <complexType name="Creator">
+    	<sequence>
+    		<element name="name" type="string"></element>
+    		<element name="version" type="string"></element>
+    	</sequence>
+    </complexType>
+
+    <complexType name="Request">
+    	<sequence>
+    		<element name="method" type="string"></element>
+    		<element name="url" type="string"></element>
+    		<element name="httpVersion" type="string"></element>
+    		<element name="queryString" type="tns:NameValuePair" maxOccurs="unbounded" minOccurs="0"></element>
+    		<element name="headers" type="tns:NameValuePair" maxOccurs="unbounded" minOccurs="0"></element>
+    		<element name="headersSize" type="int"></element>
+    		<element name="bodySize" type="int"></element>
+    		<element name="content" type="tns:Content" maxOccurs="1" minOccurs="0"></element>
+    	</sequence>
+    </complexType>
+    
+      <complexType name="Response">
+    	<sequence>
+    		<element name="status" type="string"></element>
+    		<element name="statusText" type="string"></element>
+    		<element name="httpVersion" type="string"></element>
+    		<element name="headers" type="tns:NameValuePair" maxOccurs="unbounded" minOccurs="0"></element>
+    		<element name="headersSize" type="int"></element>
+    		<element name="bodySize" type="int"></element>
+    		<element name="content" type="tns:Content" maxOccurs="1" minOccurs="0"></element>
+    	</sequence>
+    </complexType>
+    
+     <complexType name="Entry">
+    	<sequence>
+    		<element name="serverIPAddress" type="string"></element>
+    		<element name="clientIPAddress" type="string"></element>
+    		<element name="startedDateTime" type="string"></element>
+    		<element name="time" type="int"></element>
+    		<element name="request" type="tns:Request"></element>
+    		<element name="response" type="tns:Response"></element>
+    		<element name="timings" type="tns:Timings"></element>
+    	</sequence>
+    </complexType>
+</schema>
