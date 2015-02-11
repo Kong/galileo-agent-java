@@ -10,6 +10,7 @@ import com.mashape.analytics.agent.modal.Entry;
 import com.mashape.analytics.agent.modal.Har;
 import com.mashape.analytics.agent.modal.Log;
 import com.mashape.analytics.agent.modal.Message;
+import com.mashape.analytics.agent.modal.Request;
 
 public class AnalyticsDataMapper {
 	
@@ -53,14 +54,22 @@ public class AnalyticsDataMapper {
 		Entry entry = new Entry();
 		entry.setClientIPAddress(request.getRemoteAddr());
 		entry.setServerIPAddress(request.getLocalAddr());
-		//entry.setStartedDateTime(value);
+		entry.setRequest(mapRequest());
+		
+		return null;
+	}
+
+	private Request mapRequest() {
+		Request requestHar  = new Request();
+		requestHar.setBodySize(request.getContentLength());
+		//requestHar.setContent();
 		return null;
 	}
 
 	private Creator setCreator() {
 		Creator creator = new Creator();
 		creator.setName(config.getInitParameter(AGENT_NAME));
-		creator.setName(config.getInitParameter(AGENT_VERSION));
+		creator.setVersion(config.getInitParameter(AGENT_VERSION));
 		return null;
 	}
 
