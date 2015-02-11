@@ -11,6 +11,7 @@ import com.mashape.analytics.agent.modal.Har;
 import com.mashape.analytics.agent.modal.Log;
 import com.mashape.analytics.agent.modal.Message;
 import com.mashape.analytics.agent.modal.Request;
+import com.mashape.analytics.agent.modal.Response;
 
 public class AnalyticsDataMapper {
 	
@@ -55,14 +56,21 @@ public class AnalyticsDataMapper {
 		entry.setClientIPAddress(request.getRemoteAddr());
 		entry.setServerIPAddress(request.getLocalAddr());
 		entry.setRequest(mapRequest());
+		entry.setResponse(mapResponse());
 		
+		
+		return null;
+	}
+
+	private Response mapResponse() {
+		// TODO Auto-generated method stub
 		return null;
 	}
 
 	private Request mapRequest() {
 		Request requestHar  = new Request();
 		requestHar.setBodySize(request.getContentLength());
-		//requestHar.setContent();
+		//requestHar.setContent("");
 		return null;
 	}
 
@@ -70,7 +78,7 @@ public class AnalyticsDataMapper {
 		Creator creator = new Creator();
 		creator.setName(config.getInitParameter(AGENT_NAME));
 		creator.setVersion(config.getInitParameter(AGENT_VERSION));
-		return null;
+		return creator;
 	}
 
 }
