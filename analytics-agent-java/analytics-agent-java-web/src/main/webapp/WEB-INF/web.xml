@@ -19,12 +19,12 @@
 			<param-name>analyticsServerUrl</param-name>
 			<param-value>tcp://socket.apianalytics.com</param-value>
 		</init-param>
-		<init-param>	
+		<init-param>
 			<param-name>analyticsServerPort</param-name>
 			<param-value>5000</param-value>
 		</init-param>
 		<init-param>
-		<param-name>poolSize</param-name>
+			<param-name>poolSize</param-name>
 			<param-value>100</param-value>
 		</init-param>
 	</filter>

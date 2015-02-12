@@ -1,9 +1,6 @@
 package com.mashape.analytics.agent.wrapper;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 
@@ -15,7 +12,7 @@ public class ResponseInterceptorWrapper extends HttpServletResponseWrapper {
 
 	private ServletOutputStream contentStream;
 	private PrintWriter writer;
-	private OutputStreamWrapper clonedStream;
+	private OutputStreamCloner cloner;
 
 	public ResponseInterceptorWrapper(HttpServletResponse response) {
 		super(response);
@@ -28,9 +25,8 @@ public class ResponseInterceptorWrapper extends HttpServletResponseWrapper {
 		}
 
 		if (writer == null) {
-			clonedStream = new OutputStreamWrapper(getResponse()
-					.getOutputStream());
-			writer = new PrintWriter(new OutputStreamWriter(clonedStream,
+			cloner = new OutputStreamCloner(getResponse().getOutputStream());
+			writer = new PrintWriter(new OutputStreamWriter(cloner,
 					getResponse().getCharacterEncoding()), true);
 		}
 		return writer;
@@ -44,25 +40,25 @@ public class ResponseInterceptorWrapper extends HttpServletResponseWrapper {
 
 		if (this.contentStream == null) {
 			this.contentStream = getResponse().getOutputStream();
-			this.clonedStream = new OutputStreamWrapper(this.clonedStream);
+			this.cloner = new OutputStreamCloner(this.contentStream);
 		}
-		return this.clonedStream;
+		return this.cloner;
 	}
-	
+
 	@Override
 	public void flushBuffer() throws IOException {
 		if (writer != null) {
-            writer.flush();
-        } else if (contentStream != null) {
-        	clonedStream.flush();
-        }
+			writer.flush();
+		} else if (contentStream != null) {
+			cloner.flush();
+		}
 	}
-	
+
 	public byte[] getClone() {
-        if (clonedStream != null) {
-            return clonedStream.getClone();
-        } else {
-            return new byte[0];
-        }
-    }
+		if (cloner != null) {
+			return cloner.getClone();
+		} else {
+			return new byte[0];
+		}
+	}
 }

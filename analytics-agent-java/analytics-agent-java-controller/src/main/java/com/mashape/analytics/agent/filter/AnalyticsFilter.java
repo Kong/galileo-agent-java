@@ -15,11 +15,11 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.gson.JsonObject;
 import com.mashape.analytics.agent.connection.client.ConnectionManager;
 import com.mashape.analytics.agent.mapper.AnalyticsDataMapper;
 import com.mashape.analytics.agent.modal.Message;
 import com.mashape.analytics.agent.wrapper.RequestInterceptorWrapper;
+import com.mashape.analytics.agent.wrapper.ResponseInterceptorWrapper;
 
 public class AnalyticsFilter implements Filter {
 
@@ -33,7 +33,6 @@ public class AnalyticsFilter implements Filter {
 	private String analyticsKey;
 	private String formatVersion;
 	private String agentVersion;
-	
 
 	@Override
 	public void destroy() {
@@ -43,23 +42,27 @@ public class AnalyticsFilter implements Filter {
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse res,
 			FilterChain chain) throws IOException, ServletException {
-		RequestInterceptorWrapper request = new RequestInterceptorWrapper((HttpServletRequest) req);
-		HttpServletResponse response = (HttpServletResponse) res;
+		RequestInterceptorWrapper request = new RequestInterceptorWrapper(
+				(HttpServletRequest) req);
+		ResponseInterceptorWrapper response = new ResponseInterceptorWrapper(
+				(HttpServletResponse) res);
 
 		long startTime = System.currentTimeMillis();
 		chain.doFilter(request, response);
 		long endTime = System.currentTimeMillis();
 		long timeElapsed = endTime - startTime;
-		
+
 		request.startAsync();
 		analyticsServicexeExecutor.execute(new Runnable() {
 
 			@Override
 			public void run() {
-				Map<String, String> messageProperties= new HashMap<String, String>();
+				Map<String, String> messageProperties = new HashMap<String, String>();
 				messageProperties.put(ANALYTICS_SERVER_URL, analyticsServerUrl);
-				messageProperties.put(ANALYTICS_SERVER_PORT, analyticsServerPort);
-				AnalyticsDataMapper mapper = new AnalyticsDataMapper(request, response, config);
+				messageProperties.put(ANALYTICS_SERVER_PORT,
+						analyticsServerPort);
+				AnalyticsDataMapper mapper = new AnalyticsDataMapper(request,
+						response, config);
 				Message analyticsData = mapper.getAnalyticsData();
 				ConnectionManager.sendMessage(messageProperties);
 			}

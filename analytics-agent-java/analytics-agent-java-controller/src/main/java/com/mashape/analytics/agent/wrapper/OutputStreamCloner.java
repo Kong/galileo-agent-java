@@ -6,21 +6,21 @@ import java.io.OutputStream;
 
 import javax.servlet.ServletOutputStream;
 
-public class OutputStreamWrapper extends ServletOutputStream {
-	private OutputStream contentStream ;
+public class OutputStreamCloner extends ServletOutputStream {
+	private OutputStream outputStream ;
 	private ByteArrayOutputStream clonedStream = new ByteArrayOutputStream();
 	
-	public OutputStreamWrapper(OutputStream contentStream){
-		this.contentStream = contentStream;
+	public OutputStreamCloner(OutputStream contentStream){
+		this.outputStream = contentStream;
 	}
-
+	
 	@Override
 	public void write(int data) throws IOException {
-		this.contentStream.write(data);
+		this.outputStream.write(data);
+		this.clonedStream.write(data);
 	}
 	
 	public byte[] getClone(){
 		return this.clonedStream.toByteArray();
 	}
-
 }
