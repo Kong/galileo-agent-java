@@ -56,5 +56,9 @@ public class RequestInterceptorWrapper extends HttpServletRequestWrapper {
 		};
 		return inputStream;
 	}
+	
+	public String getPayload(){
+		return this.payload;
+	}
 
 }
