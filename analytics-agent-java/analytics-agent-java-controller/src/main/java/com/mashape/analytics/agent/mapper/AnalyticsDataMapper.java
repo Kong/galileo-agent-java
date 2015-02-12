@@ -1,10 +1,11 @@
 package com.mashape.analytics.agent.mapper;
 
+import java.io.UnsupportedEncodingException;
+
 import javax.servlet.FilterConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.gson.JsonObject;
 import com.mashape.analytics.agent.modal.Content;
 import com.mashape.analytics.agent.modal.Creator;
 import com.mashape.analytics.agent.modal.Entry;
@@ -14,34 +15,35 @@ import com.mashape.analytics.agent.modal.Message;
 import com.mashape.analytics.agent.modal.Request;
 import com.mashape.analytics.agent.modal.Response;
 import com.mashape.analytics.agent.wrapper.RequestInterceptorWrapper;
+import com.mashape.analytics.agent.wrapper.ResponseInterceptorWrapper;
 
 public class AnalyticsDataMapper {
-	
+
 	private static final String SERVICE_TOKEN = "serviceToken";
 	private static final String HAR_VERSION = "harVersion";
 	private static final String AGENT_NAME = "agentName";
 	private static final String AGENT_VERSION = "agentVersion";
 	private RequestInterceptorWrapper request;
-	private HttpServletResponse response;
+	private ResponseInterceptorWrapper response;
 	private FilterConfig config;
-	
+
 	public AnalyticsDataMapper(RequestInterceptorWrapper request,
-			HttpServletResponse response, FilterConfig config) {
+			ResponseInterceptorWrapper response, FilterConfig config) {
 		this.request = request;
 		this.response = response;
 		this.config = config;
 	}
-	
-	public Message getAnalyticsData(){
+
+	public Message getAnalyticsData() {
 		Message message = new Message();
-		message.setHar(setHar(request,response));
+		message.setHar(setHar(request, response));
 		message.setServiceToken(config.getInitParameter(SERVICE_TOKEN));
 		return message;
 	}
 
 	private Har setHar(HttpServletRequest req, HttpServletResponse res) {
 		Har har = new Har();
-		har.setLog(setLog(req,res));
+		har.setLog(setLog(req, res));
 		return har;
 	}
 
@@ -63,37 +65,44 @@ public class AnalyticsDataMapper {
 	}
 
 	private Response mapResponse() {
-		Response responseHar  = new Response();
+		Response responseHar = new Response();
 		responseHar.setBodySize(request.getContentLength());
 		responseHar.setContent(mapRequestContent());
 		responseHar.setContent(mapResponseContent());
-		//requestHar.setHeadersSize();
+		// requestHar.setHeadersSize();
 		return responseHar;
 	}
 
 	private Request mapRequest() {
-		Request requestHar  = new Request();
+		Request requestHar = new Request();
 		requestHar.setBodySize(request.getContentLength());
 		requestHar.setContent(mapRequestContent());
-		//requestHar.setHeadersSize();
+		// requestHar.setHeadersSize();
 		return requestHar;
 	}
 
 	private Content mapRequestContent() {
-        Content content = new Content();
-        content.setEncoding(request.getCharacterEncoding());
-        content.setMimeType(request.getContentType());
-        content.setSize(request.getPayload().length());
-        content.setText(request.getPayload());
+		Content content = new Content();
+		content.setEncoding(request.getCharacterEncoding());
+		content.setMimeType(request.getContentType());
+		content.setSize(request.getPayload().length());
+		content.setText(request.getPayload());
 		return content;
 	}
-	
+
 	private Content mapResponseContent() {
-        Content content = new Content();
-        content.setEncoding(response.getCharacterEncoding());
-        content.setMimeType(response.getContentType());
-        //content.setSize(response.getPayload().length());
-        //content.setText(response.getPayload());
+		Content content = new Content();
+		content.setEncoding(response.getCharacterEncoding());
+		content.setMimeType(response.getContentType());
+
+		try {
+			String payload = new String(response.getClone(),
+					response.getCharacterEncoding());
+			content.setSize(payload.length());
+			content.setText(payload);
+		} catch (UnsupportedEncodingException e) {
+			// suppressed
+		}
 		return content;
 	}
 
