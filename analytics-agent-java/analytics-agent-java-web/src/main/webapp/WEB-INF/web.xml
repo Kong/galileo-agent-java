@@ -17,7 +17,7 @@
 		<async-supported>true</async-supported>
 		<init-param>
 			<param-name>analyticsServerUrl</param-name>
-			<param-value>tcp://socket.apianalytics.com</param-value>
+			<param-value>socket.apianalytics.com</param-value>
 		</init-param>
 		<init-param>
 			<param-name>analyticsServerPort</param-name>
@@ -26,6 +26,22 @@
 		<init-param>
 			<param-name>poolSize</param-name>
 			<param-value>100</param-value>
+		</init-param>
+		<init-param>
+			<param-name>analyticsKey</param-name>
+			<param-value>54c96f77f86a31ac5d861939</param-value>
+		</init-param>
+		<init-param>
+			<param-name>harVersion</param-name>
+			<param-value>1.2</param-value>
+		</init-param>
+		<init-param>
+			<param-name>agentName</param-name>
+			<param-value>Analytics-Agent-Java</param-value>
+		</init-param>
+		<init-param>
+			<param-name>agentName</param-name>
+			<param-value>1.0</param-value>
 		</init-param>
 	</filter>
 	<filter-mapping>

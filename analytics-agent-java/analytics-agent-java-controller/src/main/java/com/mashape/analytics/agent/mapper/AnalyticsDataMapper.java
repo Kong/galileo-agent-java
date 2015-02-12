@@ -55,6 +55,7 @@ public class AnalyticsDataMapper {
 		return log;
 	}
 
+	
 	private Entry getEntryPerRequest() {
 		Entry entry = new Entry();
 		entry.setClientIPAddress(request.getRemoteAddr());
