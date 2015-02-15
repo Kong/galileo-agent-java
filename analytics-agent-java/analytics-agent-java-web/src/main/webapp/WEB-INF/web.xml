@@ -11,6 +11,15 @@
 		<welcome-file>default.htm</welcome-file>
 		<welcome-file>default.jsp</welcome-file>
 	</welcome-file-list>
+	<servlet>
+	    <servlet-name>DummyServelet</servlet-name>
+	    <servlet-class>com.mashape.analytics.agent.servlet.DummyServlet</servlet-class>
+<!-- 	    <async-supported>true</async-supported> -->
+	</servlet>
+	<servlet-mapping>
+	    <servlet-name>DummyServelet</servlet-name>
+	    <url-pattern>/*</url-pattern>
+	</servlet-mapping>
 	<filter>
 		<filter-name>analyticsFilter</filter-name>
 		<filter-class>com.mashape.analytics.agent.filter.AnalyticsFilter</filter-class>
@@ -28,7 +37,7 @@
 			<param-value>100</param-value>
 		</init-param>
 		<init-param>
-			<param-name>analyticsKey</param-name>
+			<param-name>serviceToken</param-name>
 			<param-value>54c96f77f86a31ac5d861939</param-value>
 		</init-param>
 		<init-param>
@@ -40,7 +49,7 @@
 			<param-value>Analytics-Agent-Java</param-value>
 		</init-param>
 		<init-param>
-			<param-name>agentName</param-name>
+			<param-name>agentVersion</param-name>
 			<param-value>1.0</param-value>
 		</init-param>
 	</filter>
