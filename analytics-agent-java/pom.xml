@@ -4,7 +4,6 @@
 	<groupId>com.mashape.analytics.agent</groupId>
 	<artifactId>analytics-agent-java</artifactId>
 	<version>1.0</version>
-	<packaging>pom</packaging>
 	<name>analytics-agent-java</name>
 	<description>Api analytics java agent</description>
 	<dependencies>
