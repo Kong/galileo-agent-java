@@ -10,8 +10,6 @@ import java.util.List;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import com.mashape.analytics.agent.modal.Content;
 import com.mashape.analytics.agent.modal.Creator;
@@ -32,10 +30,11 @@ public class AnalyticsDataMapper {
 	private static final String HAR_VERSION = "harVersion";
 	private static final String AGENT_NAME = "agentName";
 	private static final String AGENT_VERSION = "agentVersion";
+	
 	private RequestInterceptorWrapper request;
 	private ResponseInterceptorWrapper response;
 	private FilterConfig config;
-	Message message = new Message();
+	Message message;
 
 	public AnalyticsDataMapper(ServletRequest request,
 			ServletResponse response, FilterConfig config) {
@@ -52,22 +51,6 @@ public class AnalyticsDataMapper {
 		return message;
 	}
 
-	private Har setHar(Date requestReceivedTime, long startTime, long endTime) {
-		Har har = new Har();
-		har.setLog(setLog(requestReceivedTime, startTime, endTime));
-		return har;
-	}
-
-	private Log setLog(Date requestReceivedTime, long startTime, long endTime) {
-		Log log = new Log();
-		log.setVersion(config.getInitParameter(HAR_VERSION));
-		log.setCreator(setCreator());
-		Entry entry = getEntryPerRequest(requestReceivedTime, startTime,
-				endTime);
-		log.getEntries().add(entry);
-		return log;
-	}
-
 	private Entry getEntryPerRequest(Date requestReceivedTime, long startTime,
 			long endTime) {
 		Entry entry = new Entry();
@@ -80,40 +63,11 @@ public class AnalyticsDataMapper {
 		return entry;
 	}
 
-	private Response mapResponse() {
-		Response responseHar = new Response();
-		responseHar.setBodySize(response.getBufferSize());
-		responseHar.setContent(mapRequestContent());
-		responseHar.setContent(mapResponseContent());
-		responseHar.setHttpVersion(request.getProtocol());
-		responseHar.setStatus(Integer.toString(response.getStatus()));
-		responseHar.setStatusText(responseHar.getStatus());
-		getResponseHeaders(responseHar);
-		return responseHar;
-	}
-
-	private void getResponseHeaders(Response responseHar) {
-		// TODO Auto-generated method stub
-		Collection<String> headers = response.getHeaderNames();
-		List<NameValuePair> responseHeaders = new ArrayList<>();
-		int size = 0;
-		for(String name : headers){
-			NameValuePair pair = new NameValuePair();
-			size += name.getBytes().length;
-			pair.setName(name);
-			String value = response.getHeader(name);
-			size += value.getBytes().length;
-			pair.setValue(value);
-			responseHar.getHeaders().add(pair);
-		}
-		responseHar.setHeadersSize(size);
-	}
-	
-	private  void getRequestHeaders(Request requestHar) {
+	private void getRequestHeaders(Request requestHar) {
 		// TODO Auto-generated method stub
 		Enumeration<String> headers = request.getHeaderNames();
 		int size = 0;
-		while(headers.hasMoreElements()){
+		while (headers.hasMoreElements()) {
 			String name = headers.nextElement();
 			size += name.getBytes().length;
 			NameValuePair pair = new NameValuePair();
@@ -123,8 +77,25 @@ public class AnalyticsDataMapper {
 			pair.setValue(value);
 			requestHar.getHeaders().add(pair);
 		}
-		
+
 		requestHar.setHeadersSize(size);
+	}
+
+	private void getResponseHeaders(Response responseHar) {
+		// TODO Auto-generated method stub
+		Collection<String> headers = response.getHeaderNames();
+		List<NameValuePair> responseHeaders = new ArrayList<>();
+		int size = 0;
+		for (String name : headers) {
+			NameValuePair pair = new NameValuePair();
+			size += name.getBytes().length;
+			pair.setName(name);
+			String value = response.getHeader(name);
+			size += value.getBytes().length;
+			pair.setValue(value);
+			responseHar.getHeaders().add(pair);
+		}
+		responseHar.setHeadersSize(size);
 	}
 
 	private Request mapRequest() {
@@ -147,6 +118,18 @@ public class AnalyticsDataMapper {
 		return content;
 	}
 
+	private Response mapResponse() {
+		Response responseHar = new Response();
+		responseHar.setBodySize(response.getBufferSize());
+		responseHar.setContent(mapRequestContent());
+		responseHar.setContent(mapResponseContent());
+		responseHar.setHttpVersion(request.getProtocol());
+		responseHar.setStatus(Integer.toString(response.getStatus()));
+		responseHar.setStatusText(responseHar.getStatus());
+		getResponseHeaders(responseHar);
+		return responseHar;
+	}
+
 	private Content mapResponseContent() {
 		Content content = new Content();
 		content.setEncoding(response.getCharacterEncoding());
@@ -164,13 +147,6 @@ public class AnalyticsDataMapper {
 		return content;
 	}
 
-	private Creator setCreator() {
-		Creator creator = new Creator();
-		creator.setName(config.getInitParameter(AGENT_NAME));
-		creator.setVersion(config.getInitParameter(AGENT_VERSION));
-		return creator;
-	}
-
 	private Timings mapTimings(Date requestReceivedTime, long startTime,
 			long endTime) {
 		Timings timings = new Timings();
@@ -178,5 +154,28 @@ public class AnalyticsDataMapper {
 		timings.setSend(0);
 		timings.setWait((int) (endTime - startTime));
 		return timings;
+	}
+
+	private Creator setCreator() {
+		Creator creator = new Creator();
+		creator.setName(config.getInitParameter(AGENT_NAME));
+		creator.setVersion(config.getInitParameter(AGENT_VERSION));
+		return creator;
+	}
+
+	private Har setHar(Date requestReceivedTime, long startTime, long endTime) {
+		Har har = new Har();
+		har.setLog(setLog(requestReceivedTime, startTime, endTime));
+		return har;
+	}
+
+	private Log setLog(Date requestReceivedTime, long startTime, long endTime) {
+		Log log = new Log();
+		log.setVersion(config.getInitParameter(HAR_VERSION));
+		log.setCreator(setCreator());
+		Entry entry = getEntryPerRequest(requestReceivedTime, startTime,
+				endTime);
+		log.getEntries().add(entry);
+		return log;
 	}
 }

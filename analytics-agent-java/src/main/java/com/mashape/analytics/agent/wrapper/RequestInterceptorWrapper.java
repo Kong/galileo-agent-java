@@ -51,23 +51,6 @@ public class RequestInterceptorWrapper extends HttpServletRequestWrapper {
 		payload = content.toString();
 	}
 
-	@Override
-	public ServletInputStream getInputStream() throws IOException {
-		final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
-				payload.getBytes());
-		ServletInputStream inputStream = new ServletInputStream() {
-			public int read() throws IOException {
-				return byteArrayInputStream.read();
-			}
-		};
-		return inputStream;
-	}
-
-	public String getPayload() {
-		return this.payload;
-	}
-
-
 	public void addHeader(String name, String value) {
 		headerMap.put(name, value);
 	}
@@ -80,7 +63,6 @@ public class RequestInterceptorWrapper extends HttpServletRequestWrapper {
 		}
 		return headerValue;
 	}
-
 
 	@Override
 	public Enumeration<String> getHeaderNames() {
@@ -98,6 +80,22 @@ public class RequestInterceptorWrapper extends HttpServletRequestWrapper {
 			values.add(headerMap.get(name));
 		}
 		return Collections.enumeration(values);
+	}
+
+	@Override
+	public ServletInputStream getInputStream() throws IOException {
+		final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
+				payload.getBytes());
+		ServletInputStream inputStream = new ServletInputStream() {
+			public int read() throws IOException {
+				return byteArrayInputStream.read();
+			}
+		};
+		return inputStream;
+	}
+
+	public String getPayload() {
+		return this.payload;
 	}
 
 }

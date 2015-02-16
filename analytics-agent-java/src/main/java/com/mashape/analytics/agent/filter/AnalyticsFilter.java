@@ -5,7 +5,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import javax.servlet.AsyncContext;
 import javax.servlet.Filter;
@@ -21,7 +20,6 @@ import com.google.gson.Gson;
 import com.mashape.analytics.agent.connection.client.ConnectionManager;
 import com.mashape.analytics.agent.mapper.AnalyticsDataMapper;
 import com.mashape.analytics.agent.modal.Message;
-import com.mashape.analytics.agent.modal.Timings;
 import com.mashape.analytics.agent.wrapper.RequestInterceptorWrapper;
 import com.mashape.analytics.agent.wrapper.ResponseInterceptorWrapper;
 
@@ -36,10 +34,9 @@ public class AnalyticsFilter implements Filter {
 	private String analyticsServerUrl;
 	private String analyticsServerPort;
 
-
 	@Override
 	public void destroy() {
-		//analyticsServicexeExecutor.shutdown();
+		// analyticsServicexeExecutor.shutdown();
 	}
 
 	@Override
@@ -60,26 +57,27 @@ public class AnalyticsFilter implements Filter {
 		ac.start(new Runnable() {
 			@Override
 			public void run() {
-				try{
-					
-				
-				Map<String, String> messageProperties = new HashMap<String, String>();
-				messageProperties.put(ANALYTICS_SERVER_URL, analyticsServerUrl);
-				messageProperties.put(ANALYTICS_SERVER_PORT,
-						analyticsServerPort);
-				AnalyticsDataMapper mapper = new AnalyticsDataMapper(ac.getRequest(),
-						ac.getResponse(), config);
-				Message analyticsData = mapper.getAnalyticsData(requestReceivedTime, startTime, endTime);
-				String data = new Gson().toJson(analyticsData);
-				messageProperties.put(ANALYTICS_DATA, data);
-				System.out.println(data);
-				ConnectionManager.sendMessage(messageProperties);
-				} catch(Throwable x){
-					//suppress
-				}finally{
+				try {
+
+					Map<String, String> messageProperties = new HashMap<String, String>();
+					messageProperties.put(ANALYTICS_SERVER_URL,
+							analyticsServerUrl);
+					messageProperties.put(ANALYTICS_SERVER_PORT,
+							analyticsServerPort);
+					AnalyticsDataMapper mapper = new AnalyticsDataMapper(ac
+							.getRequest(), ac.getResponse(), config);
+					Message analyticsData = mapper.getAnalyticsData(
+							requestReceivedTime, startTime, endTime);
+					String data = new Gson().toJson(analyticsData);
+					messageProperties.put(ANALYTICS_DATA, data);
+					System.out.println(data);
+					ConnectionManager.sendMessage(messageProperties);
+				} catch (Throwable x) {
+					// suppress
+				} finally {
 					ac.complete();
 				}
-				
+
 			}
 		});
 	}
@@ -88,7 +86,7 @@ public class AnalyticsFilter implements Filter {
 	public void init(FilterConfig config) throws ServletException {
 		this.config = config;
 		poolSize = Integer.parseInt(config.getInitParameter("poolSize"));
-		//analyticsServicexeExecutor = Executors.newFixedThreadPool(poolSize);
+		// analyticsServicexeExecutor = Executors.newFixedThreadPool(poolSize);
 		analyticsServerUrl = config.getInitParameter("analyticsServerUrl");
 		analyticsServerPort = config.getInitParameter("analyticsServerPort");
 	}

@@ -18,33 +18,6 @@ public class ResponseInterceptorWrapper extends HttpServletResponseWrapper {
 		super(response);
 	}
 
-	public PrintWriter getWriter() throws IOException {
-		if (this.contentStream != null) {
-			throw new IllegalStateException(
-					"getWriter called after getOutputStream ");
-		}
-
-		if (writer == null) {
-			cloner = new OutputStreamCloner(getResponse().getOutputStream());
-			writer = new PrintWriter(new OutputStreamWriter(cloner,
-					getResponse().getCharacterEncoding()), true);
-		}
-		return writer;
-	}
-
-	public ServletOutputStream getOutputStream() throws IOException {
-		if (this.writer != null) {
-			throw new IllegalStateException(
-					"getOutputStream called after getWriter");
-		}
-
-		if (this.contentStream == null) {
-			this.contentStream = getResponse().getOutputStream();
-			this.cloner = new OutputStreamCloner(this.contentStream);
-		}
-		return this.cloner;
-	}
-
 	@Override
 	public void flushBuffer() throws IOException {
 		if (writer != null) {
@@ -60,5 +33,32 @@ public class ResponseInterceptorWrapper extends HttpServletResponseWrapper {
 		} else {
 			return new byte[0];
 		}
+	}
+
+	public ServletOutputStream getOutputStream() throws IOException {
+		if (this.writer != null) {
+			throw new IllegalStateException(
+					"getOutputStream called after getWriter");
+		}
+
+		if (this.contentStream == null) {
+			this.contentStream = getResponse().getOutputStream();
+			this.cloner = new OutputStreamCloner(this.contentStream);
+		}
+		return this.cloner;
+	}
+
+	public PrintWriter getWriter() throws IOException {
+		if (this.contentStream != null) {
+			throw new IllegalStateException(
+					"getWriter called after getOutputStream ");
+		}
+
+		if (writer == null) {
+			cloner = new OutputStreamCloner(getResponse().getOutputStream());
+			writer = new PrintWriter(new OutputStreamWriter(cloner,
+					getResponse().getCharacterEncoding()), true);
+		}
+		return writer;
 	}
 }
