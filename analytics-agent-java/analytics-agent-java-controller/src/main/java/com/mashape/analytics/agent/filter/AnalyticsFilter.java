@@ -35,13 +35,11 @@ public class AnalyticsFilter implements Filter {
 	FilterConfig config;
 	private String analyticsServerUrl;
 	private String analyticsServerPort;
-	private String analyticsKey;
-	private String formatVersion;
-	private String agentVersion;
+
 
 	@Override
 	public void destroy() {
-		analyticsServicexeExecutor.shutdown();
+		//analyticsServicexeExecutor.shutdown();
 	}
 
 	@Override
@@ -54,15 +52,17 @@ public class AnalyticsFilter implements Filter {
 		System.out.println(request.getMethod());
 		ResponseInterceptorWrapper response = new ResponseInterceptorWrapper(
 				(HttpServletResponse) res);
-		AsyncContext ac = request.startAsync(request, response);
 		long startTime = System.currentTimeMillis();
 		chain.doFilter(request, response);
 		long endTime = System.currentTimeMillis();
-		//long timeElapsed = endTime - startTime;
-
+		AsyncContext ac = request.startAsync(request, response);
+		ac.setTimeout(90000000000L);
 		ac.start(new Runnable() {
 			@Override
 			public void run() {
+				try{
+					
+				
 				Map<String, String> messageProperties = new HashMap<String, String>();
 				messageProperties.put(ANALYTICS_SERVER_URL, analyticsServerUrl);
 				messageProperties.put(ANALYTICS_SERVER_PORT,
@@ -74,7 +74,12 @@ public class AnalyticsFilter implements Filter {
 				messageProperties.put(ANALYTICS_DATA, data);
 				System.out.println(data);
 				ConnectionManager.sendMessage(messageProperties);
-				ac.complete();
+				} catch(Throwable x){
+					//suppress
+				}finally{
+					ac.complete();
+				}
+				
 			}
 		});
 	}
@@ -83,10 +88,9 @@ public class AnalyticsFilter implements Filter {
 	public void init(FilterConfig config) throws ServletException {
 		this.config = config;
 		poolSize = Integer.parseInt(config.getInitParameter("poolSize"));
-		analyticsServicexeExecutor = Executors.newFixedThreadPool(poolSize);
+		//analyticsServicexeExecutor = Executors.newFixedThreadPool(poolSize);
 		analyticsServerUrl = config.getInitParameter("analyticsServerUrl");
 		analyticsServerPort = config.getInitParameter("analyticsServerPort");
-		analyticsKey = config.getInitParameter("analyticsKey");
 	}
 
 }

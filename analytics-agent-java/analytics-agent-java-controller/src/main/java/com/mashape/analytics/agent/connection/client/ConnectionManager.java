@@ -17,6 +17,6 @@ public class ConnectionManager {
 		socket.connect("tcp://" + analyticsServerUrl + ":" + port);
 		socket.send(msg);
 		socket.close();
-		System.out.println("Analytics dumped");
+		context.term();
 	}
 }
