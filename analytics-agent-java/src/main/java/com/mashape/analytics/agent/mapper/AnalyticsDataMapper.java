@@ -63,9 +63,10 @@ public class AnalyticsDataMapper {
 		return entry;
 	}
 
-	private void getRequestHeaders(Request requestHar) {
+	private void setRequestHeaders(Request requestHar) {
 		// TODO Auto-generated method stub
 		Enumeration<String> headers = request.getHeaderNames();
+		List<NameValuePair> headerList = requestHar.getHeaders();
 		int size = 0;
 		while (headers.hasMoreElements()) {
 			String name = headers.nextElement();
@@ -75,16 +76,15 @@ public class AnalyticsDataMapper {
 			String value = request.getHeader(name);
 			size += value.getBytes().length;
 			pair.setValue(value);
-			requestHar.getHeaders().add(pair);
+			headerList.add(pair);
 		}
 
 		requestHar.setHeadersSize(size);
 	}
 
-	private void getResponseHeaders(Response responseHar) {
-		// TODO Auto-generated method stub
+	private void setResponseHeaders(Response responseHar) {
 		Collection<String> headers = response.getHeaderNames();
-		List<NameValuePair> responseHeaders = new ArrayList<>();
+		List<NameValuePair> headerList = responseHar.getHeaders();
 		int size = 0;
 		for (String name : headers) {
 			NameValuePair pair = new NameValuePair();
@@ -93,7 +93,7 @@ public class AnalyticsDataMapper {
 			String value = response.getHeader(name);
 			size += value.getBytes().length;
 			pair.setValue(value);
-			responseHar.getHeaders().add(pair);
+			headerList.add(pair);
 		}
 		responseHar.setHeadersSize(size);
 	}
@@ -105,7 +105,7 @@ public class AnalyticsDataMapper {
 		requestHar.setMethod(request.getMethod());
 		requestHar.setUrl(request.getRequestURL().toString());
 		requestHar.setHttpVersion(request.getProtocol());
-		getRequestHeaders(requestHar);
+		setRequestHeaders(requestHar);
 		return requestHar;
 	}
 
@@ -126,7 +126,7 @@ public class AnalyticsDataMapper {
 		responseHar.setHttpVersion(request.getProtocol());
 		responseHar.setStatus(Integer.toString(response.getStatus()));
 		responseHar.setStatusText(responseHar.getStatus());
-		getResponseHeaders(responseHar);
+		setResponseHeaders(responseHar);
 		return responseHar;
 	}
 

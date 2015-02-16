@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.mashape.analytics.agent</groupId>
 	<artifactId>analytics-agent-java</artifactId>
-	<version>1.0</version>
+	<version>0.1</version>
 	<name>analytics-agent-java</name>
 	<description>Api analytics java agent</description>
 	<dependencies>
@@ -14,9 +14,9 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.mashape.analytics.agent</groupId>
-			<artifactId>analytics-agent-java-connection</artifactId>
-			<version>1.0</version>
+			<groupId>org.zeromq</groupId>
+			<artifactId>jeromq</artifactId>
+			<version>0.3.4</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
@@ -58,6 +58,18 @@
 						</configuration>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+			  <groupId>org.apache.maven.plugins</groupId>
+			  <artifactId>maven-source-plugin</artifactId>
+			  <executions>
+			    <execution>
+			      <id>attach-sources</id>
+			      <goals>
+			        <goal>jar</goal>
+			      </goals>
+			    </execution>
+			  </executions>
 			</plugin>
 		</plugins>
 	</build>
