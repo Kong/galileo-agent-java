@@ -1,7 +1,6 @@
 package com.mashape.analytics.agent.mapper;
 
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;

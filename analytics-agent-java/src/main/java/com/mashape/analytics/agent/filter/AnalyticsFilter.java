@@ -1,5 +1,10 @@
 package com.mashape.analytics.agent.filter;
 
+import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_DATA;
+import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_PORT;
+import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_URL;
+import static com.mashape.analytics.agent.common.AnalyticsConstants.WORKER_COUNT;
+
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
@@ -7,7 +12,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import javax.servlet.AsyncContext;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -30,12 +34,8 @@ public class AnalyticsFilter implements Filter {
 
 	final static Logger logger = Logger.getLogger(AnalyticsFilter.class);
 
-	public static final String ANALYTICS_SERVER_URL = "analyticsServerUrl";
-	public static final String ANALYTICS_SERVER_PORT = "analyticsServerPort";
-	protected static final String ANALYTICS_DATA = "data";
 	private ExecutorService analyticsServicexeExecutor;
-	private int poolSize;
-	FilterConfig config;
+	private FilterConfig config;
 	private String analyticsServerUrl;
 	private String analyticsServerPort;
 
@@ -47,15 +47,22 @@ public class AnalyticsFilter implements Filter {
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse res,
 			FilterChain chain) throws IOException, ServletException {
+		Date requestReceivedTime = new Date();
+		RequestInterceptorWrapper request = new RequestInterceptorWrapper(
+				(HttpServletRequest) req);
+		ResponseInterceptorWrapper response = new ResponseInterceptorWrapper(
+				(HttpServletResponse) res);
+		long startTime = System.currentTimeMillis();
+		chain.doFilter(request, response);
+		long endTime = System.currentTimeMillis();
+		callAnalytics(requestReceivedTime, request, response, startTime,
+				endTime);
+	}
+
+	private void callAnalytics(Date requestReceivedTime,
+			RequestInterceptorWrapper request,
+			ResponseInterceptorWrapper response, long startTime, long endTime) {
 		try {
-			Date requestReceivedTime = new Date();
-			RequestInterceptorWrapper request = new RequestInterceptorWrapper(
-					(HttpServletRequest) req);
-			ResponseInterceptorWrapper response = new ResponseInterceptorWrapper(
-					(HttpServletResponse) res);
-			long startTime = System.currentTimeMillis();
-			chain.doFilter(request, response);
-			long endTime = System.currentTimeMillis();
 			Map<String, String> messageProperties = new HashMap<String, String>();
 			messageProperties.put(ANALYTICS_SERVER_URL, analyticsServerUrl);
 			messageProperties.put(ANALYTICS_SERVER_PORT, analyticsServerPort);
@@ -66,7 +73,12 @@ public class AnalyticsFilter implements Filter {
 			String data = new Gson().toJson(analyticsData);
 			logger.debug(data);
 			messageProperties.put(ANALYTICS_DATA, data);
-			ConnectionManager.sendMessage(messageProperties);
+			analyticsServicexeExecutor.execute(new Runnable() {
+				@Override
+				public void run() {
+					ConnectionManager.sendMessage(messageProperties);
+				}
+			});
 		} catch (Throwable x) {
 			logger.error("Failed to send analytics data", x);
 		}
@@ -75,10 +87,10 @@ public class AnalyticsFilter implements Filter {
 	@Override
 	public void init(FilterConfig config) throws ServletException {
 		this.config = config;
-		poolSize = Integer.parseInt(config.getInitParameter("poolSize"));
+		int poolSize = Integer.parseInt(config.getInitParameter(WORKER_COUNT));
+		analyticsServerUrl = config.getInitParameter(ANALYTICS_SERVER_URL);
+		analyticsServerPort = config.getInitParameter(ANALYTICS_SERVER_PORT);
 		analyticsServicexeExecutor = Executors.newFixedThreadPool(poolSize);
-		analyticsServerUrl = config.getInitParameter("analyticsServerUrl");
-		analyticsServerPort = config.getInitParameter("analyticsServerPort");
 	}
 
 }
