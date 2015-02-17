@@ -1,4 +1,4 @@
-package com.mashape.analytics.agent.connection.client;
+package com.mashape.analytics.agent.connection;
 
 import java.util.Map;
 
