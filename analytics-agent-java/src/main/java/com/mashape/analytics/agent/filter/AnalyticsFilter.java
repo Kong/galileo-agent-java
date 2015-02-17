@@ -47,39 +47,29 @@ public class AnalyticsFilter implements Filter {
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse res,
 			FilterChain chain) throws IOException, ServletException {
-		Date requestReceivedTime = new Date();
-		RequestInterceptorWrapper request = new RequestInterceptorWrapper(
-				(HttpServletRequest) req);
-		ResponseInterceptorWrapper response = new ResponseInterceptorWrapper(
-				(HttpServletResponse) res);
-		long startTime = System.currentTimeMillis();
-		chain.doFilter(request, response);
-		long endTime = System.currentTimeMillis();
-		// AsyncContext ac = request.startAsync(request, response);
-		// ac.setTimeout(90000000000L);
-		Map<String, String> messageProperties = new HashMap<String, String>();
-		messageProperties.put(ANALYTICS_SERVER_URL, analyticsServerUrl);
-		messageProperties.put(ANALYTICS_SERVER_PORT, analyticsServerPort);
-		AnalyticsDataMapper mapper = new AnalyticsDataMapper(request, response,
-				config);
-		Message analyticsData = mapper.getAnalyticsData(requestReceivedTime,
-				startTime, endTime);
-		analyticsServicexeExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					String data = new Gson().toJson(analyticsData);
-					logger.debug(data);
-					messageProperties.put(ANALYTICS_DATA, data);
-					ConnectionManager.sendMessage(messageProperties);
-				} catch (Throwable x) {
-					logger.error("Failed to send analytics data", x);
-				} finally {
-					// ac.complete();
-				}
-
-			}
-		});
+		try {
+			Date requestReceivedTime = new Date();
+			RequestInterceptorWrapper request = new RequestInterceptorWrapper(
+					(HttpServletRequest) req);
+			ResponseInterceptorWrapper response = new ResponseInterceptorWrapper(
+					(HttpServletResponse) res);
+			long startTime = System.currentTimeMillis();
+			chain.doFilter(request, response);
+			long endTime = System.currentTimeMillis();
+			Map<String, String> messageProperties = new HashMap<String, String>();
+			messageProperties.put(ANALYTICS_SERVER_URL, analyticsServerUrl);
+			messageProperties.put(ANALYTICS_SERVER_PORT, analyticsServerPort);
+			AnalyticsDataMapper mapper = new AnalyticsDataMapper(request,
+					response, config);
+			Message analyticsData = mapper.getAnalyticsData(
+					requestReceivedTime, startTime, endTime);
+			String data = new Gson().toJson(analyticsData);
+			logger.debug(data);
+			messageProperties.put(ANALYTICS_DATA, data);
+			ConnectionManager.sendMessage(messageProperties);
+		} catch (Throwable x) {
+			logger.error("Failed to send analytics data", x);
+		}
 	}
 
 	@Override
