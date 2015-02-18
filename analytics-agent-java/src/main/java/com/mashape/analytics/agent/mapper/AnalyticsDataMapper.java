@@ -10,6 +10,8 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
+import org.apache.log4j.Logger;
+
 import com.mashape.analytics.agent.modal.Content;
 import com.mashape.analytics.agent.modal.Creator;
 import com.mashape.analytics.agent.modal.Entry;
@@ -25,45 +27,33 @@ import com.mashape.analytics.agent.wrapper.ResponseInterceptorWrapper;
 
 public class AnalyticsDataMapper {
 
-	private static final String SERVICE_TOKEN = "serviceToken";
-	private static final String HAR_VERSION = "harVersion";
-	private static final String AGENT_NAME = "agentName";
-	private static final String AGENT_VERSION = "agentVersion";
-	
+	Logger logger = Logger.getLogger(AnalyticsDataMapper.class);
+
+	private static final String DEFAULT_MIME_TYPE = "application/octet-stream";
+
 	private RequestInterceptorWrapper request;
 	private ResponseInterceptorWrapper response;
-	private FilterConfig config;
 	Message message;
 
 	public AnalyticsDataMapper(ServletRequest request,
-			ServletResponse response, FilterConfig config) {
+			ServletResponse response) {
 		this.request = (RequestInterceptorWrapper) request;
 		this.response = (ResponseInterceptorWrapper) response;
-		this.config = config;
 	}
 
-	public Message getAnalyticsData(Date requestReceivedTime, long startTime,
-			long endTime) {
-		message = new Message();
-		message.setHar(setHar(requestReceivedTime, startTime, endTime));
-		message.setServiceToken(config.getInitParameter(SERVICE_TOKEN));
-		return message;
-	}
-
-	private Entry getEntryPerRequest(Date requestReceivedTime, long startTime,
-			long endTime) {
+	public Entry getAnalyticsData(Date requestReceivedTime, long sendTime,
+			long waitTime) {
 		Entry entry = new Entry();
 		entry.setClientIPAddress(request.getRemoteAddr());
 		entry.setServerIPAddress(request.getLocalAddr());
 		entry.setStartedDateTime(requestReceivedTime.toString());
 		entry.setRequest(mapRequest());
 		entry.setResponse(mapResponse());
-		entry.setTimings(mapTimings(requestReceivedTime, startTime, endTime));
+		entry.setTimings(mapTimings(requestReceivedTime, sendTime, waitTime));
 		return entry;
 	}
 
 	private void setRequestHeaders(Request requestHar) {
-		// TODO Auto-generated method stub
 		Enumeration<String> headers = request.getHeaderNames();
 		List<NameValuePair> headerList = requestHar.getHeaders();
 		int size = 0;
@@ -77,7 +67,6 @@ public class AnalyticsDataMapper {
 			pair.setValue(value);
 			headerList.add(pair);
 		}
-
 		requestHar.setHeadersSize(size);
 	}
 
@@ -111,7 +100,12 @@ public class AnalyticsDataMapper {
 	private Content mapRequestContent() {
 		Content content = new Content();
 		content.setEncoding(request.getCharacterEncoding());
+		String mimeType = request.getContentType();
 		content.setMimeType(request.getContentType());
+		content.setMimeType(DEFAULT_MIME_TYPE);
+		if (mimeType != null && mimeType.length() > 0) {
+			content.setMimeType(request.getContentType());
+		}
 		content.setSize(request.getPayload().length());
 		content.setText(request.getPayload());
 		return content;
@@ -132,49 +126,29 @@ public class AnalyticsDataMapper {
 	private Content mapResponseContent() {
 		Content content = new Content();
 		content.setEncoding(response.getCharacterEncoding());
+		String mimeType = response.getContentType();
 		content.setMimeType(response.getContentType());
-
+		content.setMimeType(DEFAULT_MIME_TYPE);
+		if (mimeType != null && mimeType.length() > 0) {
+			content.setMimeType(mimeType);
+		}
 		try {
 			String payload = new String(response.getClone(),
 					response.getCharacterEncoding());
 			content.setSize(payload.length());
 			content.setText(payload);
 		} catch (UnsupportedEncodingException e) {
-			// suppressed
-			e.printStackTrace();
+			logger.error(e);
 		}
 		return content;
 	}
 
-	private Timings mapTimings(Date requestReceivedTime, long startTime,
-			long endTime) {
+	private Timings mapTimings(Date requestReceivedTime, long sendTime,
+			long waitTime) {
 		Timings timings = new Timings();
 		timings.setReceive(0);
-		timings.setSend(0);
-		timings.setWait((int) (endTime - startTime));
+		timings.setSend(sendTime);
+		timings.setWait(waitTime);
 		return timings;
-	}
-
-	private Creator setCreator() {
-		Creator creator = new Creator();
-		creator.setName(config.getInitParameter(AGENT_NAME));
-		creator.setVersion(config.getInitParameter(AGENT_VERSION));
-		return creator;
-	}
-
-	private Har setHar(Date requestReceivedTime, long startTime, long endTime) {
-		Har har = new Har();
-		har.setLog(setLog(requestReceivedTime, startTime, endTime));
-		return har;
-	}
-
-	private Log setLog(Date requestReceivedTime, long startTime, long endTime) {
-		Log log = new Log();
-		log.setVersion(config.getInitParameter(HAR_VERSION));
-		log.setCreator(setCreator());
-		Entry entry = getEntryPerRequest(requestReceivedTime, startTime,
-				endTime);
-		log.getEntries().add(entry);
-		return log;
 	}
 }

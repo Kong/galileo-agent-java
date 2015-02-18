@@ -20,7 +20,8 @@ public class RequestInterceptorWrapper extends HttpServletRequestWrapper {
 	private final String payload;
 	private Map<String, String> headerMap = new HashMap<String, String>();
 
-	public RequestInterceptorWrapper(HttpServletRequest request) throws IOException {
+	public RequestInterceptorWrapper(HttpServletRequest request)
+			throws IOException {
 		super(request);
 		StringBuilder content = new StringBuilder();
 		BufferedReader reader = null;

@@ -65,7 +65,7 @@ public class ResponseInterceptorWrapper extends HttpServletResponseWrapper {
 		}
 		return writer;
 	}
-	
+
 	@Override
 	public Collection<String> getHeaderNames() {
 		Collection<String> names = super.getHeaderNames();

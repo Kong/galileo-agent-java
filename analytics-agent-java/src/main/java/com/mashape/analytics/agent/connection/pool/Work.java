@@ -4,6 +4,5 @@ import java.util.Map;
 
 public interface Work {
 	void terminate();
-
-	void execute(Map<String, String> analyticsData);
+	void execute(Map<String, Object> analyticsData);
 }

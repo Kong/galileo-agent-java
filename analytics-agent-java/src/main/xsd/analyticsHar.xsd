@@ -28,9 +28,9 @@
 
 	<complexType name="Timings">
 		<sequence>
-			<element name="send" type="int"></element>
-			<element name="wait" type="int"></element>
-			<element name="receive" type="int"></element>
+			<element name="send" type="long"></element>
+			<element name="wait" type="long"></element>
+			<element name="receive" type="long"></element>
 		</sequence>
 	</complexType>
 
@@ -94,7 +94,7 @@
 			<element name="serverIPAddress" type="string"></element>
 			<element name="clientIPAddress" type="string"></element>
 			<element name="startedDateTime" type="string"></element>
-			<element name="time" type="int"></element>
+			<element name="time" type="long"></element>
 			<element name="request" type="tns:Request"></element>
 			<element name="response" type="tns:Response"></element>
 			<element name="timings" type="tns:Timings"></element>
