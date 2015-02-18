@@ -25,6 +25,10 @@ import org.apache.log4j.Logger;
 
 import com.google.gson.Gson;
 import com.mashape.analytics.agent.connection.ConnectionManager;
+import com.mashape.analytics.agent.connection.pool.Massenger;
+import com.mashape.analytics.agent.connection.pool.ObjectPool;
+import com.mashape.analytics.agent.connection.pool.Task;
+import com.mashape.analytics.agent.connection.pool.Work;
 import com.mashape.analytics.agent.mapper.AnalyticsDataMapper;
 import com.mashape.analytics.agent.modal.Message;
 import com.mashape.analytics.agent.wrapper.RequestInterceptorWrapper;
@@ -38,6 +42,7 @@ public class AnalyticsFilter implements Filter {
 	private FilterConfig config;
 	private String analyticsServerUrl;
 	private String analyticsServerPort;
+	private ObjectPool<Work> pool;
 
 	@Override
 	public void destroy() {
@@ -73,12 +78,7 @@ public class AnalyticsFilter implements Filter {
 			String data = new Gson().toJson(analyticsData);
 			logger.debug(data);
 			messageProperties.put(ANALYTICS_DATA, data);
-			analyticsServicexeExecutor.execute(new Runnable() {
-				@Override
-				public void run() {
-					ConnectionManager.sendMessage(messageProperties);
-				}
-			});
+			analyticsServicexeExecutor.execute(new Task(pool, messageProperties));
 		} catch (Throwable x) {
 			logger.error("Failed to send analytics data", x);
 		}
@@ -90,6 +90,14 @@ public class AnalyticsFilter implements Filter {
 		int poolSize = Integer.parseInt(config.getInitParameter(WORKER_COUNT));
 		analyticsServerUrl = config.getInitParameter(ANALYTICS_SERVER_URL);
 		analyticsServerPort = config.getInitParameter(ANALYTICS_SERVER_PORT);
+		pool = new ObjectPool<Work>(25, 50, 5) {
+			
+			@Override
+			public Work createPoolObject() {
+				// TODO Auto-generated method stub
+				return new Massenger();
+			}
+		};
 		analyticsServicexeExecutor = Executors.newFixedThreadPool(poolSize);
 	}
 
