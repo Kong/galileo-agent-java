@@ -3,6 +3,9 @@ package com.mashape.analytics.agent.filter;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_DATA;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_PORT;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_URL;
+import static com.mashape.analytics.agent.common.AnalyticsConstants.SOCKET_POOL_SIZE_MAX;
+import static com.mashape.analytics.agent.common.AnalyticsConstants.SOCKET_POOL_SIZE_MIN;
+import static com.mashape.analytics.agent.common.AnalyticsConstants.SOCKET_POOL_UPDATE_INTERVAL;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.WORKER_COUNT;
 
 import java.io.IOException;
@@ -24,7 +27,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
 import com.google.gson.Gson;
-import com.mashape.analytics.agent.connection.ConnectionManager;
 import com.mashape.analytics.agent.connection.pool.Massenger;
 import com.mashape.analytics.agent.connection.pool.ObjectPool;
 import com.mashape.analytics.agent.connection.pool.Task;
@@ -47,6 +49,7 @@ public class AnalyticsFilter implements Filter {
 	@Override
 	public void destroy() {
 		analyticsServicexeExecutor.shutdown();
+		pool.terminate();
 	}
 
 	@Override
@@ -88,13 +91,15 @@ public class AnalyticsFilter implements Filter {
 	public void init(FilterConfig config) throws ServletException {
 		this.config = config;
 		int poolSize = Integer.parseInt(config.getInitParameter(WORKER_COUNT));
+		int socketPoolMin = Integer.parseInt(config.getInitParameter(SOCKET_POOL_SIZE_MIN));
+		int socketPoolMax = Integer.parseInt(config.getInitParameter(SOCKET_POOL_SIZE_MAX));
+		int poolUpdateInterval =  Integer.parseInt(config.getInitParameter(SOCKET_POOL_UPDATE_INTERVAL));
+				
 		analyticsServerUrl = config.getInitParameter(ANALYTICS_SERVER_URL);
 		analyticsServerPort = config.getInitParameter(ANALYTICS_SERVER_PORT);
-		pool = new ObjectPool<Work>(25, 50, 5) {
-			
+		pool = new ObjectPool<Work>(socketPoolMin, socketPoolMax, poolUpdateInterval) {
 			@Override
 			public Work createPoolObject() {
-				// TODO Auto-generated method stub
 				return new Massenger();
 			}
 		};
