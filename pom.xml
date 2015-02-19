@@ -6,8 +6,22 @@
 	<version>1.0.0-SNAPSHOT</version>
 	<name>analytics-java-agent</name>
 	<description>Api analytics java agent</description>
-	<url>http://apianalytics.com//</url>
-	
+	<url>http://apianalytics.com</url>
+
+	<parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>7</version>
+	</parent>
+
+	<licenses>
+		<license>
+			<name>MIT</name>
+			<url>http://opensource.org/licenses/MIT</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
 	<scm>
 		<url>https://github.com/Mashape/analytics-java-agent</url>
 		<connection>scm:git:git@github.com:Mashape/analytics-java-agent.git</connection>
@@ -29,8 +43,8 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 	</properties>
-	
-	
+
+
 	<dependencies>
 		<dependency>
 			<groupId>javax.servlet</groupId>
@@ -54,46 +68,36 @@
 			<version>1.2.17</version>
 		</dependency>
 	</dependencies>
-	
-	
+
 	<build>
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.1</version>
-					<configuration>
-						<source>1.8</source>
-						<target>1.8</target>
-						<verbose>true</verbose>
-						<fork>true</fork>
-						<compilerVersion>1.8</compilerVersion>
-					</configuration>
-				</plugin>
-			</plugins>
-		</pluginManagement>
 		<plugins>
 			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>jaxb2-maven-plugin</artifactId>
-				<version>1.6</version>
-				<executions>
-					<execution>
-						<id>xjc-analyticsHar</id>
-						<goals>
-							<goal>xjc</goal>
-						</goals>
-						<configuration>
-							<schemaFiles>analyticsHar.xsd</schemaFiles>
-							<packageName>com.mashape.analytics.agent.modal</packageName>
-						</configuration>
-					</execution>
-				</executions>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.1</version>
+				<configuration>
+					<fork>true</fork>
+					<meminitial>128m</meminitial>
+					<maxmem>512m</maxmem>
+					<source>1.6</source>
+					<target>1.6</target>
+					<encoding>UTF-8</encoding>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.4</version>
+				<configuration>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
+				<version>2.2.1</version>
 				<executions>
 					<execution>
 						<id>attach-sources</id>
@@ -113,6 +117,23 @@
 						<goals>
 							<goal>jar</goal>
 						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>jaxb2-maven-plugin</artifactId>
+				<version>1.6</version>
+				<executions>
+					<execution>
+						<id>xjc-analyticsHar</id>
+						<goals>
+							<goal>xjc</goal>
+						</goals>
+						<configuration>
+							<schemaFiles>analyticsHar.xsd</schemaFiles>
+							<packageName>com.mashape.analytics.agent.modal</packageName>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
