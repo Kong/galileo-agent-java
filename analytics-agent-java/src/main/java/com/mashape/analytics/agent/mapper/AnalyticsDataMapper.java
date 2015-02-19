@@ -6,17 +6,13 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
 
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
 import org.apache.log4j.Logger;
 
 import com.mashape.analytics.agent.modal.Content;
-import com.mashape.analytics.agent.modal.Creator;
 import com.mashape.analytics.agent.modal.Entry;
-import com.mashape.analytics.agent.modal.Har;
-import com.mashape.analytics.agent.modal.Log;
 import com.mashape.analytics.agent.modal.Message;
 import com.mashape.analytics.agent.modal.NameValuePair;
 import com.mashape.analytics.agent.modal.Request;

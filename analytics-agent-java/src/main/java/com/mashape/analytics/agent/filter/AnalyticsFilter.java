@@ -26,24 +26,28 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
-import com.google.gson.Gson;
 import com.mashape.analytics.agent.connection.pool.Messenger;
 import com.mashape.analytics.agent.connection.pool.ObjectPool;
-import com.mashape.analytics.agent.connection.pool.Task;
+import com.mashape.analytics.agent.connection.pool.SendAnalyticsTask;
 import com.mashape.analytics.agent.connection.pool.Work;
 import com.mashape.analytics.agent.mapper.AnalyticsDataMapper;
 import com.mashape.analytics.agent.modal.Entry;
-import com.mashape.analytics.agent.modal.Message;
-import com.mashape.analytics.agent.modal.Timings;
 import com.mashape.analytics.agent.wrapper.RequestInterceptorWrapper;
 import com.mashape.analytics.agent.wrapper.ResponseInterceptorWrapper;
 
+/**
+ * 
+ * @author Shashi
+ * 
+ * AnalyticsFilter is a custom filter designed to intercept http request and response
+ * and send compiled data to Mashape analytics server.
+ *
+ */
 public class AnalyticsFilter implements Filter {
 
 	final static Logger logger = Logger.getLogger(AnalyticsFilter.class);
 
 	private ExecutorService analyticsServicexeExecutor;
-	private FilterConfig config;
 	private String analyticsServerUrl;
 	private String analyticsServerPort;
 	private ObjectPool<Work> pool;
@@ -54,6 +58,13 @@ public class AnalyticsFilter implements Filter {
 		pool.terminate();
 	}
 
+	/**
+	 * Wraps the request and response for future read , chain the request 
+	 * and finally send the compiled data in HAR format to Analytics server
+	 * 
+	 * @see RequestInterceptorWrapper
+	 * @see ResponseInterceptorWrapper
+	 */
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse res,
 			FilterChain chain) throws IOException, ServletException {
@@ -66,11 +77,23 @@ public class AnalyticsFilter implements Filter {
 		long waitStartTime = System.currentTimeMillis();
 		chain.doFilter(request, response);
 		long waitEndTime = System.currentTimeMillis();
-		callAnalytics(requestReceivedTime, request, response, waitStartTime
+		callAsyncAnalytics(requestReceivedTime, request, response, waitStartTime
 				- sendStartTime, waitEndTime - waitStartTime);
 	}
 
-	private void callAnalytics(Date requestReceivedTime,
+	/**
+	 * A pool of of thread handles the data transfer to Analytics server
+	 * 
+	 * @param requestReceivedTime Date/Time when request received
+	 * @param request Http request intercepted by the filter
+	 * @param response Http response intercepted by the filter
+	 * @param sendTime Time taken by filter to send the intercepted request to next sevlet/filter in chain
+	 * @param waitTime Wait time before receiving the response
+	 * 
+	 * @see AnalyticsDataMapper
+	 * @see SendAnalyticsTask
+	 */
+	private void callAsyncAnalytics(Date requestReceivedTime,
 			RequestInterceptorWrapper request,
 			ResponseInterceptorWrapper response, long sendTime, long waitTime) {
 		try {
@@ -86,15 +109,17 @@ public class AnalyticsFilter implements Filter {
 			analyticsData.getTimings().setReceive(recvEndTime - recvStartTime);
 			messageProperties.put(ANALYTICS_DATA, analyticsData);
 			analyticsServicexeExecutor
-					.execute(new Task(pool, messageProperties));
+					.execute(new SendAnalyticsTask(pool, messageProperties));
 		} catch (Throwable x) {
 			logger.error("Failed to send analytics data", x);
 		}
 	}
-
+	
+	/**
+	 *  Thread pools and socket pools are created 
+	 */
 	@Override
 	public void init(FilterConfig config) throws ServletException {
-		this.config = config;
 		int poolSize = Integer.parseInt(config.getInitParameter(WORKER_COUNT));
 		int socketPoolMin = Integer.parseInt(config
 				.getInitParameter(SOCKET_POOL_SIZE_MIN));
