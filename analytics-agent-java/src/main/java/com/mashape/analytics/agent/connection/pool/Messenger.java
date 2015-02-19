@@ -34,10 +34,9 @@ public class Messenger implements Work {
 		String data = new Gson().toJson(msg);
 		String analyticsServerUrl = analyticsData.get(ANALYTICS_SERVER_URL).toString();
 		String port = analyticsData.get(ANALYTICS_SERVER_PORT).toString();
-		
 		socket.connect("tcp://" + analyticsServerUrl + ":" + port);
 		socket.send(data);
-		logger.debug("Message sent:" + msg);
+		logger.debug("Message sent:" + data);
 	}
 
 	public void terminate() {
