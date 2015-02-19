@@ -8,7 +8,6 @@ import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SE
 import static com.mashape.analytics.agent.common.AnalyticsConstants.HAR_VERSION;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.SERVICE_TOKEN;
 
-import java.util.Date;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -20,7 +19,9 @@ import com.mashape.analytics.agent.modal.Entry;
 import com.mashape.analytics.agent.modal.Har;
 import com.mashape.analytics.agent.modal.Log;
 import com.mashape.analytics.agent.modal.Message;
-
+/*
+ * Opens a connection to Analytics server and sends data
+ */
 public class Messenger implements Work {
 
 	Logger logger = Logger.getLogger(Messenger.class);
