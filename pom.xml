@@ -9,9 +9,9 @@
 	<url>http://apianalytics.com//</url>
 	
 	<scm>
-		<url>https://github.com/Mashape/unirest-java</url>
-		<connection>scm:git:git@github.com:Mashape/unirest-java.git</connection>
-		<developerConnection>scm:git:git@github.com:Mashape/unirest-java.git</developerConnection>
+		<url>https://github.com/Mashape/analytics-java-agent</url>
+		<connection>scm:git:git@github.com:Mashape/analytics-java-agent.git</connection>
+		<developerConnection>scm:git:git@github.com:Mashape/analytics-java-agent.git</developerConnection>
 	</scm>
 
 	<developers>
