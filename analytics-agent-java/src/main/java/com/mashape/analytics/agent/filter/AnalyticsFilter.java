@@ -21,6 +21,8 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.annotation.WebFilter;
+import javax.servlet.annotation.WebInitParam;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -39,10 +41,14 @@ import com.mashape.analytics.agent.wrapper.ResponseInterceptorWrapper;
  * 
  * @author Shashi
  * 
- * AnalyticsFilter is a custom filter designed to intercept http request and response
- * and send compiled data to Mashape analytics server.
+ *         AnalyticsFilter is a custom filter designed to intercept http request
+ *         and response and send compiled data to Mashape analytics server.
  *
  */
+
+@WebFilter(urlPatterns = "/*", initParams = {
+		@WebInitParam(name = ANALYTICS_SERVER_URL, value = "socket.apianalytics.com"),
+		@WebInitParam(name = ANALYTICS_SERVER_PORT, value = "5000") })
 public class AnalyticsFilter implements Filter {
 
 	final static Logger logger = Logger.getLogger(AnalyticsFilter.class);
@@ -59,8 +65,8 @@ public class AnalyticsFilter implements Filter {
 	}
 
 	/**
-	 * Wraps the request and response for future read , chain the request 
-	 * and finally send the compiled data in HAR format to Analytics server
+	 * Wraps the request and response for future read , chain the request and
+	 * finally send the compiled data in HAR format to Analytics server
 	 * 
 	 * @see RequestInterceptorWrapper
 	 * @see ResponseInterceptorWrapper
@@ -77,18 +83,24 @@ public class AnalyticsFilter implements Filter {
 		long waitStartTime = System.currentTimeMillis();
 		chain.doFilter(request, response);
 		long waitEndTime = System.currentTimeMillis();
-		callAsyncAnalytics(requestReceivedTime, request, response, waitStartTime
-				- sendStartTime, waitEndTime - waitStartTime);
+		callAsyncAnalytics(requestReceivedTime, request, response,
+				waitStartTime - sendStartTime, waitEndTime - waitStartTime);
 	}
 
 	/**
 	 * A pool of of thread handles the data transfer to Analytics server
 	 * 
-	 * @param requestReceivedTime Date/Time when request received
-	 * @param request Http request intercepted by the filter
-	 * @param response Http response intercepted by the filter
-	 * @param sendTime Time taken by filter to send the intercepted request to next sevlet/filter in chain
-	 * @param waitTime Wait time before receiving the response
+	 * @param requestReceivedTime
+	 *            Date/Time when request received
+	 * @param request
+	 *            Http request intercepted by the filter
+	 * @param response
+	 *            Http response intercepted by the filter
+	 * @param sendTime
+	 *            Time taken by filter to send the intercepted request to next
+	 *            sevlet/filter in chain
+	 * @param waitTime
+	 *            Wait time before receiving the response
 	 * 
 	 * @see AnalyticsDataMapper
 	 * @see SendAnalyticsTask
@@ -108,25 +120,24 @@ public class AnalyticsFilter implements Filter {
 					sendTime, waitTime);
 			analyticsData.getTimings().setReceive(recvEndTime - recvStartTime);
 			messageProperties.put(ANALYTICS_DATA, analyticsData);
-			analyticsServicexeExecutor
-					.execute(new SendAnalyticsTask(pool, messageProperties));
+			analyticsServicexeExecutor.execute(new SendAnalyticsTask(pool,
+					messageProperties));
 		} catch (Throwable x) {
 			logger.error("Failed to send analytics data", x);
 		}
 	}
-	
+
 	/**
-	 *  Thread pools and socket pools are created 
+	 * Thread pools and socket pools are created
 	 */
 	@Override
 	public void init(FilterConfig config) throws ServletException {
-		int poolSize = Integer.parseInt(config.getInitParameter(WORKER_COUNT));
-		int socketPoolMin = Integer.parseInt(config
-				.getInitParameter(SOCKET_POOL_SIZE_MIN));
-		int socketPoolMax = Integer.parseInt(config
-				.getInitParameter(SOCKET_POOL_SIZE_MAX));
-		int poolUpdateInterval = Integer.parseInt(config
-				.getInitParameter(SOCKET_POOL_UPDATE_INTERVAL));
+		int poolSize = getEnvVarOrDefault(WORKER_COUNT, Runtime.getRuntime()
+				.availableProcessors() * 2);
+		int socketPoolMin = getEnvVarOrDefault(SOCKET_POOL_SIZE_MIN, 10);
+		int socketPoolMax = getEnvVarOrDefault(SOCKET_POOL_SIZE_MAX, 20);
+		int poolUpdateInterval = getEnvVarOrDefault(
+				SOCKET_POOL_UPDATE_INTERVAL, 5);
 
 		analyticsServerUrl = config.getInitParameter(ANALYTICS_SERVER_URL);
 		analyticsServerPort = config.getInitParameter(ANALYTICS_SERVER_PORT);
@@ -138,6 +149,14 @@ public class AnalyticsFilter implements Filter {
 			}
 		};
 		analyticsServicexeExecutor = Executors.newFixedThreadPool(poolSize);
+	}
+
+	private int getEnvVarOrDefault(String name, int defaultVal) {
+		String val = System.getenv(name);
+		if (val != null && val.length() > 0) {
+			return Integer.parseInt(val);
+		}
+		return defaultVal;
 	}
 
 }
