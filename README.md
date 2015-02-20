@@ -15,7 +15,7 @@ Analytics Java Agent is custom servlet filter which intercepts the request and r
 	<dependency>
 		<groupId>com.mashape.analytics.agent</groupId>
 		<artifactId>analytics-agent-java</artifactId>
-		<version>1.0</version>
+		<version>1.0.0</version>
 	</dependency>
 
 ``` 
