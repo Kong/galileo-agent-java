@@ -7,7 +7,7 @@ Analytics Java Agent is custom servlet filter which intercepts the request and r
 # Installation 
 
 	
-# Maven
+# With Maven
 
 
 ```xml
@@ -20,8 +20,18 @@ Analytics Java Agent is custom servlet filter which intercepts the request and r
 
 ``` 
 
-# Dependencies
+# Without Maven
 
+Dependencies
+
+	Application depends on javax.servlet-api-3.0.1, jeromq-0.3.4, gson-1.2.17, log4j-1.2.17. For testing it depends on jmockit-1.7 and junit-4.8.1.
+	
+	You can download the analytics jar from 
+	<http://oss.sonatype.org/content/repositories/releases/com/mashape/analytics-java-agent/agent/analytics-java-agent/1.0.0/analytics-java-agent-1.0.0.jar>
+	
+	Or close the project from github
+	
+	
 ```xml
 	
 	<dependency>
@@ -86,7 +96,7 @@ To use the filter you would need to add Analytics filter to web descriptor.
 ```
 	
      Add following environment variable to the server
-     NAME				= Value
+     
      ANALYTICS_TOKEN = You Api analytics token from [](http://www.apianalyitics.com "Api Analytics") 
      SOCKET_POOL_SIZE_MIN = Minimun number of sockets to opened for connection to analytics server, default is 10
      SOCKET_POOL_SIZE_MAX = Maximum number of sockets pool should keep, default is 20
