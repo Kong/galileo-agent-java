@@ -83,6 +83,7 @@ Add following environment variable to the server
      SOCKET_POOL_SIZE_MAX = Maximum number of sockets pool should keep, default is 20
      THREAD_POOL_SIZE = Number of thread in the pool handling data transfer to analytics server, default is 2* # of processor 
 	
+Update web.xml on server
 
 ```xml
 
