@@ -22,7 +22,7 @@ Analytics Java Agent is custom servlet filter which intercepts the request and r
 
 # Without Maven
 
-Dependencies
+
 
 	Application depends on javax.servlet-api-3.0.1, jeromq-0.3.4, gson-1.2.17, log4j-1.2.17. For testing it depends on jmockit-1.7 and junit-4.8.1.
 	
@@ -31,7 +31,8 @@ Dependencies
 	
 	Or close the project from github
 	
-	
+Dependencies
+
 ```xml
 	
 	<dependency>
@@ -70,10 +71,18 @@ Dependencies
 ```
 
 
-# Configuration for Web Server
+# Configuration for Server
 
 Filter has been tested on tomcat and should work with Jetty, Jboss and other servers supporting http servlet api. 
-To use the filter you would need to add Analytics filter to web descriptor.  
+To use the filter you would need to add Analytics filter to web descriptor and set few environment variables in the server.
+
+Add following environment variable to the server
+     
+     ANALYTICS_TOKEN = You Api analytics token from [](http://www.apianalyitics.com "Api Analytics") 
+     SOCKET_POOL_SIZE_MIN = Minimun number of sockets to opened for connection to analytics server, default is 10
+     SOCKET_POOL_SIZE_MAX = Maximum number of sockets pool should keep, default is 20
+     THREAD_POOL_SIZE = Number of thread in the pool handling data transfer to analytics server, default is 2* # of processor 
+	
 
 ```xml
 
@@ -95,13 +104,7 @@ To use the filter you would need to add Analytics filter to web descriptor.
 	</filter-mapping>
 ```
 	
-     Add following environment variable to the server
      
-     ANALYTICS_TOKEN = You Api analytics token from [](http://www.apianalyitics.com "Api Analytics") 
-     SOCKET_POOL_SIZE_MIN = Minimun number of sockets to opened for connection to analytics server, default is 10
-     SOCKET_POOL_SIZE_MAX = Maximum number of sockets pool should keep, default is 20
-     THREAD_POOL_SIZE = Number of thread in the pool handling data transfer to analytics server, default is 2* # of processor 
-	
 
 
 
