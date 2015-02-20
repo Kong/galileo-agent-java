@@ -61,7 +61,7 @@ public class ObjectPoolTest {
 		Work w4 = pool.borrowObject();
 		w4.execute(null);
 		assertEquals(3, val.get());
-		assertNotEquals(w2, w4);
+		Assert.assertNotSame(w2, w4);
 		pool.returnObject(w2);
 		w2.terminate();
 		pool.returnObject(w3);
