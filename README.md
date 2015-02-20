@@ -24,12 +24,13 @@ Analytics Java Agent is custom servlet filter which intercepts the request and r
 
 
 
-	Application depends on javax.servlet-api-3.0.1, jeromq-0.3.4, gson-1.2.17, log4j-1.2.17. For testing it depends on jmockit-1.7 and junit-4.8.1.
+Application depends on javax.servlet-api-3.0.1, jeromq-0.3.4, gson-1.2.17, log4j-1.2.17. For testing it depends on jmockit-1.7 and junit-4.8.1.
 	
-	You can download the analytics jar from 
-	<http://oss.sonatype.org/content/repositories/releases/com/mashape/analytics-java-agent/agent/analytics-java-agent/1.0.0/analytics-java-agent-1.0.0.jar>
+You can download the analytics jar from 
+<http://oss.sonatype.org/content/repositories/releases/com/mashape/analytics-java-agent/agent/analytics-java-agent/1.0.0/analytics-java-agent-1.0.0.jar>
 	
-	Or close the project from github
+or clone the project from github
+<https://github.com/Mashape/analytics-java-agent/>
 	
 Dependencies
 
