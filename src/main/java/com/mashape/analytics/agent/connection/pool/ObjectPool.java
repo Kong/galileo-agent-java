@@ -51,7 +51,6 @@ public abstract class ObjectPool<E extends Work> {
 		createObject(minPoolSize);
 		executor = Executors.newSingleThreadScheduledExecutor();
 		executor.scheduleWithFixedDelay(new Runnable() {
-
 			public void run() {
 				int size = pool.size();
 				logger.debug("Pool size:" + size);

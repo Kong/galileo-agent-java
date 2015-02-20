@@ -50,8 +50,13 @@ public class Messenger implements Work {
 
 	Logger logger = Logger.getLogger(Messenger.class);
 
-	private ZMQ.Context context = ZMQ.context(1);
-	private ZMQ.Socket socket = context.socket(ZMQ.PUSH);
+	private ZMQ.Context context;
+	private ZMQ.Socket socket;
+	
+	public  Messenger(){
+		 context = ZMQ.context(1);
+		 socket = context.socket(ZMQ.PUSH);
+	}
 
 	public void execute(Map<String, Object> analyticsData) {
 		Entry entry = (Entry) analyticsData.get(ANALYTICS_DATA);
