@@ -7,7 +7,7 @@ Analytics Java Agent is custom servlet filter which intercepts the request and r
 # Installation 
 
 	
-# MAVEN
+# Maven
 
 
 ```xml
