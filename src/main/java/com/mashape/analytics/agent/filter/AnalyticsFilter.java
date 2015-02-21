@@ -45,8 +45,6 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.annotation.WebFilter;
-import javax.servlet.annotation.WebInitParam;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -70,9 +68,6 @@ import com.mashape.analytics.agent.wrapper.ResponseInterceptorWrapper;
  *
  */
 
-@WebFilter(urlPatterns = "/*", initParams = {
-		@WebInitParam(name = ANALYTICS_SERVER_URL, value = "socket.apianalytics.com"),
-		@WebInitParam(name = ANALYTICS_SERVER_PORT, value = "5000") })
 public class AnalyticsFilter implements Filter {
 
 	final static Logger logger = Logger.getLogger(AnalyticsFilter.class);

@@ -20,17 +20,15 @@ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
+ */
 package com.mashape.analytics.agent.mapper;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
-
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 
 import org.apache.log4j.Logger;
 
@@ -54,8 +52,8 @@ public class AnalyticsDataMapper {
 	private ResponseInterceptorWrapper response;
 	Message message;
 
-	public AnalyticsDataMapper(ServletRequest request,
-			ServletResponse response) {
+	public AnalyticsDataMapper(RequestInterceptorWrapper request,
+			ResponseInterceptorWrapper response) {
 		this.request = (RequestInterceptorWrapper) request;
 		this.response = (ResponseInterceptorWrapper) response;
 	}
@@ -75,7 +73,7 @@ public class AnalyticsDataMapper {
 	private void setRequestHeaders(Request requestHar) {
 		Enumeration<String> headers = request.getHeaderNames();
 		List<NameValuePair> headerList = requestHar.getHeaders();
-		int size = 0;
+		int size = 2;
 		while (headers.hasMoreElements()) {
 			String name = headers.nextElement();
 			size += name.getBytes().length;
@@ -101,8 +99,11 @@ public class AnalyticsDataMapper {
 			size += value.getBytes().length;
 			pair.setValue(value);
 			headerList.add(pair);
+			// adding two for ": " between name and value
+			size += 2;
 		}
-		responseHar.setHeadersSize(size);
+		// adding two for CRLF
+		responseHar.setHeadersSize(size+2);
 	}
 
 	private Request mapRequest() {
@@ -120,7 +121,6 @@ public class AnalyticsDataMapper {
 		Content content = new Content();
 		content.setEncoding(request.getCharacterEncoding());
 		String mimeType = request.getContentType();
-		content.setMimeType(request.getContentType());
 		content.setMimeType(DEFAULT_MIME_TYPE);
 		if (mimeType != null && mimeType.length() > 0) {
 			content.setMimeType(request.getContentType());
@@ -132,13 +132,13 @@ public class AnalyticsDataMapper {
 
 	private Response mapResponse() {
 		Response responseHar = new Response();
-		responseHar.setBodySize(response.getBufferSize());
-		responseHar.setContent(mapRequestContent());
+		responseHar.setBodySize(response.getClone().length);
 		responseHar.setContent(mapResponseContent());
 		responseHar.setHttpVersion(request.getProtocol());
 		responseHar.setStatus(Integer.toString(response.getStatus()));
 		responseHar.setStatusText(responseHar.getStatus());
 		setResponseHeaders(responseHar);
+
 		return responseHar;
 	}
 
@@ -146,7 +146,6 @@ public class AnalyticsDataMapper {
 		Content content = new Content();
 		content.setEncoding(response.getCharacterEncoding());
 		String mimeType = response.getContentType();
-		content.setMimeType(response.getContentType());
 		content.setMimeType(DEFAULT_MIME_TYPE);
 		if (mimeType != null && mimeType.length() > 0) {
 			content.setMimeType(mimeType);

@@ -1,10 +1,8 @@
 package com.mashape.analytics.agent.connection.pool;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.After;
@@ -26,12 +24,12 @@ public class SendAnalyticsTaskTest {
 
 					@Override
 					public void terminate() {
-						int  sum = val.addAndGet(-1);
+						val.addAndGet(-1);
 					}
 
 					@Override
 					public void execute(Map<String, Object> analyticsData) {
-						int  sum = val.addAndGet(1);
+						val.addAndGet(1);
 					}
 				};
 			}

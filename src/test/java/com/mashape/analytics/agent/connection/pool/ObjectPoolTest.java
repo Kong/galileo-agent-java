@@ -1,6 +1,6 @@
 package com.mashape.analytics.agent.connection.pool;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -26,12 +26,12 @@ public class ObjectPoolTest {
 
 					@Override
 					public void terminate() {
-						int  sum = val.addAndGet(-1);
+						val.addAndGet(-1);
 					}
 
 					@Override
 					public void execute(Map<String, Object> analyticsData) {
-						int  sum = val.addAndGet(1);
+						val.addAndGet(1);
 					}
 				};
 			}

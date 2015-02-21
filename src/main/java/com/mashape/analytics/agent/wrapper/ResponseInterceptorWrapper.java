@@ -107,4 +107,8 @@ public class ResponseInterceptorWrapper extends HttpServletResponseWrapper {
 		}
 		return values;
 	}
+
+	public int getSize(){
+		return this.cloner.getClone().length;
+	}
 }
