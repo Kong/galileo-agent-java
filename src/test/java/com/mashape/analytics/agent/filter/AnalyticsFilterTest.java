@@ -6,7 +6,7 @@ import static com.mashape.analytics.agent.common.AnalyticsConstants.SOCKET_POOL_
 import static com.mashape.analytics.agent.common.AnalyticsConstants.SOCKET_POOL_SIZE_MIN;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.SOCKET_POOL_UPDATE_INTERVAL;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.WORKER_COUNT;
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -37,7 +37,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
 
-import junit.framework.Assert;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Mocked;

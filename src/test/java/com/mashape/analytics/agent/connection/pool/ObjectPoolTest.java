@@ -1,11 +1,10 @@
 package com.mashape.analytics.agent.connection.pool;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import junit.framework.Assert;
 
 import org.junit.After;
 import org.junit.Before;
@@ -61,7 +60,7 @@ public class ObjectPoolTest {
 		Work w4 = pool.borrowObject();
 		w4.execute(null);
 		assertEquals(3, val.get());
-		Assert.assertNotSame(w2, w4);
+		assertNotSame(w2, w4);
 		pool.returnObject(w2);
 		w2.terminate();
 		pool.returnObject(w3);
