@@ -1,5 +1,6 @@
 package com.mashape.analytics.agent.filter;
 
+import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_ENABLED;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_PORT;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_URL;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.SOCKET_POOL_SIZE_MAX;
@@ -96,18 +97,20 @@ public class AnalyticsFilterTest {
 		new Expectations() {
 
 			{
-				System.getenv(WORKER_COUNT);
-				returns("2");
-				System.getenv(SOCKET_POOL_SIZE_MIN);
-				returns("5");
-				System.getenv(SOCKET_POOL_SIZE_MAX);
-				returns("10");
-				System.getenv(SOCKET_POOL_UPDATE_INTERVAL);
-				returns("5");
+				System.getenv(ANALYTICS_ENABLED);
+				result=  "true";
 				config.getInitParameter(ANALYTICS_SERVER_URL);
 				result = "analytics.com";
 				config.getInitParameter(ANALYTICS_SERVER_PORT);
 				result = "5000";
+				System.getenv(WORKER_COUNT);
+				result= "2";
+				System.getenv(SOCKET_POOL_SIZE_MIN);
+				result= "5";
+				System.getenv(SOCKET_POOL_SIZE_MAX);
+				result= "10";
+				System.getenv(SOCKET_POOL_UPDATE_INTERVAL);
+				result= "5";
 				chain.doFilter((RequestInterceptorWrapper) any,
 						(ResponseInterceptorWrapper) any);
 				new AnalyticsDataMapper((RequestInterceptorWrapper) any,
@@ -136,18 +139,20 @@ public class AnalyticsFilterTest {
 		new Expectations() {
 
 			{
-				System.getenv(WORKER_COUNT);
-				returns("2");
-				System.getenv(SOCKET_POOL_SIZE_MIN);
-				returns("5");
-				System.getenv(SOCKET_POOL_SIZE_MAX);
-				returns("10");
-				System.getenv(SOCKET_POOL_UPDATE_INTERVAL);
-				returns("5");
+				System.getenv(ANALYTICS_ENABLED);
+				result=  "true";
 				config.getInitParameter(ANALYTICS_SERVER_URL);
 				result = "analytics.com";
 				config.getInitParameter(ANALYTICS_SERVER_PORT);
 				result = "5000";
+				System.getenv(WORKER_COUNT);
+				result= "2";
+				System.getenv(SOCKET_POOL_SIZE_MIN);
+				result= "5";
+				System.getenv(SOCKET_POOL_SIZE_MAX);
+				result= "10";
+				System.getenv(SOCKET_POOL_UPDATE_INTERVAL);
+				result= "5";
 				chain.doFilter((RequestInterceptorWrapper) any,
 						(ResponseInterceptorWrapper) any);
 				new AnalyticsDataMapper((RequestInterceptorWrapper) any,
@@ -174,11 +179,21 @@ public class AnalyticsFilterTest {
 
 		new Expectations() {
 
-			{
+			{	
+				System.getenv(ANALYTICS_ENABLED);
+				result=  "true";
 				config.getInitParameter(ANALYTICS_SERVER_URL);
 				result = "analytics.com";
 				config.getInitParameter(ANALYTICS_SERVER_PORT);
 				result = "5000";
+				System.getenv(WORKER_COUNT);
+				result= null;
+				System.getenv(SOCKET_POOL_SIZE_MIN);
+				result= null;
+				System.getenv(SOCKET_POOL_SIZE_MAX);
+				result= null;
+				System.getenv(SOCKET_POOL_UPDATE_INTERVAL);
+				result= null;
 				chain.doFilter((RequestInterceptorWrapper) any,
 						(ResponseInterceptorWrapper) any);
 				new AnalyticsDataMapper((RequestInterceptorWrapper) any,
@@ -199,6 +214,31 @@ public class AnalyticsFilterTest {
 		}
 
 	}
+	
+	@Test
+	public void testAnalyticsDisabled() throws IOException, ServletException {
+
+		new Expectations() {
+
+			{	
+				System.getenv(ANALYTICS_ENABLED);
+				result = null;
+				chain.doFilter((RequestInterceptorWrapper) any,
+						(ResponseInterceptorWrapper) any);
+			}
+		};
+
+		try {
+			filter.init(config);
+			filter.doFilter(req, res, chain);
+		} catch (ServletException e) {
+			fail("it should never fail");
+		} catch (IOException e) {
+			fail("it should never fail");
+		}
+
+	}
+
 
 	private Entry getEntry() {
 		Entry entry = new Entry();

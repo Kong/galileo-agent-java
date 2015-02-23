@@ -20,11 +20,12 @@ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
+ */
 
 package com.mashape.analytics.agent.filter;
 
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_DATA;
+import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_ENABLED;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_PORT;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_URL;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.SOCKET_POOL_SIZE_MAX;
@@ -50,6 +51,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
+import com.mashape.analytics.agent.common.Util;
 import com.mashape.analytics.agent.connection.pool.Messenger;
 import com.mashape.analytics.agent.connection.pool.ObjectPool;
 import com.mashape.analytics.agent.connection.pool.SendAnalyticsTask;
@@ -76,6 +78,7 @@ public class AnalyticsFilter implements Filter {
 	private String analyticsServerUrl;
 	private String analyticsServerPort;
 	private ObjectPool<Work> pool;
+	private boolean isAnlayticsEnabled = false;
 
 	@Override
 	public void destroy() {
@@ -93,17 +96,21 @@ public class AnalyticsFilter implements Filter {
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse res,
 			FilterChain chain) throws IOException, ServletException {
-		long sendStartTime = System.currentTimeMillis();
-		Date requestReceivedTime = new Date();
-		RequestInterceptorWrapper request = new RequestInterceptorWrapper(
-				(HttpServletRequest) req);
-		ResponseInterceptorWrapper response = new ResponseInterceptorWrapper(
-				(HttpServletResponse) res);
-		long waitStartTime = System.currentTimeMillis();
-		chain.doFilter(request, response);
-		long waitEndTime = System.currentTimeMillis();
-		callAsyncAnalytics(requestReceivedTime, request, response,
-				waitStartTime - sendStartTime, waitEndTime - waitStartTime);
+		if (isAnlayticsEnabled) {
+			long sendStartTime = System.currentTimeMillis();
+			Date requestReceivedTime = new Date();
+			RequestInterceptorWrapper request = new RequestInterceptorWrapper(
+					(HttpServletRequest) req);
+			ResponseInterceptorWrapper response = new ResponseInterceptorWrapper(
+					(HttpServletResponse) res);
+			long waitStartTime = System.currentTimeMillis();
+			chain.doFilter(request, response);
+			long waitEndTime = System.currentTimeMillis();
+			callAsyncAnalytics(requestReceivedTime, request, response,
+					waitStartTime - sendStartTime, waitEndTime - waitStartTime);
+		} else {
+			chain.doFilter(req, res);
+		}
 	}
 
 	/**
@@ -132,12 +139,12 @@ public class AnalyticsFilter implements Filter {
 			Map<String, Object> messageProperties = new HashMap<String, Object>();
 			messageProperties.put(ANALYTICS_SERVER_URL, analyticsServerUrl);
 			messageProperties.put(ANALYTICS_SERVER_PORT, analyticsServerPort);
-			Entry analyticsData = new AnalyticsDataMapper(request,
-					response).getAnalyticsData(requestReceivedTime,
-					sendTime, waitTime);
+			Entry analyticsData = new AnalyticsDataMapper(request, response)
+					.getAnalyticsData(requestReceivedTime, sendTime, waitTime);
 			long recvEndTime = System.currentTimeMillis();
 			analyticsData.getTimings().setReceive(recvEndTime - recvStartTime);
-			analyticsData.setTime((recvEndTime - recvStartTime) + sendTime + waitTime);
+			analyticsData.setTime((recvEndTime - recvStartTime) + sendTime
+					+ waitTime);
 			messageProperties.put(ANALYTICS_DATA, analyticsData);
 			analyticsServicexeExecutor.execute(new SendAnalyticsTask(pool,
 					messageProperties));
@@ -151,31 +158,39 @@ public class AnalyticsFilter implements Filter {
 	 */
 	@Override
 	public void init(FilterConfig config) throws ServletException {
-		int poolSize = getEnvVarOrDefault(WORKER_COUNT, Runtime.getRuntime()
-				.availableProcessors() * 2);
-		int socketPoolMin = getEnvVarOrDefault(SOCKET_POOL_SIZE_MIN, 10);
-		int socketPoolMax = getEnvVarOrDefault(SOCKET_POOL_SIZE_MAX, 20);
-		int poolUpdateInterval = getEnvVarOrDefault(
-				SOCKET_POOL_UPDATE_INTERVAL, 5);
-
-		analyticsServerUrl = config.getInitParameter(ANALYTICS_SERVER_URL);
-		analyticsServerPort = config.getInitParameter(ANALYTICS_SERVER_PORT);
-		pool = new ObjectPool<Work>(socketPoolMin, socketPoolMax,
-				poolUpdateInterval) {
-			@Override
-			public Work createPoolObject() {
-				return new Messenger();
+		if (isAnlayticsEnabled = isAnalyticsEnabled()) {
+			if(!(Util.notBlank(analyticsServerUrl = config.getInitParameter(ANALYTICS_SERVER_URL))
+					&& Util.notBlank(analyticsServerUrl = config.getInitParameter(ANALYTICS_SERVER_PORT)))){
+				logger.error("Analytics URl or Port not set");
+				return;
 			}
-		};
-		analyticsServicexeExecutor = Executors.newFixedThreadPool(poolSize);
+			int poolSize = getEnvVarOrDefault(WORKER_COUNT, Runtime
+					.getRuntime().availableProcessors() * 2);
+			int socketPoolMin = getEnvVarOrDefault(SOCKET_POOL_SIZE_MIN, 10);
+			int socketPoolMax = getEnvVarOrDefault(SOCKET_POOL_SIZE_MAX, 20);
+			int poolUpdateInterval = getEnvVarOrDefault(
+					SOCKET_POOL_UPDATE_INTERVAL, 5);
+			pool = new ObjectPool<Work>(socketPoolMin, socketPoolMax,
+					poolUpdateInterval) {
+				@Override
+				public Work createPoolObject() {
+					return new Messenger();
+				}
+			};
+			analyticsServicexeExecutor = Executors.newFixedThreadPool(poolSize);
+		}
 	}
 
 	private int getEnvVarOrDefault(String name, int defaultVal) {
 		String val = System.getenv(name);
-		if (val != null && val.length() > 0) {
+		if (Util.notBlank(val)) {
 			return Integer.parseInt(val);
 		}
 		return defaultVal;
+	}
+
+	private boolean isAnalyticsEnabled() {
+		return (Boolean.parseBoolean(System.getenv(ANALYTICS_ENABLED)));
 	}
 
 }
