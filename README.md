@@ -36,7 +36,7 @@ Dependencies
 
 ```xml
 	
-	<dependency>
+		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
 			<version>3.0.1</version>
@@ -66,9 +66,10 @@ Dependencies
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.8.1</version>
+			<version>4.12</version>
+			<scope>test</scope>
 		</dependency>
-
+		
 ```
 
 
