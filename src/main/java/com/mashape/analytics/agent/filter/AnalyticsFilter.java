@@ -132,9 +132,8 @@ public class AnalyticsFilter implements Filter {
 			Map<String, Object> messageProperties = new HashMap<String, Object>();
 			messageProperties.put(ANALYTICS_SERVER_URL, analyticsServerUrl);
 			messageProperties.put(ANALYTICS_SERVER_PORT, analyticsServerPort);
-			AnalyticsDataMapper mapper = new AnalyticsDataMapper(request,
-					response);
-			Entry analyticsData = mapper.getAnalyticsData(requestReceivedTime,
+			Entry analyticsData = new AnalyticsDataMapper(request,
+					response).getAnalyticsData(requestReceivedTime,
 					sendTime, waitTime);
 			long recvEndTime = System.currentTimeMillis();
 			analyticsData.getTimings().setReceive(recvEndTime - recvStartTime);
