@@ -81,9 +81,10 @@ To use the filter you would need to add Analytics filter to web descriptor and s
 Add following environment variable to the server
      
      ANALYTICS_TOKEN = You Api analytics token from [](http://www.apianalyitics.com "Api Analytics") 
-     SOCKET_POOL_SIZE_MIN = Minimun number of sockets to opened for connection to analytics server, default is 10
+     SOCKET_POOL_SIZE_MIN = Minimum number of sockets to opened for connection to analytics server, default is 10
      SOCKET_POOL_SIZE_MAX = Maximum number of sockets pool should keep, default is 20
      THREAD_POOL_SIZE = Number of thread in the pool handling data transfer to analytics server, default is 2* # of processor 
+     ANALYTICS_ENABLED_FLAG = true to enable analytics
 	
 Update web.xml on server
 
