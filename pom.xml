@@ -1,10 +1,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.mashape.analytics.agent</groupId>
-	<artifactId>analytics-java-agent</artifactId>
-	<version>1.0.0-alpha-3-SNAPSHOT</version>
-	<name>analytics-java-agent</name>
-	<description>Api analytics java agent</description>
+	<groupId>com.mashape.apianalytics.agent</groupId>
+	<artifactId>apianalytics-agent</artifactId>
+	<version>1.0.0-alpha-1-SNAPSHOT</version>
+	<name>apianalytics-agent</name>
+	<description>Apianalytics java agent</description>
 	<url>http://apianalytics.com</url>
 
 	<parent>
@@ -106,7 +106,7 @@
 						</goals>
 						<configuration>
 							<schemaFiles>analyticsHar.xsd</schemaFiles>
-							<packageName>com.mashape.analytics.agent.modal</packageName>
+							<packageName>com.mashape.apianalytics.agent.modal</packageName>
 						</configuration>
 					</execution>
 				</executions>

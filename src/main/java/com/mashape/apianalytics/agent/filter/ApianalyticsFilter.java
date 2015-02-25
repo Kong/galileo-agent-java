@@ -22,17 +22,17 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.mashape.analytics.agent.filter;
+package com.mashape.apianalytics.agent.filter;
 
-import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_DATA;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_ENABLED;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_PORT;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_URL;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_TOKEN;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.SOCKET_POOL_SIZE_MAX;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.SOCKET_POOL_SIZE_MIN;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.SOCKET_POOL_UPDATE_INTERVAL;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.WORKER_COUNT;
+import static com.mashape.apianalytics.agent.common.ApianalyticsConstants.ANALYTICS_DATA;
+import static com.mashape.apianalytics.agent.common.ApianalyticsConstants.ANALYTICS_ENABLED;
+import static com.mashape.apianalytics.agent.common.ApianalyticsConstants.ANALYTICS_SERVER_PORT;
+import static com.mashape.apianalytics.agent.common.ApianalyticsConstants.ANALYTICS_SERVER_URL;
+import static com.mashape.apianalytics.agent.common.ApianalyticsConstants.ANALYTICS_TOKEN;
+import static com.mashape.apianalytics.agent.common.ApianalyticsConstants.SOCKET_POOL_SIZE_MAX;
+import static com.mashape.apianalytics.agent.common.ApianalyticsConstants.SOCKET_POOL_SIZE_MIN;
+import static com.mashape.apianalytics.agent.common.ApianalyticsConstants.SOCKET_POOL_UPDATE_INTERVAL;
+import static com.mashape.apianalytics.agent.common.ApianalyticsConstants.WORKER_COUNT;
 
 import java.io.IOException;
 import java.util.Date;
@@ -52,15 +52,15 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
-import com.mashape.analytics.agent.common.Util;
-import com.mashape.analytics.agent.connection.pool.Messenger;
-import com.mashape.analytics.agent.connection.pool.ObjectPool;
-import com.mashape.analytics.agent.connection.pool.SendAnalyticsTask;
-import com.mashape.analytics.agent.connection.pool.Work;
-import com.mashape.analytics.agent.mapper.AnalyticsDataMapper;
-import com.mashape.analytics.agent.modal.Entry;
-import com.mashape.analytics.agent.wrapper.RequestInterceptorWrapper;
-import com.mashape.analytics.agent.wrapper.ResponseInterceptorWrapper;
+import com.mashape.apianalytics.agent.modal.Entry;
+import com.mashape.apianalytics.agent.common.Util;
+import com.mashape.apianalytics.agent.connection.pool.Messenger;
+import com.mashape.apianalytics.agent.connection.pool.ObjectPool;
+import com.mashape.apianalytics.agent.connection.pool.SendAnalyticsTask;
+import com.mashape.apianalytics.agent.connection.pool.Work;
+import com.mashape.apianalytics.agent.mapper.ApianalyticsDataMapper;
+import com.mashape.apianalytics.agent.wrapper.RequestInterceptorWrapper;
+import com.mashape.apianalytics.agent.wrapper.ResponseInterceptorWrapper;
 
 /**
  * 
@@ -71,9 +71,9 @@ import com.mashape.analytics.agent.wrapper.ResponseInterceptorWrapper;
  *
  */
 
-public class AnalyticsFilter implements Filter {
+public class ApianalyticsFilter implements Filter {
 
-	final static Logger logger = Logger.getLogger(AnalyticsFilter.class);
+	final static Logger logger = Logger.getLogger(ApianalyticsFilter.class);
 
 	private ExecutorService analyticsServicexeExecutor;
 	private String analyticsServerUrl;
@@ -130,7 +130,7 @@ public class AnalyticsFilter implements Filter {
 	 * @param waitTime
 	 *            Wait time before receiving the response
 	 * 
-	 * @see AnalyticsDataMapper
+	 * @see ApianalyticsDataMapper
 	 * @see SendAnalyticsTask
 	 */
 	private void callAsyncAnalytics(Date requestReceivedTime,
@@ -141,7 +141,7 @@ public class AnalyticsFilter implements Filter {
 			Map<String, Object> messageProperties = new HashMap<String, Object>();
 			messageProperties.put(ANALYTICS_SERVER_URL, analyticsServerUrl);
 			messageProperties.put(ANALYTICS_SERVER_PORT, analyticsServerPort);
-			Entry analyticsData = new AnalyticsDataMapper(request, response)
+			Entry analyticsData = new ApianalyticsDataMapper(request, response)
 					.getAnalyticsData(requestReceivedTime, sendTime, waitTime);
 			long recvEndTime = System.currentTimeMillis();
 			analyticsData.getTimings().setReceive(recvEndTime - recvStartTime);

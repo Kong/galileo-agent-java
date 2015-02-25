@@ -1,4 +1,4 @@
-package com.mashape.analytics.agent.connection.pool;
+package com.mashape.apianalytics.agent.connection.pool;
 
 import static org.junit.Assert.assertEquals;
 
@@ -8,6 +8,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.mashape.apianalytics.agent.connection.pool.ObjectPool;
+import com.mashape.apianalytics.agent.connection.pool.SendAnalyticsTask;
+import com.mashape.apianalytics.agent.connection.pool.Work;
 
 public class SendAnalyticsTaskTest {
 

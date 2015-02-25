@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.mashape.com/analyticsHar"
-	xmlns:tns="http://www.mashape.com/analyticsHar" elementFormDefault="qualified">
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.mashape.com/apianalytics"
+	xmlns:tns="http://www.mashape.com/apianalytics" elementFormDefault="qualified">
 
 	<element name="Message" type="tns:Message"></element>
 

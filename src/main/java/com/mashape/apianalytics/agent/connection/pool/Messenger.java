@@ -22,15 +22,15 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-package com.mashape.analytics.agent.connection.pool;
+package com.mashape.apianalytics.agent.connection.pool;
 
-import static com.mashape.analytics.agent.common.AnalyticsConstants.AGENT_NAME;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.AGENT_VERSION;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_DATA;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_PORT;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_URL;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_TOKEN;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.HAR_VERSION;
+import static com.mashape.apianalytics.agent.common.ApianalyticsConstants.AGENT_NAME;
+import static com.mashape.apianalytics.agent.common.ApianalyticsConstants.AGENT_VERSION;
+import static com.mashape.apianalytics.agent.common.ApianalyticsConstants.ANALYTICS_DATA;
+import static com.mashape.apianalytics.agent.common.ApianalyticsConstants.ANALYTICS_SERVER_PORT;
+import static com.mashape.apianalytics.agent.common.ApianalyticsConstants.ANALYTICS_SERVER_URL;
+import static com.mashape.apianalytics.agent.common.ApianalyticsConstants.ANALYTICS_TOKEN;
+import static com.mashape.apianalytics.agent.common.ApianalyticsConstants.HAR_VERSION;
 
 import java.util.Map;
 
@@ -38,11 +38,11 @@ import org.apache.log4j.Logger;
 import org.zeromq.ZMQ;
 
 import com.google.gson.Gson;
-import com.mashape.analytics.agent.modal.Creator;
-import com.mashape.analytics.agent.modal.Entry;
-import com.mashape.analytics.agent.modal.Har;
-import com.mashape.analytics.agent.modal.Log;
-import com.mashape.analytics.agent.modal.Message;
+import com.mashape.apianalytics.agent.modal.Creator;
+import com.mashape.apianalytics.agent.modal.Entry;
+import com.mashape.apianalytics.agent.modal.Har;
+import com.mashape.apianalytics.agent.modal.Log;
+import com.mashape.apianalytics.agent.modal.Message;
 /*
  * Opens a connection to Analytics server and sends data
  */
