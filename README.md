@@ -79,13 +79,15 @@ Filter has been tested on tomcat and should work with Jetty, Jboss and other ser
 To use the filter you would need to add Analytics filter to web descriptor and set few VM arguments in the server.
 
 Add following arguments to the server
-     
-     analytics.token = You Api analytics token from http://www.apianalyitics.com
-     analytics.socket.min = Minimum number of sockets to opened for connection to analytics server, default is 10
-     analytics.socket.max = Maximum number of sockets allowed to live in pool, default is 20
-     analytics.socket.interval = new sockets are added if its less than minimum value  or removed if its greater than maximum value at set interval, default is 5 seconds
-     analytics.worker.size = Number of thread in the pool handling data transfer to analytics server, default is 2* # of processor 
-     analytics.enabled.flag = true to enable analytics
+
+     Property | Value
+     -------- |	------
+     analytics.token | You Api analytics token from http://www.apianalyitics.com 
+     analytics.socket.min |Minimum number of sockets to opened for connection to analytics server, default is 10
+     analytics.socket.max | Maximum number of sockets allowed to live in pool, default is 20
+     analytics.socket.interval | New sockets are added if its less than minimum value  or removed if its greater than maximum value at set interval, default is 5 seconds
+     analytics.worker.size | Number of thread in the pool handling data transfer to analytics server, default is 2* # of processor 
+     analytics.enabled.flag | true to enable analytics
 	
 Update web.xml on server
 
