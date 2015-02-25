@@ -25,7 +25,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 package com.mashape.analytics.agent.common;
 
 public class AnalyticsConstants {
-	public static final String ANALYTICS_SERVER_URL = "analytics.server.Url";
+	public static final String ANALYTICS_SERVER_URL = "analytics.server.url";
 	public static final String ANALYTICS_SERVER_PORT = "analytics.server.port";
 	public static final String WORKER_COUNT = "analytics.worker.size";
 	public static final String ANALYTICS_DATA = "data";

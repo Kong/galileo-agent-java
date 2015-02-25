@@ -164,7 +164,7 @@ public class AnalyticsFilter implements Filter {
 		if (isAnlayticsEnabled = isAnalyticsFlagEnabled()) {
 			if (!(Util.notBlank(analyticsServerUrl = config
 					.getInitParameter(ANALYTICS_SERVER_URL))
-					&& Util.notBlank(analyticsServerUrl = config
+					&& Util.notBlank(analyticsServerPort = config
 							.getInitParameter(ANALYTICS_SERVER_PORT)) && Util
 						.notBlank(analyticsToken = System
 								.getProperty(ANALYTICS_TOKEN)))) {
