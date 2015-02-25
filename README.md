@@ -1,4 +1,4 @@
-# Analytics Java Agent
+# Analytics Java Agent (alpha version)
 
 
 Analytics Java Agent is custom servlet filter which intercepts the request and response and sends it to API Analytics server asynchronously to generate analytics information.
@@ -15,7 +15,7 @@ Analytics Java Agent is custom servlet filter which intercepts the request and r
 	<dependency>
   		<groupId>com.mashape.analytics.agent</groupId>
   		<artifactId>analytics-java-agent</artifactId>
-  		<version>1.0.0-alpha-1</version>
+  		<version>1.0.0-alpha-2</version>
 	</dependency>
 
 ``` 
@@ -27,7 +27,7 @@ Analytics Java Agent is custom servlet filter which intercepts the request and r
 Application depends on javax.servlet-api-3.0.1, jeromq-0.3.4, gson-1.2.17, log4j-1.2.17. For testing it depends on jmockit-1.7 and junit-4.12
 	
 You can download the analytics jar from 
-<https://oss.sonatype.org/content/repositories/releases/com/mashape/analytics/agent/analytics-java-agent/1.0.0-alpha-1/analytics-java-agent-1.0.0-alpha-1.jar>
+<https://oss.sonatype.org/content/repositories/releases/com/mashape/analytics/agent/analytics-java-agent/1.0.0-alpha-1/analytics-java-agent-1.0.0-alpha-2.jar>
 	
 or clone the project from github
 <https://github.com/Mashape/analytics-java-agent/>
@@ -76,16 +76,16 @@ Dependencies
 # Configuration for Server
 
 Filter has been tested on tomcat and should work with Jetty, Jboss and other servers supporting http servlet api. 
-To use the filter you would need to add Analytics filter to web descriptor and set few environment variables in the server.
+To use the filter you would need to add Analytics filter to web descriptor and set few VM arguments in the server.
 
-Add following environment variable to the server
+Add following arguments to the server
      
-     ANALYTICS_TOKEN = You Api analytics token from http://www.apianalyitics.com
-     SOCKET_POOL_SIZE_MIN = Minimum number of sockets to opened for connection to analytics server, default is 10
-     SOCKET_POOL_SIZE_MAX = Maximum number of sockets allowed to live in pool, default is 20
-     SOCKET_POOL_UPDATE_INTERVAL = new sockets are added if its less than minimum value  or removed if its greater than maximum value, default is 5 seconds
-     THREAD_POOL_SIZE = Number of thread in the pool handling data transfer to analytics server, default is 2* # of processor 
-     ANALYTICS_ENABLED_FLAG = true to enable analytics
+     analytics.token = You Api analytics token from http://www.apianalyitics.com
+     analytics.socket.min = Minimum number of sockets to opened for connection to analytics server, default is 10
+     analytics.socket.max = Maximum number of sockets allowed to live in pool, default is 20
+     analytics.socket.interval = new sockets are added if its less than minimum value  or removed if its greater than maximum value at set interval, default is 5 seconds
+     analytics.worker.size = Number of thread in the pool handling data transfer to analytics server, default is 2* # of processor 
+     analytics.enabled.flag = true to enable analytics
 	
 Update web.xml on server
 
@@ -95,18 +95,18 @@ Update web.xml on server
 		<filter-name>analyticsFilter</filter-name>
 		<filter-class>com.mashape.analytics.agent.filter.AnalyticsFilter</filter-class>
 		<init-param>
-			<param-name>analyticsServerUrl</param-name>
+			<param-name>analytics.server.url</param-name>
 			<param-value>socket.apianalytics.com</param-value>
 		</init-param>
 		<init-param>
-			<param-name>analyticsServerPort</param-name>
+			<param-name>analytics.server.port</param-name>
 			<param-value>5000</param-value>
 		</init-param>
 	</filter>
 	<filter-mapping>
 		<filter-name>analyticsFilter</filter-name>
 		<url-pattern>/*</url-pattern>
-	</filter-mapping>
+	</filter-mapping> 
 ```
 	
      

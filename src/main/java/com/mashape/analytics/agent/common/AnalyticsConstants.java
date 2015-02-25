@@ -29,9 +29,9 @@ public class AnalyticsConstants {
 	public static final String ANALYTICS_SERVER_PORT = "analytics.server.port";
 	public static final String WORKER_COUNT = "analytics.worker.size";
 	public static final String ANALYTICS_DATA = "data";
-	public static final String SOCKET_POOL_SIZE_MIN = "analytics.sockets.min";
-	public static final String SOCKET_POOL_SIZE_MAX = "analytics.sockets.max";
-	public static final String SOCKET_POOL_UPDATE_INTERVAL = "analytics.sockets.interval";
+	public static final String SOCKET_POOL_SIZE_MIN = "analytics.socket.min";
+	public static final String SOCKET_POOL_SIZE_MAX = "analytics.socket.max";
+	public static final String SOCKET_POOL_UPDATE_INTERVAL = "analytics.socket.interval";
 	public static final String ANALYTICS_TOKEN = "analytics.token";
 	public static final String HAR_VERSION = "1.2";
 	public static final String AGENT_NAME = "Analytics Java Agent";
