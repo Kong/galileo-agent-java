@@ -83,7 +83,7 @@ public class Messenger implements Work {
 	public Message getMessage(Entry entry, String token) {
 		Message message = new Message();
 		message.setHar(setHar(entry));
-		message.setServiceToken(System.getenv(token));
+		message.setServiceToken(token);
 		return message;
 	}
 
