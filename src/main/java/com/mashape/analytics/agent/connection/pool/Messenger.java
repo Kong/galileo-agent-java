@@ -29,8 +29,8 @@ import static com.mashape.analytics.agent.common.AnalyticsConstants.AGENT_VERSIO
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_DATA;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_PORT;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_URL;
+import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_TOKEN;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.HAR_VERSION;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.SERVICE_TOKEN;
 
 import java.util.Map;
 
@@ -60,7 +60,8 @@ public class Messenger implements Work {
 
 	public void execute(Map<String, Object> analyticsData) {
 		Entry entry = (Entry) analyticsData.get(ANALYTICS_DATA);
-		Message msg = getMessage(entry);
+		String token = analyticsData.get(ANALYTICS_TOKEN).toString();
+		Message msg = getMessage(entry, token);
 		String data = new Gson().toJson(msg);
 		String analyticsServerUrl = analyticsData.get(ANALYTICS_SERVER_URL).toString();
 		String port = analyticsData.get(ANALYTICS_SERVER_PORT).toString();
@@ -79,10 +80,10 @@ public class Messenger implements Work {
 		}
 	}
 
-	public Message getMessage(Entry entry) {
+	public Message getMessage(Entry entry, String token) {
 		Message message = new Message();
 		message.setHar(setHar(entry));
-		message.setServiceToken(System.getenv(SERVICE_TOKEN));
+		message.setServiceToken(System.getenv(token));
 		return message;
 	}
 

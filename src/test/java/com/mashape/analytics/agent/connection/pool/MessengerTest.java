@@ -3,6 +3,7 @@ package com.mashape.analytics.agent.connection.pool;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_DATA;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_PORT;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_URL;
+import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_TOKEN;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -54,6 +55,7 @@ public class MessengerTest {
 		Map<String, Object> analyticsData = new HashMap<String, Object>();
 		analyticsData.put(ANALYTICS_SERVER_URL, "abc.com");
 		analyticsData.put(ANALYTICS_SERVER_PORT, "5000");
+		analyticsData.put(ANALYTICS_TOKEN, "abcdef");
 		Entry entry = new Entry();
 		analyticsData.put(ANALYTICS_DATA, entry);
 		return analyticsData;

@@ -3,6 +3,7 @@ package com.mashape.analytics.agent.filter;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_ENABLED;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_PORT;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_URL;
+import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_TOKEN;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.SOCKET_POOL_SIZE_MAX;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.SOCKET_POOL_SIZE_MIN;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.SOCKET_POOL_UPDATE_INTERVAL;
@@ -19,6 +20,8 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.servlet.AsyncContext;
@@ -41,6 +44,7 @@ import javax.servlet.http.Part;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Mocked;
+import mockit.NonStrictExpectations;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 
@@ -67,9 +71,16 @@ public class AnalyticsFilterTest {
 	
 	@Mocked("doFilter")
 	private FilterChain chain;
+	
+	@Mocked("newFixedThreadPool")
+	private Executors mokedExecutors;
+	
+	@Mocked
+	private ExecutorService analyticsServicexeExecutor; 
 
-	@Mocked("getenv")
-	System mockedSystem;
+
+	@Mocked("getProperty")
+	private System mockedSystem;
 
 	@Mocked
 	private AnalyticsDataMapper mapper;
@@ -97,27 +108,31 @@ public class AnalyticsFilterTest {
 		new Expectations() {
 
 			{
-				System.getenv(ANALYTICS_ENABLED);
+				System.getProperty(ANALYTICS_ENABLED);
 				result=  "true";
 				config.getInitParameter(ANALYTICS_SERVER_URL);
 				result = "analytics.com";
 				config.getInitParameter(ANALYTICS_SERVER_PORT);
 				result = "5000";
-				System.getenv(WORKER_COUNT);
+				System.getProperty(ANALYTICS_TOKEN);
+				result= "abcedf";
+				System.getProperty(WORKER_COUNT);
 				result= "2";
-				System.getenv(SOCKET_POOL_SIZE_MIN);
+				System.getProperty(SOCKET_POOL_SIZE_MIN);
 				result= "5";
-				System.getenv(SOCKET_POOL_SIZE_MAX);
+				System.getProperty(SOCKET_POOL_SIZE_MAX);
 				result= "10";
-				System.getenv(SOCKET_POOL_UPDATE_INTERVAL);
+				System.getProperty(SOCKET_POOL_UPDATE_INTERVAL);
 				result= "5";
+				Executors.newFixedThreadPool(anyInt);
+				result = analyticsServicexeExecutor;	
 				chain.doFilter((RequestInterceptorWrapper) any,
 						(ResponseInterceptorWrapper) any);
 				new AnalyticsDataMapper((RequestInterceptorWrapper) any,
 						(ResponseInterceptorWrapper) any).getAnalyticsData(
 						(Date) any, anyLong, anyLong);
 				result = getEntry();
-
+				analyticsServicexeExecutor.execute((Runnable) any);
 			}
 		};
 
@@ -134,31 +149,35 @@ public class AnalyticsFilterTest {
 	
 	
 	@Test
-	public void testExceotionSuppressed() throws IOException, ServletException {
+	public void testExceptionSuppressed() throws IOException, ServletException {
 
-		new Expectations() {
+		new NonStrictExpectations() {
 
 			{
-				System.getenv(ANALYTICS_ENABLED);
+				System.getProperty(ANALYTICS_ENABLED);
 				result=  "true";
 				config.getInitParameter(ANALYTICS_SERVER_URL);
 				result = "analytics.com";
 				config.getInitParameter(ANALYTICS_SERVER_PORT);
 				result = "5000";
-				System.getenv(WORKER_COUNT);
+				System.getProperty(ANALYTICS_TOKEN);
+				result= "abcedf";
+				System.getProperty(WORKER_COUNT);
 				result= "2";
-				System.getenv(SOCKET_POOL_SIZE_MIN);
+				System.getProperty(SOCKET_POOL_SIZE_MIN);
 				result= "5";
-				System.getenv(SOCKET_POOL_SIZE_MAX);
+				System.getProperty(SOCKET_POOL_SIZE_MAX);
 				result= "10";
-				System.getenv(SOCKET_POOL_UPDATE_INTERVAL);
+				System.getProperty(SOCKET_POOL_UPDATE_INTERVAL);
 				result= "5";
+				Executors.newFixedThreadPool(anyInt);
+				result = analyticsServicexeExecutor;
 				chain.doFilter((RequestInterceptorWrapper) any,
 						(ResponseInterceptorWrapper) any);
 				new AnalyticsDataMapper((RequestInterceptorWrapper) any,
 						(ResponseInterceptorWrapper) any).getAnalyticsData(
 						(Date) any, anyLong, anyLong);
-				result = getEntryWithNotimming();
+				result = new Throwable();
 
 			}
 		};
@@ -180,27 +199,31 @@ public class AnalyticsFilterTest {
 		new Expectations() {
 
 			{	
-				System.getenv(ANALYTICS_ENABLED);
+				System.getProperty(ANALYTICS_ENABLED);
 				result=  "true";
 				config.getInitParameter(ANALYTICS_SERVER_URL);
 				result = "analytics.com";
 				config.getInitParameter(ANALYTICS_SERVER_PORT);
 				result = "5000";
-				System.getenv(WORKER_COUNT);
+				System.getProperty(ANALYTICS_TOKEN);
+				result= "abcedf";
+				System.getProperty(WORKER_COUNT);
 				result= null;
-				System.getenv(SOCKET_POOL_SIZE_MIN);
+				System.getProperty(SOCKET_POOL_SIZE_MIN);
 				result= null;
-				System.getenv(SOCKET_POOL_SIZE_MAX);
+				System.getProperty(SOCKET_POOL_SIZE_MAX);
 				result= null;
-				System.getenv(SOCKET_POOL_UPDATE_INTERVAL);
+				System.getProperty(SOCKET_POOL_UPDATE_INTERVAL);
 				result= null;
+				Executors.newFixedThreadPool(anyInt);
+				result = analyticsServicexeExecutor;	
 				chain.doFilter((RequestInterceptorWrapper) any,
 						(ResponseInterceptorWrapper) any);
 				new AnalyticsDataMapper((RequestInterceptorWrapper) any,
 						(ResponseInterceptorWrapper) any).getAnalyticsData(
 						(Date) any, anyLong, anyLong);
 				result = getEntry();
-
+				analyticsServicexeExecutor.execute((Runnable) any);
 			}
 		};
 
@@ -221,7 +244,7 @@ public class AnalyticsFilterTest {
 		new Expectations() {
 
 			{	
-				System.getenv(ANALYTICS_ENABLED);
+				System.getProperty(ANALYTICS_ENABLED);
 				result = null;
 				chain.doFilter((RequestInterceptorWrapper) any,
 						(ResponseInterceptorWrapper) any);

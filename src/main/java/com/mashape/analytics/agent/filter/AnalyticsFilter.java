@@ -28,6 +28,7 @@ import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_DA
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_ENABLED;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_PORT;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_URL;
+import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_TOKEN;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.SOCKET_POOL_SIZE_MAX;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.SOCKET_POOL_SIZE_MIN;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.SOCKET_POOL_UPDATE_INTERVAL;
@@ -77,6 +78,7 @@ public class AnalyticsFilter implements Filter {
 	private ExecutorService analyticsServicexeExecutor;
 	private String analyticsServerUrl;
 	private String analyticsServerPort;
+	private String analyticsToken;
 	private ObjectPool<Work> pool;
 	private boolean isAnlayticsEnabled = false;
 
@@ -146,6 +148,7 @@ public class AnalyticsFilter implements Filter {
 			analyticsData.setTime((recvEndTime - recvStartTime) + sendTime
 					+ waitTime);
 			messageProperties.put(ANALYTICS_DATA, analyticsData);
+			messageProperties.put(ANALYTICS_TOKEN, analyticsToken);
 			analyticsServicexeExecutor.execute(new SendAnalyticsTask(pool,
 					messageProperties));
 		} catch (Throwable x) {
@@ -158,10 +161,15 @@ public class AnalyticsFilter implements Filter {
 	 */
 	@Override
 	public void init(FilterConfig config) throws ServletException {
-		if (isAnlayticsEnabled = isAnalyticsEnabled()) {
-			if(!(Util.notBlank(analyticsServerUrl = config.getInitParameter(ANALYTICS_SERVER_URL))
-					&& Util.notBlank(analyticsServerUrl = config.getInitParameter(ANALYTICS_SERVER_PORT)))){
-				logger.error("Analytics URl or Port not set");
+		if (isAnlayticsEnabled = isAnalyticsFlagEnabled()) {
+			if (!(Util.notBlank(analyticsServerUrl = config
+					.getInitParameter(ANALYTICS_SERVER_URL))
+					&& Util.notBlank(analyticsServerUrl = config
+							.getInitParameter(ANALYTICS_SERVER_PORT)) && Util
+						.notBlank(analyticsToken = System
+								.getProperty(ANALYTICS_TOKEN)))) {
+				isAnlayticsEnabled = false;
+				logger.error("Analytics URl or Port or Token not set");
 				return;
 			}
 			int poolSize = getEnvVarOrDefault(WORKER_COUNT, Runtime
@@ -182,15 +190,15 @@ public class AnalyticsFilter implements Filter {
 	}
 
 	private int getEnvVarOrDefault(String name, int defaultVal) {
-		String val = System.getenv(name);
+		String val = System.getProperty(name);
 		if (Util.notBlank(val)) {
 			return Integer.parseInt(val);
 		}
 		return defaultVal;
 	}
 
-	private boolean isAnalyticsEnabled() {
-		return (Boolean.parseBoolean(System.getenv(ANALYTICS_ENABLED)));
+	private boolean isAnalyticsFlagEnabled() {
+		return (Boolean.parseBoolean(System.getProperty(ANALYTICS_ENABLED)));
 	}
 
 }
