@@ -12,9 +12,9 @@ Analytics Java Agent is custom servlet filter which intercepts the request and r
 
 ```xml
 <dependency>
-  <groupId>com.mashape.analytics.agent</groupId>
-  <artifactId>analytics-java-agent</artifactId>
-  <version>1.0.0-alpha-2</version>
+  <groupId>com.mashape.apianalytics.agent</groupId>
+  <artifactId>apianalytics-agent</artifactId>
+  <version>1.0.0-alpha-1</version>
 </dependency>
 ``` 
 
