@@ -91,8 +91,8 @@ Update web.xml on server
 
 ```xml
 <filter>
-  <filter-name>analyticsFilter</filter-name>
-  <filter-class>com.mashape.analytics.agent.filter.AnalyticsFilter</filter-class>
+  <filter-name>apianalytics-filter</filter-name>
+  <filter-class>com.mashape.apianalytics.agent.filter.ApianalyticsFilter</filter-class>
   <init-param>
     <param-name>analytics.server.url</param-name>
     <param-value>socket.apianalytics.com</param-value>
@@ -103,7 +103,7 @@ Update web.xml on server
   </init-param>
 </filter>
 <filter-mapping>
-  <filter-name>analyticsFilter</filter-name>
+  <filter-name>apianalytics-filter</filter-name>
   <url-pattern>/*</url-pattern>
 </filter-mapping> 
 ```
