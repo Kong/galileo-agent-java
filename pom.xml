@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.mashape.apianalytics.agent</groupId>
 	<artifactId>apianalytics-agent</artifactId>
-	<version>1.0.0-alpha-1-SNAPSHOT</version>
+	<version>1.0.0-alpha-1</version>
 	<name>apianalytics-agent</name>
 	<description>Apianalytics java agent</description>
 	<url>http://apianalytics.com</url>
