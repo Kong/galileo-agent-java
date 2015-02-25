@@ -4,10 +4,10 @@
 Analytics Java Agent is custom servlet filter which intercepts the request and response and sends it to API Analytics server asynchronously to generate analytics information.
 
 
-# Installation 
+## Installation 
 
 	
-# With Maven
+### With Maven
 
 
 ```xml
@@ -20,7 +20,7 @@ Analytics Java Agent is custom servlet filter which intercepts the request and r
 
 ``` 
 
-# Without Maven
+### Without Maven
 
 
 
@@ -73,7 +73,7 @@ Dependencies
 ```
 
 
-# Configuration for Server
+## Configuration for Server
 
 Filter has been tested on tomcat and should work with Jetty, Jboss and other servers supporting http servlet api. 
 To use the filter you would need to add Analytics filter to web descriptor and set few VM arguments in the server.
