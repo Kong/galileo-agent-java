@@ -11,13 +11,11 @@ Analytics Java Agent is custom servlet filter which intercepts the request and r
 
 
 ```xml
-
-	<dependency>
-  		<groupId>com.mashape.analytics.agent</groupId>
-  		<artifactId>analytics-java-agent</artifactId>
-  		<version>1.0.0-alpha-2</version>
-	</dependency>
-
+<dependency>
+  <groupId>com.mashape.analytics.agent</groupId>
+  <artifactId>analytics-java-agent</artifactId>
+  <version>1.0.0-alpha-2</version>
+</dependency>
 ``` 
 
 ### Without Maven
@@ -36,39 +34,39 @@ Dependencies
 
 ```xml
 	
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>javax.servlet-api</artifactId>
-			<version>3.0.1</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.zeromq</groupId>
-			<artifactId>jeromq</artifactId>
-			<version>0.3.4</version>
-		</dependency>
-		<dependency>
-			<groupId>com.google.code.gson</groupId>
-			<artifactId>gson</artifactId>
-			<version>2.3.1</version>
-		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.17</version>
-		</dependency>
-		<dependency>
-			<groupId>com.googlecode.jmockit</groupId>
-			<artifactId>jmockit</artifactId>
-			<version>1.7</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.12</version>
-			<scope>test</scope>
-		</dependency>
+<dependency>
+  <groupId>javax.servlet</groupId>
+  <artifactId>javax.servlet-api</artifactId>
+  <version>3.0.1</version>
+  <scope>provided</scope>
+</dependency>
+<dependency>
+  <groupId>org.zeromq</groupId>
+  <artifactId>jeromq</artifactId>
+  <version>0.3.4</version>
+</dependency>
+<dependency>
+  <groupId>com.google.code.gson</groupId>
+  <artifactId>gson</artifactId>
+  <version>2.3.1</version>
+</dependency>
+<dependency>
+  <groupId>log4j</groupId>
+  <artifactId>log4j</artifactId>
+  <version>1.2.17</version>
+</dependency>
+<dependency>
+  <groupId>com.googlecode.jmockit</groupId>
+  <artifactId>jmockit</artifactId>
+  <version>1.7</version>
+  <scope>test</scope>
+</dependency>
+<dependency>
+  <groupId>junit</groupId>
+  <artifactId>junit</artifactId>
+  <version>4.12</version>
+  <scope>test</scope>
+</dependency>
 		
 ```
 
@@ -92,23 +90,22 @@ Add following arguments to the server
 Update web.xml on server
 
 ```xml
-
-	<filter>
-		<filter-name>analyticsFilter</filter-name>
-		<filter-class>com.mashape.analytics.agent.filter.AnalyticsFilter</filter-class>
-		<init-param>
-			<param-name>analytics.server.url</param-name>
-			<param-value>socket.apianalytics.com</param-value>
-		</init-param>
-		<init-param>
-			<param-name>analytics.server.port</param-name>
-			<param-value>5000</param-value>
-		</init-param>
-	</filter>
-	<filter-mapping>
-		<filter-name>analyticsFilter</filter-name>
-		<url-pattern>/*</url-pattern>
-	</filter-mapping> 
+<filter>
+  <filter-name>analyticsFilter</filter-name>
+  <filter-class>com.mashape.analytics.agent.filter.AnalyticsFilter</filter-class>
+  <init-param>
+    <param-name>analytics.server.url</param-name>
+    <param-value>socket.apianalytics.com</param-value>
+  </init-param>
+  <init-param>
+    <param-name>analytics.server.port</param-name>
+    <param-value>5000</param-value>
+  </init-param>
+</filter>
+<filter-mapping>
+  <filter-name>analyticsFilter</filter-name>
+  <url-pattern>/*</url-pattern>
+</filter-mapping> 
 ```
 	
      
