@@ -1,7 +1,7 @@
 # Analytics Java Agent (alpha version)
 
 
-This is java Agent to report HTTP traffic to [Mashape API Analytics](http://apianalytics.com/) using [API Log Format](https://github.com/APIAnalytics/spec).Analytics Java Agent is custom servlet filter which intercepts the request and response and sends it to API Analytics server asynchronously to generate analytics information.
+It is a java Agent to report HTTP traffic to [Mashape API Analytics](http://apianalytics.com/) using [API Log Format](https://github.com/APIAnalytics/spec).Analytics Java Agent is custom servlet filter which intercepts the request and response and sends it to API Analytics server asynchronously to generate analytics information.
 
 
 ## Installation 
