@@ -20,7 +20,6 @@ import org.zeromq.ZMQ.Context;
 import org.zeromq.ZMQ.Socket;
 
 import com.mashape.apianalytics.agent.modal.Entry;
-import com.mashape.apianalytics.agent.connection.pool.Messenger;
 
 @RunWith(JMockit.class)
 public class MessengerTest {

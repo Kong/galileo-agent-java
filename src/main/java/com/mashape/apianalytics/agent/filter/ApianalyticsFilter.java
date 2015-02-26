@@ -52,13 +52,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
-import com.mashape.apianalytics.agent.modal.Entry;
 import com.mashape.apianalytics.agent.common.Util;
 import com.mashape.apianalytics.agent.connection.pool.Messenger;
 import com.mashape.apianalytics.agent.connection.pool.ObjectPool;
 import com.mashape.apianalytics.agent.connection.pool.SendAnalyticsTask;
 import com.mashape.apianalytics.agent.connection.pool.Work;
 import com.mashape.apianalytics.agent.mapper.ApianalyticsDataMapper;
+import com.mashape.apianalytics.agent.modal.Entry;
 import com.mashape.apianalytics.agent.wrapper.RequestInterceptorWrapper;
 import com.mashape.apianalytics.agent.wrapper.ResponseInterceptorWrapper;
 

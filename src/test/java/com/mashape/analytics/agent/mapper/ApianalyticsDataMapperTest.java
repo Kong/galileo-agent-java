@@ -25,8 +25,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.mashape.apianalytics.agent.modal.Entry;
 import com.mashape.apianalytics.agent.mapper.ApianalyticsDataMapper;
+import com.mashape.apianalytics.agent.modal.Entry;
 import com.mashape.apianalytics.agent.wrapper.RequestInterceptorWrapper;
 import com.mashape.apianalytics.agent.wrapper.ResponseInterceptorWrapper;
 

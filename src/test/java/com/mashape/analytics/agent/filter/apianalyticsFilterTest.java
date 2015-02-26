@@ -51,12 +51,12 @@ import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.mashape.apianalytics.agent.modal.Entry;
-import com.mashape.apianalytics.agent.modal.Timings;
 import com.mashape.apianalytics.agent.connection.pool.Messenger;
 import com.mashape.apianalytics.agent.connection.pool.Work;
 import com.mashape.apianalytics.agent.filter.ApianalyticsFilter;
 import com.mashape.apianalytics.agent.mapper.ApianalyticsDataMapper;
+import com.mashape.apianalytics.agent.modal.Entry;
+import com.mashape.apianalytics.agent.modal.Timings;
 import com.mashape.apianalytics.agent.wrapper.RequestInterceptorWrapper;
 import com.mashape.apianalytics.agent.wrapper.ResponseInterceptorWrapper;
 
