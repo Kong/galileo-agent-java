@@ -18,4 +18,12 @@ public class TestServlet extends HttpServlet{
 		out.flush();
 	}
 	
+	
+	protected void doCustom(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		PrintWriter out = resp.getWriter();
+		out.println("Filter test");
+		out.flush();
+	}
+	
 }

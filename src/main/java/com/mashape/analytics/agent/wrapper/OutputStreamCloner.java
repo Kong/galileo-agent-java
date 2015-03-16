@@ -22,19 +22,29 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-package com.mashape.apianalytics.agent.common;
+package com.mashape.analytics.agent.wrapper;
 
-public class ApianalyticsConstants {
-	public static final String ANALYTICS_SERVER_URL = "analytics.server.url";
-	public static final String ANALYTICS_SERVER_PORT = "analytics.server.port";
-	public static final String WORKER_COUNT = "analytics.worker.size";
-	public static final String ANALYTICS_DATA = "data";
-	public static final String SOCKET_POOL_SIZE_MIN = "analytics.socket.min";
-	public static final String SOCKET_POOL_SIZE_MAX = "analytics.socket.max";
-	public static final String SOCKET_POOL_UPDATE_INTERVAL = "analytics.socket.interval";
-	public static final String ANALYTICS_TOKEN = "analytics.token";
-	public static final String HAR_VERSION = "1.2";
-	public static final String AGENT_NAME = "Analytics Java Agent";
-	public static final String AGENT_VERSION = "1.0";
-	public static final String ANALYTICS_ENABLED = "analytics.enabled.flag";
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+
+import javax.servlet.ServletOutputStream;
+
+public class OutputStreamCloner extends ServletOutputStream {
+	private OutputStream outputStream;
+	private ByteArrayOutputStream clonedStream = new ByteArrayOutputStream();
+
+	public OutputStreamCloner(OutputStream contentStream) {
+		this.outputStream = contentStream;
+	}
+
+	public byte[] getClone() {
+		return this.clonedStream.toByteArray();
+	}
+
+	@Override
+	public void write(int data) throws IOException {
+		this.outputStream.write(data);
+		this.clonedStream.write(data);
+	}
 }

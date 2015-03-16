@@ -1,9 +1,9 @@
-package com.mashape.apianalytics.agent.connection.pool;
+package com.mashape.analytics.agent.connection.pool;
 
-import static com.mashape.apianalytics.agent.common.ApianalyticsConstants.ANALYTICS_DATA;
-import static com.mashape.apianalytics.agent.common.ApianalyticsConstants.ANALYTICS_SERVER_PORT;
-import static com.mashape.apianalytics.agent.common.ApianalyticsConstants.ANALYTICS_SERVER_URL;
-import static com.mashape.apianalytics.agent.common.ApianalyticsConstants.ANALYTICS_TOKEN;
+import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_DATA;
+import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_PORT;
+import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_URL;
+import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_TOKEN;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,7 +19,8 @@ import org.junit.runner.RunWith;
 import org.zeromq.ZMQ.Context;
 import org.zeromq.ZMQ.Socket;
 
-import com.mashape.apianalytics.agent.modal.Entry;
+import com.mashape.analytics.agent.connection.pool.Messenger;
+import com.mashape.analytics.agent.modal.Entry;
 
 @RunWith(JMockit.class)
 public class MessengerTest {

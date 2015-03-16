@@ -119,7 +119,7 @@
 						</goals>
 						<configuration>
 							<schemaFiles>analyticsHar.xsd</schemaFiles>
-							<packageName>com.mashape.apianalytics.agent.modal</packageName>
+							<packageName>com.mashape.analytics.agent.modal</packageName>
 						</configuration>
 					</execution>
 				</executions>

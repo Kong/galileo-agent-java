@@ -25,16 +25,16 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.mashape.apianalytics.agent.mapper.ApianalyticsDataMapper;
-import com.mashape.apianalytics.agent.modal.Entry;
-import com.mashape.apianalytics.agent.wrapper.RequestInterceptorWrapper;
-import com.mashape.apianalytics.agent.wrapper.ResponseInterceptorWrapper;
+import com.mashape.analytics.agent.mapper.AnalyticsDataMapper;
+import com.mashape.analytics.agent.wrapper.RequestInterceptorWrapper;
+import com.mashape.analytics.agent.wrapper.ResponseInterceptorWrapper;
+import com.mashape.analytics.agent.modal.Entry;
 
 @RunWith(JMockit.class)
-public class ApianalyticsDataMapperTest {
+public class AnalyticsDataMapperTest {
 	
 	@Tested
-	private ApianalyticsDataMapper mapper;
+	private AnalyticsDataMapper mapper;
 	
 	@Mocked
 	@Injectable

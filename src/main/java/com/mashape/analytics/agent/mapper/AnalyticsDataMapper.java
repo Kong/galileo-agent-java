@@ -21,29 +21,32 @@ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.mashape.apianalytics.agent.mapper;
+package com.mashape.analytics.agent.mapper;
 
 import java.io.UnsupportedEncodingException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.apache.log4j.Logger;
 
-import com.mashape.apianalytics.agent.modal.Content;
-import com.mashape.apianalytics.agent.modal.Entry;
-import com.mashape.apianalytics.agent.modal.Message;
-import com.mashape.apianalytics.agent.modal.NameValuePair;
-import com.mashape.apianalytics.agent.modal.Request;
-import com.mashape.apianalytics.agent.modal.Response;
-import com.mashape.apianalytics.agent.modal.Timings;
-import com.mashape.apianalytics.agent.wrapper.RequestInterceptorWrapper;
-import com.mashape.apianalytics.agent.wrapper.ResponseInterceptorWrapper;
+import com.mashape.analytics.agent.wrapper.RequestInterceptorWrapper;
+import com.mashape.analytics.agent.wrapper.ResponseInterceptorWrapper;
+import com.mashape.analytics.agent.modal.Content;
+import com.mashape.analytics.agent.modal.Entry;
+import com.mashape.analytics.agent.modal.Message;
+import com.mashape.analytics.agent.modal.NameValuePair;
+import com.mashape.analytics.agent.modal.Request;
+import com.mashape.analytics.agent.modal.Response;
+import com.mashape.analytics.agent.modal.Timings;
 
-public class ApianalyticsDataMapper {
+public class AnalyticsDataMapper {
 
-	Logger logger = Logger.getLogger(ApianalyticsDataMapper.class);
+	Logger logger = Logger.getLogger(AnalyticsDataMapper.class);
 
 	private static final String DEFAULT_MIME_TYPE = "application/octet-stream";
 
@@ -51,7 +54,7 @@ public class ApianalyticsDataMapper {
 	private ResponseInterceptorWrapper response;
 	Message message;
 
-	public ApianalyticsDataMapper(RequestInterceptorWrapper request,
+	public AnalyticsDataMapper(RequestInterceptorWrapper request,
 			ResponseInterceptorWrapper response) {
 		this.request = (RequestInterceptorWrapper) request;
 		this.response = (ResponseInterceptorWrapper) response;
@@ -62,7 +65,7 @@ public class ApianalyticsDataMapper {
 		Entry entry = new Entry();
 		entry.setClientIPAddress(request.getRemoteAddr());
 		entry.setServerIPAddress(request.getLocalAddr());
-		entry.setStartedDateTime(requestReceivedTime.toString());
+		entry.setStartedDateTime(dateAsIso(requestReceivedTime));
 		entry.setRequest(mapRequest());
 		entry.setResponse(mapResponse());
 		entry.setTimings(mapTimings(requestReceivedTime, sendTime, waitTime));
@@ -102,7 +105,7 @@ public class ApianalyticsDataMapper {
 			size += 2;
 		}
 		// adding two for CRLF
-		responseHar.setHeadersSize(size+2);
+		responseHar.setHeadersSize(size + 2);
 	}
 
 	private Request mapRequest() {
@@ -167,5 +170,12 @@ public class ApianalyticsDataMapper {
 		timings.setSend(sendTime);
 		timings.setWait(waitTime);
 		return timings;
+	}
+
+	private String dateAsIso(Date date) {
+		TimeZone tz = TimeZone.getTimeZone("UTC");
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.s'Z'");
+		df.setTimeZone(tz);
+		return df.format(new Date());
 	}
 }

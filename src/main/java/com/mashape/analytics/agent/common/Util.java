@@ -21,28 +21,19 @@ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-package com.mashape.apianalytics.agent.connection.pool;
 
-import java.util.Map;
+package com.mashape.analytics.agent.common;
 
-/*
- * @author shashi
- * 
- * Task use a pooled object to send data
- */
-public class SendAnalyticsTask implements Runnable {
-
-	private ObjectPool<Work> pool;
-	private Map<String, Object> analyticsData;
-
-	public SendAnalyticsTask(ObjectPool<Work> pool, Map<String, Object> analyticsData) {
-		this.pool = pool;
-		this.analyticsData = analyticsData;
+public class Util {
+	
+	private Util(){
+		// closed
 	}
-
-	public void run() {
-		Work work = pool.borrowObject();
-		work.execute(analyticsData);
-		pool.returnObject(work);
+	
+	public static boolean notBlank(String val){
+		if (val != null && val.length() > 0) {
+			return true;
+		}
+		return false;
 	}
 }

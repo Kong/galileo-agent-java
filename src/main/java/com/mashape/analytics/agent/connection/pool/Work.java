@@ -21,30 +21,11 @@ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
+package com.mashape.analytics.agent.connection.pool;
 
-package com.mashape.apianalytics.agent.wrapper;
+import java.util.Map;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-
-import javax.servlet.ServletOutputStream;
-
-public class OutputStreamCloner extends ServletOutputStream {
-	private OutputStream outputStream;
-	private ByteArrayOutputStream clonedStream = new ByteArrayOutputStream();
-
-	public OutputStreamCloner(OutputStream contentStream) {
-		this.outputStream = contentStream;
-	}
-
-	public byte[] getClone() {
-		return this.clonedStream.toByteArray();
-	}
-
-	@Override
-	public void write(int data) throws IOException {
-		this.outputStream.write(data);
-		this.clonedStream.write(data);
-	}
+public interface Work {
+	void terminate();
+	void execute(Map<String, Object> analyticsData);
 }

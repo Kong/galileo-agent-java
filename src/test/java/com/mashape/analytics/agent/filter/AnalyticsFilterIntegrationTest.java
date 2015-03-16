@@ -26,9 +26,9 @@ import org.junit.Test;
 import org.zeromq.ZMQ;
 
 import com.google.gson.Gson;
-import com.mashape.apianalytics.agent.filter.ApianalyticsFilter;
-import com.mashape.apianalytics.agent.modal.Entry;
-import com.mashape.apianalytics.agent.modal.Message;
+import com.mashape.analytics.agent.filter.AnalyticsFilter;
+import com.mashape.analytics.agent.modal.Entry;
+import com.mashape.analytics.agent.modal.Message;
 
 public class AnalyticsFilterIntegrationTest {
 
@@ -59,6 +59,7 @@ public class AnalyticsFilterIntegrationTest {
 		while (!dataRecieved.get()) {
 		}
 		Message message = new Gson().fromJson(analyticsData, Message.class);
+		System.out.println(analyticsData);
 		assertNotNull(message);
 		assertNotNull(message.getServiceToken());
 		assertNotNull(message.getHar());
@@ -131,7 +132,7 @@ public class AnalyticsFilterIntegrationTest {
 					context.addServlet(holder, "/*");
 
 					FilterHolder fh = handler.addFilterWithMapping(
-							ApianalyticsFilter.class, "/*",
+							AnalyticsFilter.class, "/*",
 							EnumSet.of(DispatcherType.REQUEST));
 					Map<String, String> map = new HashMap<String, String>();
 					map.put("analytics.server.url", "127.0.0.1");
