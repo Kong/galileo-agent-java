@@ -14,15 +14,15 @@ public class TestServlet extends HttpServlet{
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
 		PrintWriter out = resp.getWriter();
-		out.println("Filter test");
+		out.print("Filter test");
 		out.flush();
 	}
 	
-	
-	protected void doCustom(HttpServletRequest req, HttpServletResponse resp)
+	@Override
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
 		PrintWriter out = resp.getWriter();
-		out.println("Filter test");
+		out.print("Filter test");
 		out.flush();
 	}
 	

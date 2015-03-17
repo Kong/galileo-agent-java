@@ -59,7 +59,7 @@ public class AnalyticsFilterIntegrationTest {
 		HttpClient client = new HttpClient();
 		client.start();
 		
-		HttpResponse<String> jsonResponse = Unirest.post("http://127.0.0.1:8083/")
+		HttpResponse<String> jsonResponse = Unirest.post("http://127.0.0.1:8083/path")
 				  .header("accept", "application/json")
 				  .queryString("apiKey", "123")
 				  .field("parameter", "value")

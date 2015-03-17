@@ -181,10 +181,10 @@ public class AnalyticsDataMapper {
 		try {
 			String payload = new String(response.getClone(),
 					response.getCharacterEncoding());
-			content.setSize(payload.length());
-			content.setText(payload);
+			content.setSize(response.getClone().length);
+			content.setText(BaseEncoding.base64().encode(payload.getBytes(response.getCharacterEncoding())));
 		} catch (UnsupportedEncodingException e) {
-			logger.error(e);
+			new RuntimeException("Failed to encode request");
 		}
 		return content;
 	}
