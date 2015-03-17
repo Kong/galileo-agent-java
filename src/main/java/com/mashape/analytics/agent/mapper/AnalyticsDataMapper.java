@@ -34,6 +34,7 @@ import java.util.TimeZone;
 
 import org.apache.log4j.Logger;
 
+import com.google.common.io.BaseEncoding;
 import com.mashape.analytics.agent.wrapper.RequestInterceptorWrapper;
 import com.mashape.analytics.agent.wrapper.ResponseInterceptorWrapper;
 import com.mashape.analytics.agent.modal.Content;
@@ -75,16 +76,20 @@ public class AnalyticsDataMapper {
 	private void setRequestHeaders(Request requestHar) {
 		Enumeration<String> headers = request.getHeaderNames();
 		List<NameValuePair> headerList = requestHar.getHeaders();
-		int size = 2;
+		int size = 2; //2 for CRLF
 		while (headers.hasMoreElements()) {
 			String name = headers.nextElement();
 			size += name.getBytes().length;
-			NameValuePair pair = new NameValuePair();
-			pair.setName(name);
-			String value = request.getHeader(name);
-			size += value.getBytes().length;
-			pair.setValue(value);
-			headerList.add(pair);
+			Enumeration<String> values = request.getHeaders(name);
+			while (values.hasMoreElements()) {
+				NameValuePair pair = new NameValuePair();
+				pair.setName(name);
+				String headerValue = values.nextElement();
+				size += headerValue.getBytes().length;
+				pair.setValue(headerValue);
+				headerList.add(pair);
+				size += 6; // 2 for ": " + 2 for ", " if multiple values present and 2 for CRLF for each header
+			}
 		}
 		requestHar.setHeadersSize(size);
 	}
@@ -92,20 +97,20 @@ public class AnalyticsDataMapper {
 	private void setResponseHeaders(Response responseHar) {
 		Collection<String> headers = response.getHeaderNames();
 		List<NameValuePair> headerList = responseHar.getHeaders();
-		int size = 0;
+		int size = 2; // 2 for CRLF
 		for (String name : headers) {
-			NameValuePair pair = new NameValuePair();
-			size += name.getBytes().length;
-			pair.setName(name);
-			String value = response.getHeader(name);
-			size += value.getBytes().length;
-			pair.setValue(value);
-			headerList.add(pair);
-			// adding two for ": " between name and value
-			size += 2;
-		}
-		// adding two for CRLF
-		responseHar.setHeadersSize(size + 2);
+			Collection<String> values = response.getHeaders(name);
+			for(String value : values){
+				NameValuePair pair = new NameValuePair();
+				size += name.getBytes().length;
+				pair.setName(name);
+				size += value.getBytes().length;
+				pair.setValue(value);
+				headerList.add(pair);
+				size += 6;// 2 for ": " + 2 for ", " if multiple values present and 2 for CRLF for each header
+			}	
+		}	
+		responseHar.setHeadersSize(size);
 	}
 
 	private Request mapRequest() {
@@ -116,7 +121,24 @@ public class AnalyticsDataMapper {
 		requestHar.setUrl(request.getRequestURL().toString());
 		requestHar.setHttpVersion(request.getProtocol());
 		setRequestHeaders(requestHar);
+		setQueryString(requestHar);
 		return requestHar;
+	}
+
+	private void setQueryString(Request requestHar) {
+		Enumeration<String> params = request.getParameterNames();
+		List<NameValuePair> paramList = requestHar.getQueryString();
+
+		while (params.hasMoreElements()) {
+			String name = params.nextElement();
+			String[] values = request.getParameterValues(name);
+			for (String value : values) {
+				NameValuePair pair = new NameValuePair();
+				pair.setName(name);
+				pair.setValue(value);
+				paramList.add(pair);
+			}
+		}
 	}
 
 	private Content mapRequestContent() {
@@ -128,7 +150,11 @@ public class AnalyticsDataMapper {
 			content.setMimeType(request.getContentType());
 		}
 		content.setSize(request.getPayload().length());
-		content.setText(request.getPayload());
+		try {
+			content.setText(BaseEncoding.base64().encode(request.getPayload().getBytes("UTF-8")));
+		} catch (UnsupportedEncodingException e) {
+			new RuntimeException("Failed to encode request");
+		}
 		return content;
 	}
 

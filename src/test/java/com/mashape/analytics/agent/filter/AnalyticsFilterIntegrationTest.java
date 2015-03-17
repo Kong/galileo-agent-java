@@ -29,6 +29,10 @@ import com.google.gson.Gson;
 import com.mashape.analytics.agent.filter.AnalyticsFilter;
 import com.mashape.analytics.agent.modal.Entry;
 import com.mashape.analytics.agent.modal.Message;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.JsonNode;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.request.HttpRequestWithBody;
 
 public class AnalyticsFilterIntegrationTest {
 
@@ -54,7 +58,13 @@ public class AnalyticsFilterIntegrationTest {
 	public void test() throws Exception {
 		HttpClient client = new HttpClient();
 		client.start();
-		ContentResponse res = client.GET("http://127.0.0.1:8083/");
+		
+		HttpResponse<String> jsonResponse = Unirest.post("http://127.0.0.1:8083/")
+				  .header("accept", "application/json")
+				  .queryString("apiKey", "123")
+				  .field("parameter", "value")
+				  .field("foo", "bar")
+				  .asString();
 		client.stop();
 		while (!dataRecieved.get()) {
 		}
@@ -82,7 +92,24 @@ public class AnalyticsFilterIntegrationTest {
 		assertNotNull(entry.getRequest().getHeadersSize());
 		assertNotNull(entry.getRequest().getContent());
 		assertNotNull(entry.getRequest().getBodySize());
-
+		assertNotNull(entry.getRequest().getQueryString());
+		
+		assertNotNull(entry.getRequest().getContent().getText());
+		assertNotNull(entry.getRequest().getContent().getEncoding());
+		assertNotNull(entry.getRequest().getContent().getMimeType());
+		assertNotNull(entry.getRequest().getContent().getSize());
+		
+		assertNotNull(entry.getResponse().getHttpVersion());
+		assertNotNull(entry.getResponse().getHeaders());
+		assertNotNull(entry.getResponse().getHeadersSize());
+		assertNotNull(entry.getResponse().getContent());
+		assertNotNull(entry.getResponse().getBodySize());
+		
+		assertNotNull(entry.getResponse().getContent().getText());
+		assertNotNull(entry.getResponse().getContent().getEncoding());
+		assertNotNull(entry.getResponse().getContent().getMimeType());
+		assertNotNull(entry.getResponse().getContent().getSize());
+		
 	}
 
 	@AfterClass
