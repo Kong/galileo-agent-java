@@ -25,6 +25,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.zeromq.ZMQ;
 
+import com.google.common.io.BaseEncoding;
 import com.google.gson.Gson;
 import com.mashape.analytics.agent.filter.AnalyticsFilter;
 import com.mashape.analytics.agent.modal.Entry;
@@ -62,7 +63,7 @@ public class AnalyticsFilterIntegrationTest {
 		HttpResponse<String> jsonResponse = Unirest.post("http://127.0.0.1:8083/path")
 				  .header("accept", "application/json")
 				  .queryString("apiKey", "123")
-				  .field("parameter", "value")
+				  .field("parameter", "valuΩΩΩΩe")
 				  .field("foo", "bar")
 				  .asString();
 		client.stop();
@@ -109,7 +110,6 @@ public class AnalyticsFilterIntegrationTest {
 		assertNotNull(entry.getResponse().getContent().getEncoding());
 		assertNotNull(entry.getResponse().getContent().getMimeType());
 		assertNotNull(entry.getResponse().getContent().getSize());
-		
 	}
 
 	@AfterClass

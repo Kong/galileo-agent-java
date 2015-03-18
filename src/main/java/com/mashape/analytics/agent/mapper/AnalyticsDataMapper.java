@@ -76,7 +76,7 @@ public class AnalyticsDataMapper {
 	private void setRequestHeaders(Request requestHar) {
 		Enumeration<String> headers = request.getHeaderNames();
 		List<NameValuePair> headerList = requestHar.getHeaders();
-		int size = 2; //2 for CRLF
+		int size = 2; // 2 for CRLF
 		while (headers.hasMoreElements()) {
 			String name = headers.nextElement();
 			size += name.getBytes().length;
@@ -88,7 +88,8 @@ public class AnalyticsDataMapper {
 				size += headerValue.getBytes().length;
 				pair.setValue(headerValue);
 				headerList.add(pair);
-				size += 6; // 2 for ": " + 2 for ", " if multiple values present and 2 for CRLF for each header
+				size += 6; // 2 for ": " + 2 for ", " if multiple values present
+							// and 2 for CRLF for each header
 			}
 		}
 		requestHar.setHeadersSize(size);
@@ -100,16 +101,17 @@ public class AnalyticsDataMapper {
 		int size = 2; // 2 for CRLF
 		for (String name : headers) {
 			Collection<String> values = response.getHeaders(name);
-			for(String value : values){
+			for (String value : values) {
 				NameValuePair pair = new NameValuePair();
 				size += name.getBytes().length;
 				pair.setName(name);
 				size += value.getBytes().length;
 				pair.setValue(value);
 				headerList.add(pair);
-				size += 6;// 2 for ": " + 2 for ", " if multiple values present and 2 for CRLF for each header
-			}	
-		}	
+				size += 6;// 2 for ": " + 2 for ", " if multiple values present
+							// and 2 for CRLF for each header
+			}
+		}
 		responseHar.setHeadersSize(size);
 	}
 
@@ -151,9 +153,10 @@ public class AnalyticsDataMapper {
 		}
 		content.setSize(request.getPayload().length());
 		try {
-			content.setText(BaseEncoding.base64().encode(request.getPayload().getBytes("UTF-8")));
+			content.setText(BaseEncoding.base64().encode(
+					request.getPayload().getBytes(request.getCharacterEncoding())));
 		} catch (UnsupportedEncodingException e) {
-			new RuntimeException("Failed to encode request");
+			throw new RuntimeException("Failed to encode request body");
 		}
 		return content;
 	}
@@ -178,14 +181,8 @@ public class AnalyticsDataMapper {
 		if (mimeType != null && mimeType.length() > 0) {
 			content.setMimeType(mimeType);
 		}
-		try {
-			String payload = new String(response.getClone(),
-					response.getCharacterEncoding());
-			content.setSize(response.getClone().length);
-			content.setText(BaseEncoding.base64().encode(payload.getBytes(response.getCharacterEncoding())));
-		} catch (UnsupportedEncodingException e) {
-			new RuntimeException("Failed to encode request");
-		}
+		content.setSize(response.getClone().length);
+		content.setText(BaseEncoding.base64().encode(response.getClone()));
 		return content;
 	}
 
