@@ -13,8 +13,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.servlet.DispatcherType;
 
-import org.eclipse.jetty.client.HttpClient;
-import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -25,15 +23,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.zeromq.ZMQ;
 
-import com.google.common.io.BaseEncoding;
 import com.google.gson.Gson;
-import com.mashape.analytics.agent.filter.AnalyticsFilter;
 import com.mashape.analytics.agent.modal.Entry;
 import com.mashape.analytics.agent.modal.Message;
 import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.request.HttpRequestWithBody;
 
 public class AnalyticsFilterIntegrationTest {
 
@@ -57,16 +51,12 @@ public class AnalyticsFilterIntegrationTest {
 
 	@Test
 	public void test() throws Exception {
-		HttpClient client = new HttpClient();
-		client.start();
-		
-		HttpResponse<String> jsonResponse = Unirest.post("http://127.0.0.1:8083/path")
-				  .header("accept", "application/json")
-				  .queryString("apiKey", "123")
-				  .field("parameter", "valuΩΩΩΩe")
-				  .field("foo", "bar")
-				  .asString();
-		client.stop();
+		HttpResponse<String> jsonResponse = Unirest
+				.post("http://127.0.0.1:8083/path")
+				.header("accept", "application/json")
+				.queryString("apiKey", "123").field("parameter", "valuΩΩΩΩe")
+				.field("foo", "bar").asString();
+		Unirest.shutdown();
 		while (!dataRecieved.get()) {
 		}
 		Message message = new Gson().fromJson(analyticsData, Message.class);
@@ -85,7 +75,7 @@ public class AnalyticsFilterIntegrationTest {
 		assertNotNull(entry.getTimings());
 		assertEquals("127.0.0.1", entry.getClientIPAddress());
 		assertEquals("127.0.0.1", entry.getServerIPAddress());
-		
+
 		assertNotNull(entry.getRequest().getMethod());
 		assertNotNull(entry.getRequest().getUrl());
 		assertNotNull(entry.getRequest().getHttpVersion());
@@ -94,18 +84,18 @@ public class AnalyticsFilterIntegrationTest {
 		assertNotNull(entry.getRequest().getContent());
 		assertNotNull(entry.getRequest().getBodySize());
 		assertNotNull(entry.getRequest().getQueryString());
-		
+
 		assertNotNull(entry.getRequest().getContent().getText());
 		assertNotNull(entry.getRequest().getContent().getEncoding());
 		assertNotNull(entry.getRequest().getContent().getMimeType());
 		assertNotNull(entry.getRequest().getContent().getSize());
-		
+
 		assertNotNull(entry.getResponse().getHttpVersion());
 		assertNotNull(entry.getResponse().getHeaders());
 		assertNotNull(entry.getResponse().getHeadersSize());
 		assertNotNull(entry.getResponse().getContent());
 		assertNotNull(entry.getResponse().getBodySize());
-		
+
 		assertNotNull(entry.getResponse().getContent().getText());
 		assertNotNull(entry.getResponse().getContent().getEncoding());
 		assertNotNull(entry.getResponse().getContent().getMimeType());
