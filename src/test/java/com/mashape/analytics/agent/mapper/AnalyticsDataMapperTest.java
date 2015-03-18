@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -25,6 +26,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import com.google.common.io.BaseEncoding;
 import com.mashape.analytics.agent.mapper.AnalyticsDataMapper;
 import com.mashape.analytics.agent.wrapper.RequestInterceptorWrapper;
 import com.mashape.analytics.agent.wrapper.ResponseInterceptorWrapper;
@@ -44,11 +46,13 @@ public class AnalyticsDataMapperTest {
 	@Injectable
 	private ResponseInterceptorWrapper response;
 	
-	private Map<String, String> headerMap = new HashMap<String, String>();
+	private Map<String, List<String>> headerMap = new HashMap<String, List<String>>();
 
 	@Before
 	public void setUp() throws Exception {
-		headerMap.put("H1", "V1");
+		List<String> values = new ArrayList<String>();
+		values.add("V1");
+		headerMap.put("H1", values);
 	}
 
 	@After
@@ -56,7 +60,7 @@ public class AnalyticsDataMapperTest {
 	}
 
 	@Test
-	public void testAnalyticsDataMapper() {
+	public void testAnalyticsDataMapper() throws UnsupportedEncodingException {
 		new NonStrictExpectations() {
 			{
 				request.getRemoteAddr();
@@ -65,11 +69,11 @@ public class AnalyticsDataMapperTest {
 				result = "localhost";
 				request.getHeaderNames();
 				result = getHeaderNames();
-				request.getHeader("H1");
-				result = headerMap.get("H1");
+				request.getHeaders("H1");
+				result = Collections.enumeration(headerMap.get("H1"));
 				response.getHeaderNames();
 				result = getHeaderResponseNames();
-				response.getHeader("H1");
+				response.getHeaders("H1");
 				result = headerMap.get("H1");
 				request.getContentLength();
 				result = "it is payload".getBytes().length;
@@ -117,7 +121,7 @@ public class AnalyticsDataMapperTest {
 		assertNotNull(entry.getRequest().getBodySize());
 		
 		
-		assertEquals("it is payload", entry.getRequest().getContent().getText());
+		assertEquals("it is payload", new String(BaseEncoding.base64().decode(entry.getRequest().getContent().getText()), entry.getRequest().getContent().getEncoding()));
 		assertEquals(13, entry.getRequest().getBodySize());
 		assertEquals("http://remotehost/todo", entry.getRequest().getUrl());
 		assertEquals(1, entry.getRequest().getHeaders().size());
@@ -125,15 +129,15 @@ public class AnalyticsDataMapperTest {
 		assertEquals("V1", entry.getRequest().getHeaders().get(0).getValue());
 		assertEquals("http://remotehost/todo", entry.getRequest().getUrl());
 		assertEquals("POST", entry.getRequest().getMethod());
-		assertEquals(6, entry.getRequest().getHeadersSize());
+		assertEquals(12, entry.getRequest().getHeadersSize());
 		assertEquals("HTTP 1.0", entry.getRequest().getHttpVersion());
 		
-		assertEquals("response", entry.getResponse().getContent().getText());
+		assertEquals("response", new String(BaseEncoding.base64().decode(entry.getResponse().getContent().getText()),  entry.getResponse().getContent().getEncoding()));
 		assertEquals(8, entry.getResponse().getBodySize());
 		assertEquals(1, entry.getRequest().getHeaders().size());
 		assertEquals("H1", entry.getResponse().getHeaders().get(0).getName());
 		assertEquals("V1", entry.getResponse().getHeaders().get(0).getValue());
-		assertEquals(8, entry.getResponse().getHeadersSize());
+		assertEquals(12, entry.getResponse().getHeadersSize());
 		assertEquals("HTTP 1.0", entry.getResponse().getHttpVersion());
 		assertEquals(8, entry.getResponse().getContent().getSize());
 		assertEquals("application/json", entry.getResponse().getContent().getMimeType());

@@ -108,12 +108,14 @@
 			<groupId>com.google.guava</groupId>
 			<type>jar</type>
 			<version>14.0.1</version>
+			<scope>test</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>com.mashape.unirest</groupId>
 			<artifactId>unirest-java</artifactId>
 			<version>1.4.5</version>
+			<scope>test</scope>
 		</dependency>
 
 	</dependencies>
