@@ -152,11 +152,19 @@ public class AnalyticsDataMapper {
 			content.setMimeType(request.getContentType());
 		}
 		content.setSize(request.getPayload().length());
-		try {
-			content.setText(BaseEncoding.base64().encode(
-					request.getPayload().getBytes(request.getCharacterEncoding())));
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException("Failed to encode request body");
+		if (request.getPayload().length() > 0) {
+			try {
+				content.setText(BaseEncoding
+						.base64()
+						.encode(request
+								.getPayload()
+								.getBytes(
+										request.getCharacterEncoding() == null ? "UTF-8"
+												: request
+														.getCharacterEncoding())));
+			} catch (UnsupportedEncodingException e) {
+				throw new RuntimeException("Failed to encode request body");
+			}
 		}
 		return content;
 	}
@@ -182,7 +190,9 @@ public class AnalyticsDataMapper {
 			content.setMimeType(mimeType);
 		}
 		content.setSize(response.getClone().length);
-		content.setText(BaseEncoding.base64().encode(response.getClone()));
+		if (response.getClone().length > 0) {
+			content.setText(BaseEncoding.base64().encode(response.getClone()));
+		}
 		return content;
 	}
 
