@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema version="1.0" attributeFormDefault="unqualified"
+	elementFormDefault="unqualified" xmlns:xs="http://www.w3.org/2001/XMLSchema" >
+
+	<xs:element name="log">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">HTTP Archive structure.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:all>
+				<xs:element name="version" type="xs:string" />
+				<xs:element name="creator" type="creator" />
+				<xs:element name="browser" minOccurs="0" type="browser" />
+				<xs:element name="pages" minOccurs="0" type="pages">
+					<xs:unique name="uniquePageId">
+						<xs:selector xpath="page" />
+						<xs:field xpath="id" />
+					</xs:unique>
+				</xs:element>
+				<xs:element name="entries" type="entries" />
+				<xs:element name="comment" minOccurs="0" type="xs:string" />
+			</xs:all>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:complexType name="creator">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Name and version
+				information of the log creator application.</xs:documentation>
+		</xs:annotation>
+		<xs:all>
+			<xs:element name="name" type="xs:string" />
+			<xs:element name="version" type="xs:string" />
+			<xs:element name="comment" minOccurs="0" type="xs:string" />
+		</xs:all>
+	</xs:complexType>
+
+	<xs:complexType name="browser">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Name and version
+				information of the browser application.</xs:documentation>
+		</xs:annotation>
+		<xs:all>
+			<xs:element name="name" type="xs:string" />
+			<xs:element name="version" type="xs:string" />
+			<xs:element name="comment" minOccurs="0" type="xs:string" />
+		</xs:all>
+	</xs:complexType>
+
+	<xs:complexType name="pages">
+		<xs:sequence>
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="page"
+				type="page" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="page">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Exported web page.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:all>
+			<xs:element name="startedDateTime" type="xs:dateTime" />
+			<xs:element name="id" type="xs:string" />
+			<xs:element name="title" type="xs:string" />
+			<xs:element name="pageTimings" type="pageTimings" />
+			<xs:element name="comment" minOccurs="0" type="xs:string" />
+		</xs:all>
+	</xs:complexType>
+
+	<xs:complexType name="pageTimings">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Timing information about
+				page load.</xs:documentation>
+		</xs:annotation>
+		<xs:all>
+			<xs:element name="onContentLoad" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:int">
+						<xs:minInclusive value="-1" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="onLoad" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:int">
+						<xs:minInclusive value="-1" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="comment" minOccurs="0" type="xs:string" />
+		</xs:all>
+	</xs:complexType>
+
+	<xs:complexType name="entries">
+		<xs:sequence>
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="entry"
+				type="entry" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="entry">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Request and Response
+				related information.</xs:documentation>
+		</xs:annotation>
+		<xs:all>
+			<xs:element name="pageref" minOccurs="0" type="xs:string" />
+			<xs:element name="startedDateTime" type="xs:dateTime" />
+			<xs:element name="time">
+				<xs:simpleType>
+					<xs:restriction base="xs:int">
+						<xs:minInclusive value="0" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="request" type="request" />
+			<xs:element name="response" type="response" />
+			<xs:element name="cache" type="cache" />
+			<xs:element name="timings" type="timings" />
+			<xs:element name="serverIPAddress" minOccurs="0" type="xs:string" />
+			<xs:element name="connection" minOccurs="0" type="xs:string" />
+			<xs:element name="comment" minOccurs="0" type="xs:string" />
+		</xs:all>
+	</xs:complexType>
+
+	<xs:complexType name="request">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Monitored request.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:all>
+			<xs:element name="method" type="xs:string" />
+			<xs:element name="url" type="xs:string" />
+			<xs:element name="httpVersion" type="xs:string" />
+			<xs:element name="cookies" type="cookies" />
+			<xs:element name="headers" type="headers" />
+			<xs:element name="queryString" type="queryString" />
+			<xs:element name="postData" minOccurs="0" type="postData" />
+			<xs:element name="headersSize" type="xs:int" />
+			<xs:element name="bodySize" type="xs:int" />
+			<xs:element name="comment" minOccurs="0" type="xs:string" />
+		</xs:all>
+	</xs:complexType>
+
+	<xs:complexType name="headers">
+		<xs:sequence>
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="header"
+				type="header">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Note: Microsoft
+						Internet Explorer 9+ Developer Tools Network Capture uses 'header'
+						instead of 'record'. Note: HTTP Archive V1.2 requires 'headers' to
+						contain at least one 'header' but in practice 'headers' may be
+						empty.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="header">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Header name-value pair
+				structure.</xs:documentation>
+		</xs:annotation>
+		<xs:all>
+			<xs:element name="name" type="xs:string" />
+			<xs:element name="value" type="xs:string" />
+			<xs:element name="comment" minOccurs="0" type="xs:string" />
+		</xs:all>
+	</xs:complexType>
+
+	<xs:complexType name="queryString">
+		<xs:sequence>
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="param"
+				type="param">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Note: Microsoft
+						Internet Explorer 9+ Developer Tools Network Capture uses 'param'
+						instead of 'record'. Note: HTTP Archive V1.2 requires
+						'queryString' to contain at least one 'record' but in practice
+						'queryString' may be empty.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="response">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Monitored Response.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:all>
+			<xs:element name="status" type="xs:int" />
+			<xs:element name="statusText" type="xs:string" />
+			<xs:element name="httpVersion" type="xs:string" />
+			<xs:element name="cookies" type="cookies" />
+			<xs:element name="headers" type="headers" />
+			<xs:element name="content" type="content" />
+			<xs:element ref="redirectURL" />
+			<xs:element name="headersSize" type="xs:int" />
+			<xs:element name="bodySize" type="xs:int" />
+			<xs:element name="comment" minOccurs="0" type="xs:string" />
+		</xs:all>
+	</xs:complexType>
+
+	<xs:element name="redirectURL" type="xs:string" />
+	<xs:element name="redirectionURL" substitutionGroup="redirectURL">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Note: Microsoft Internet
+				Explorer 9+ Developer Tools Network Capture uses 'redirectionURL'
+				instead of 'redirectURL'.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+
+	<xs:complexType name="cookies">
+		<xs:sequence>
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="cookie"
+				type="cookie">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Note: HTTP Archive V1.2
+						requires 'cookies' to contain at least one 'cookie' but in
+						practice 'cookies' may be empty.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="cookie">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Cookie description.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:all>
+			<xs:element name="name" type="xs:string" />
+			<xs:element name="value" type="xs:string" />
+			<xs:element name="path" minOccurs="0" type="xs:string" />
+			<xs:element name="domain" minOccurs="0" type="xs:string" />
+			<xs:element name="expires" minOccurs="0" type="xs:string" />
+			<xs:element name="httpOnly" minOccurs="0" type="xs:boolean" />
+			<xs:element name="secure" minOccurs="0" type="xs:boolean" />
+			<xs:element name="comment" minOccurs="0" type="xs:string" />
+		</xs:all>
+	</xs:complexType>
+
+	<xs:complexType name="postData">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Posted data information.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:all>
+			<xs:element name="mimeType" type="xs:string" />
+			<xs:element name="text" minOccurs="0" type="xs:string" />
+			<xs:element name="params" minOccurs="0" type="params" />
+			<xs:element name="comment" minOccurs="0" type="xs:string" />
+		</xs:all>
+	</xs:complexType>
+
+	<xs:complexType name="params">
+		<xs:sequence>
+			<xs:element minOccurs="0" maxOccurs="unbounded" name="param"
+				type="param">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Note: HTTP Archive V1.2
+						requires 'params' to contain at least one 'param' but in practice
+						'params' may be empty.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="param">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Parameter name-value
+				pair.</xs:documentation>
+		</xs:annotation>
+		<xs:all>
+			<xs:element name="name" type="xs:string" />
+			<xs:element name="value" minOccurs="0" type="xs:string" />
+			<xs:element name="fileName" minOccurs="0" type="xs:string" />
+			<xs:element name="contentType" minOccurs="0" type="xs:string" />
+			<xs:element name="comment" minOccurs="0" type="xs:string" />
+		</xs:all>
+	</xs:complexType>
+
+	<xs:complexType name="content">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Response content.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:all>
+			<xs:element name="size" type="xs:int" />
+			<xs:element name="compression" minOccurs="0" type="xs:int" />
+			<xs:element name="mimeType" type="xs:string" />
+			<xs:element name="text" minOccurs="0" type="xs:string" />
+			<xs:element name="encoding" minOccurs="0" type="xs:string" />
+			<xs:element name="comment" minOccurs="0" type="xs:string" />
+		</xs:all>
+	</xs:complexType>
+
+	<xs:complexType name="cache">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Information about a
+				response coming from the cache.</xs:documentation>
+		</xs:annotation>
+		<xs:all>
+			<xs:element name="beforeRequest" minOccurs="0" type="cacheEntry" />
+			<xs:element name="afterRequest" minOccurs="0" type="cacheEntry" />
+			<xs:element name="comment" minOccurs="0" type="xs:string" />
+		</xs:all>
+	</xs:complexType>
+
+	<xs:complexType name="cacheEntry">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Information about cache
+				entry.</xs:documentation>
+		</xs:annotation>
+		<xs:all>
+			<xs:element name="expires" minOccurs="0" type="xs:string" />
+			<xs:element name="lastAccess" type="xs:string" />
+			<xs:element name="eTag" type="xs:string" />
+			<xs:element name="hitCount" type="xs:int" />
+			<xs:element name="comment" minOccurs="0" type="xs:string" />
+		</xs:all>
+	</xs:complexType>
+
+	<xs:complexType name="timings">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Information about
+				request-response timing.</xs:documentation>
+		</xs:annotation>
+		<xs:all>
+			<xs:element name="dns" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:int">
+						<xs:minInclusive value="-1" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="connect" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:int">
+						<xs:minInclusive value="-1" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="blocked" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:int">
+						<xs:minInclusive value="-1" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="send">
+				<xs:simpleType>
+					<xs:restriction base="xs:int">
+						<xs:minInclusive value="-1" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="wait">
+				<xs:simpleType>
+					<xs:restriction base="xs:int">
+						<xs:minInclusive value="-1" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="receive">
+				<xs:simpleType>
+					<xs:restriction base="xs:int">
+						<xs:minInclusive value="-1" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="ssl" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:int">
+						<xs:minInclusive value="-1" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="comment" minOccurs="0" type="xs:string" />
+		</xs:all>
+	</xs:complexType>
+</xs:schema>

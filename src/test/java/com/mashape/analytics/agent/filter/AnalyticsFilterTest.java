@@ -4,6 +4,7 @@ import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_EN
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_PORT;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_URL;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_TOKEN;
+import static com.mashape.analytics.agent.common.AnalyticsConstants.ENVIRONMENT;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.SOCKET_POOL_SIZE_MAX;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.SOCKET_POOL_SIZE_MIN;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.SOCKET_POOL_UPDATE_INTERVAL;
@@ -53,12 +54,11 @@ import org.junit.runner.RunWith;
 
 import com.mashape.analytics.agent.connection.pool.Messenger;
 import com.mashape.analytics.agent.connection.pool.Work;
-import com.mashape.analytics.agent.filter.AnalyticsFilter;
 import com.mashape.analytics.agent.mapper.AnalyticsDataMapper;
-import com.mashape.analytics.agent.wrapper.RequestInterceptorWrapper;
-import com.mashape.analytics.agent.wrapper.ResponseInterceptorWrapper;
 import com.mashape.analytics.agent.modal.Entry;
 import com.mashape.analytics.agent.modal.Timings;
+import com.mashape.analytics.agent.wrapper.RequestInterceptorWrapper;
+import com.mashape.analytics.agent.wrapper.ResponseInterceptorWrapper;
 
 @RunWith(JMockit.class)
 public class AnalyticsFilterTest {
@@ -106,7 +106,7 @@ public class AnalyticsFilterTest {
 	@Test
 	public void test() throws IOException, ServletException {
 
-		new Expectations() {
+		new NonStrictExpectations() {
 
 			{
 				System.getProperty(ANALYTICS_ENABLED);
@@ -125,6 +125,8 @@ public class AnalyticsFilterTest {
 				result= "10";
 				System.getProperty(SOCKET_POOL_UPDATE_INTERVAL);
 				result= "5";
+				System.getProperty(ENVIRONMENT);
+				result= "TEST";
 				Executors.newFixedThreadPool(anyInt);
 				result = analyticsServicexeExecutor;	
 				chain.doFilter((RequestInterceptorWrapper) any,
@@ -197,7 +199,7 @@ public class AnalyticsFilterTest {
 	@Test
 	public void testNoEnvVarSet() throws IOException, ServletException {
 
-		new Expectations() {
+		new NonStrictExpectations() {
 
 			{	
 				System.getProperty(ANALYTICS_ENABLED);
@@ -216,6 +218,8 @@ public class AnalyticsFilterTest {
 				result= null;
 				System.getProperty(SOCKET_POOL_UPDATE_INTERVAL);
 				result= null;
+				System.getProperty(ENVIRONMENT);
+				result= "TEST";
 				Executors.newFixedThreadPool(anyInt);
 				result = analyticsServicexeExecutor;	
 				chain.doFilter((RequestInterceptorWrapper) any,

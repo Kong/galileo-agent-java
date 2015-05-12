@@ -4,6 +4,8 @@ import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_DA
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_PORT;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_URL;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_TOKEN;
+import static com.mashape.analytics.agent.common.AnalyticsConstants.CLIENT_IP_ADDRESS;
+import static com.mashape.analytics.agent.common.AnalyticsConstants.ENVIRONMENT;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,7 +21,6 @@ import org.junit.runner.RunWith;
 import org.zeromq.ZMQ.Context;
 import org.zeromq.ZMQ.Socket;
 
-import com.mashape.analytics.agent.connection.pool.Messenger;
 import com.mashape.analytics.agent.modal.Entry;
 
 @RunWith(JMockit.class)
@@ -57,6 +58,8 @@ public class MessengerTest {
 		analyticsData.put(ANALYTICS_SERVER_URL, "abc.com");
 		analyticsData.put(ANALYTICS_SERVER_PORT, "5000");
 		analyticsData.put(ANALYTICS_TOKEN, "abcdef");
+		analyticsData.put(CLIENT_IP_ADDRESS, "127.0.0.1");
+		analyticsData.put(ENVIRONMENT, "DEV");
 		Entry entry = new Entry();
 		analyticsData.put(ANALYTICS_DATA, entry);
 		return analyticsData;

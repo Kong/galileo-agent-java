@@ -64,7 +64,6 @@ public class AnalyticsDataMapper {
 	public Entry getAnalyticsData(Date requestReceivedTime, long sendTime,
 			long waitTime) {
 		Entry entry = new Entry();
-		entry.setClientIPAddress(request.getRemoteAddr());
 		entry.setServerIPAddress(request.getLocalAddr());
 		entry.setStartedDateTime(dateAsIso(requestReceivedTime));
 		entry.setRequest(mapRequest());

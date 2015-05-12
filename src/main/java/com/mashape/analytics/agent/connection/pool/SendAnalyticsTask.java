@@ -31,9 +31,9 @@ import java.util.Map;
  * Task use a pooled object to send data
  */
 public class SendAnalyticsTask implements Runnable {
-
 	private ObjectPool<Work> pool;
 	private Map<String, Object> analyticsData;
+	
 
 	public SendAnalyticsTask(ObjectPool<Work> pool, Map<String, Object> analyticsData) {
 		this.pool = pool;

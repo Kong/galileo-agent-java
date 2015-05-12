@@ -109,7 +109,6 @@ public class AnalyticsDataMapperTest {
 		assertNotNull(entry.getRequest());
 		assertNotNull(entry.getResponse());
 		assertNotNull(entry.getTimings());
-		assertEquals("remotehost", entry.getClientIPAddress());
 		assertEquals("localhost", entry.getServerIPAddress());
 		
 		assertNotNull(entry.getRequest().getMethod());

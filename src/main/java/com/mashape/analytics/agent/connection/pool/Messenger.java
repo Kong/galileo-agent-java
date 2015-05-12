@@ -30,6 +30,8 @@ import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_DA
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_PORT;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_URL;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_TOKEN;
+import static com.mashape.analytics.agent.common.AnalyticsConstants.CLIENT_IP_ADDRESS;
+import static com.mashape.analytics.agent.common.AnalyticsConstants.ENVIRONMENT;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.HAR_VERSION;
 
 import java.util.Map;
@@ -59,9 +61,8 @@ public class Messenger implements Work {
 	}
 
 	public void execute(Map<String, Object> analyticsData) {
-		Entry entry = (Entry) analyticsData.get(ANALYTICS_DATA);
-		String token = analyticsData.get(ANALYTICS_TOKEN).toString();
-		Message msg = getMessage(entry, token);
+		
+		Message msg = getMessage(analyticsData);
 		String data = new Gson().toJson(msg);
 		String analyticsServerUrl = analyticsData.get(ANALYTICS_SERVER_URL).toString();
 		String port = analyticsData.get(ANALYTICS_SERVER_PORT).toString();
@@ -80,10 +81,14 @@ public class Messenger implements Work {
 		}
 	}
 
-	public Message getMessage(Entry entry, String token) {
+	public Message getMessage(Map<String, Object> analyticsData) {
+		Entry entry = (Entry) analyticsData.get(ANALYTICS_DATA);
+		String token = analyticsData.get(ANALYTICS_TOKEN).toString();
 		Message message = new Message();
 		message.setHar(setHar(entry));
 		message.setServiceToken(token);
+		message.setClientIPAddress(analyticsData.get(CLIENT_IP_ADDRESS).toString());
+		message.setEnvironment(analyticsData.get(ENVIRONMENT).toString());
 		return message;
 	}
 
