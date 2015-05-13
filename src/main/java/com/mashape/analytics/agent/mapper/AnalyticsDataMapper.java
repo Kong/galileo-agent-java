@@ -69,6 +69,7 @@ public class AnalyticsDataMapper {
 		entry.setRequest(mapRequest());
 		entry.setResponse(mapResponse());
 		entry.setTimings(mapTimings(requestReceivedTime, sendTime, waitTime));
+		entry.setConnection("");
 		return entry;
 	}
 

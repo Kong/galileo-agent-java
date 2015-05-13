@@ -110,9 +110,10 @@
 			<element name="request" type="tns:Request"></element>
 			<element name="response" type="tns:Response"></element>
 			<element name="timings" type="tns:Timings"></element>
-			<element name="cache" type="tns:CacheEntry" maxOccurs="unbounded"
-				minOccurs="0">
+			<element name="cache" type="tns:CacheEntry"
+				maxOccurs="unbounded" minOccurs="0">
 			</element>
+			<element name="connection" type="string"></element>
 		</sequence>
 	</complexType>
 
