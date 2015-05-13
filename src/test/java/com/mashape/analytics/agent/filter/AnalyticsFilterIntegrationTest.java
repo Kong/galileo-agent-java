@@ -51,6 +51,7 @@ public class AnalyticsFilterIntegrationTest {
 
 	@Test
 	public void test() throws Exception {
+		Unirest.setTimeouts(0, 0);
 		HttpResponse<String> jsonResponse = Unirest
 				.post("http://127.0.0.1:8083/path")
 				.header("accept", "application/json")
@@ -73,7 +74,7 @@ public class AnalyticsFilterIntegrationTest {
 		assertNotNull(entry.getRequest());
 		assertNotNull(entry.getResponse());
 		assertNotNull(entry.getTimings());
-		//assertEquals("127.0.0.1", entry.getClientIPAddress());
+		assertEquals("127.0.0.1", message.getClientIPAddress());
 		assertEquals("127.0.0.1", entry.getServerIPAddress());
 
 		assertNotNull(entry.getRequest().getMethod());

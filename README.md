@@ -108,10 +108,10 @@ Add following arguments to the server
      Property | Value
      -------- |	------
      analytics.token | You Api analytics token from http://www.apianalyitics.com 
-     analytics.socket.min |Minimum number of sockets to opened for connection to analytics server, default is 10
-     analytics.socket.max | Maximum number of sockets allowed to live in pool, default is 20
-     analytics.socket.interval | New sockets are added if its less than minimum value  or removed if its greater than maximum value at set interval, default is 5 seconds
-     analytics.worker.size | Number of thread in the pool handling data transfer to analytics server, default is 2* # of processor 
+     analytics.socket.min |Minimum number of threads/sockets to opened for connection to analytics server, default is 10
+     analytics.socket.max | Maximum number of threads/sockets allowed to live in pool, default is 20
+     analytics.socket.keepalivetime | when the number of threads is greater than the min, this is the maximum time that excess idle threads will wait for new tasks before terminating.
+     analytics.queue.size | size of the queue for holding tasks of transferring data to analytics server, default is 100
      analytics.enabled.flag | true to enable analytics
 	
 Update web.xml on server

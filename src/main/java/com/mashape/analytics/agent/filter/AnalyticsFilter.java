@@ -34,14 +34,16 @@ import static com.mashape.analytics.agent.common.AnalyticsConstants.ENVIRONMENT;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.SOCKET_POOL_SIZE_MAX;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.SOCKET_POOL_SIZE_MIN;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.SOCKET_POOL_UPDATE_INTERVAL;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.WORKER_COUNT;
+import static com.mashape.analytics.agent.common.AnalyticsConstants.WORKER_QUEUE_COUNT;
 
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import javax.servlet.Filter;
@@ -56,7 +58,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
 import com.mashape.analytics.agent.common.Util;
-import com.mashape.analytics.agent.connection.pool.Messenger;
 import com.mashape.analytics.agent.connection.pool.ObjectPool;
 import com.mashape.analytics.agent.connection.pool.SendAnalyticsTask;
 import com.mashape.analytics.agent.connection.pool.Work;
@@ -78,24 +79,25 @@ public class AnalyticsFilter implements Filter {
 
 	final static Logger logger = Logger.getLogger(AnalyticsFilter.class);
 
-	private ExecutorService analyticsServicexeExecutor;
+	private final static int QUEUE_SIZE = 10;
+	private BlockingQueue<Runnable> blockingQueue;
+	private ThreadPoolExecutor worker;
 	private String analyticsServerUrl;
 	private String environment = "";
 	private String analyticsServerPort;
 	private String analyticsToken;
-	private ObjectPool<Work> pool;
 	private boolean isAnlayticsEnabled = false;
 
 	@Override
 	public void destroy() {
 		try {
-			analyticsServicexeExecutor.shutdown();
-			analyticsServicexeExecutor.awaitTermination(30, TimeUnit.SECONDS);
-			pool.terminate();
+			worker.shutdown();
+			worker.awaitTermination(30, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
 			logger.error("Error during shutdown of analytics pool", e);
-		};
-		
+		}
+		;
+
 	}
 
 	/**
@@ -154,7 +156,7 @@ public class AnalyticsFilter implements Filter {
 			messageProperties.put(ANALYTICS_TOKEN, analyticsToken);
 			messageProperties.put(CLIENT_IP_ADDRESS, request.getRemoteAddr());
 			messageProperties.put(ENVIRONMENT, environment);
-			analyticsServicexeExecutor.execute(new SendAnalyticsTask(pool, messageProperties));
+			worker.execute(new SendAnalyticsTask(messageProperties));
 		} catch (Throwable x) {
 			logger.error("Failed to send analytics data", x);
 		}
@@ -172,26 +174,19 @@ public class AnalyticsFilter implements Filter {
 				logger.error("Analytics URl or Port or Token not set");
 				return;
 			}
-			int poolSize = getEnvVarOrDefault(WORKER_COUNT, Runtime.getRuntime().availableProcessors() * 2);
+			int poolSize = getEnvVarOrDefault(WORKER_QUEUE_COUNT, 100);
 			int socketPoolMin = getEnvVarOrDefault(SOCKET_POOL_SIZE_MIN, 10);
 			int socketPoolMax = getEnvVarOrDefault(SOCKET_POOL_SIZE_MAX, 20);
 			int poolUpdateInterval = getEnvVarOrDefault(SOCKET_POOL_UPDATE_INTERVAL, 5);
 			environment = getEnvironment();
-			pool = new ObjectPool<Work>(socketPoolMin, socketPoolMax, poolUpdateInterval) {
-				@Override
-				public Work createPoolObject() {
-					return new Messenger();
-				}
-			};
-			analyticsServicexeExecutor = Executors.newFixedThreadPool(poolSize);
+			blockingQueue = new LinkedBlockingQueue<Runnable>(poolSize);
+			worker = new ThreadPoolExecutor(socketPoolMin, socketPoolMax, poolUpdateInterval, TimeUnit.MILLISECONDS, blockingQueue);
 		}
 	}
-	
-	
 
 	private String getEnvironment() {
 		String val = System.getProperty(ENVIRONMENT);
-		return Util.notBlank(val)? val : "";
+		return Util.notBlank(val) ? val : "";
 	}
 
 	private int getEnvVarOrDefault(String name, int defaultVal) {

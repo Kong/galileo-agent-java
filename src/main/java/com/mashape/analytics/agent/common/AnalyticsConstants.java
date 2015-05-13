@@ -27,7 +27,7 @@ package com.mashape.analytics.agent.common;
 public class AnalyticsConstants {
 	public static final String ANALYTICS_SERVER_URL = "analytics.server.url";
 	public static final String ANALYTICS_SERVER_PORT = "analytics.server.port";
-	public static final String WORKER_COUNT = "analytics.worker.size";
+	public static final String WORKER_QUEUE_COUNT = "analytics.queue.size";
 	public static final String ANALYTICS_DATA = "data";
 	public static final String SOCKET_POOL_SIZE_MIN = "analytics.socket.min";
 	public static final String SOCKET_POOL_SIZE_MAX = "analytics.socket.max";
@@ -39,4 +39,6 @@ public class AnalyticsConstants {
 	public static final String ANALYTICS_ENABLED = "analytics.enabled.flag";
 	public static final String CLIENT_IP_ADDRESS = "clientIpAddress";
 	public static final String ENVIRONMENT = "environment";
+	
+	
 }

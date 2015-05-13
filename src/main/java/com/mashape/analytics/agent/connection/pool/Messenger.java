@@ -51,7 +51,6 @@ import com.mashape.analytics.agent.modal.Message;
 public class Messenger implements Work {
 
 	Logger logger = Logger.getLogger(Messenger.class);
-
 	private ZMQ.Context context;
 	private ZMQ.Socket socket;
 	
@@ -112,4 +111,5 @@ public class Messenger implements Work {
 		creator.setVersion(AGENT_VERSION);
 		return creator;
 	}
+
 }
