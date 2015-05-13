@@ -22,7 +22,6 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -269,10 +268,6 @@ public class AnalyticsFilterTest {
 		return entry;
 	}
 	
-	private Entry getEntryWithNotimming() {
-		Entry entry = new Entry();
-		return entry;
-	}
 
 	private ServletRequest req = new HttpServletRequest() {
 

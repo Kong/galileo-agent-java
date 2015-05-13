@@ -26,7 +26,6 @@ import org.zeromq.ZMQ;
 import com.google.gson.Gson;
 import com.mashape.analytics.agent.modal.Entry;
 import com.mashape.analytics.agent.modal.Message;
-import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 
 public class AnalyticsFilterIntegrationTest {
@@ -52,11 +51,7 @@ public class AnalyticsFilterIntegrationTest {
 	@Test
 	public void test() throws Exception {
 		Unirest.setTimeouts(0, 0);
-		HttpResponse<String> jsonResponse = Unirest
-				.post("http://127.0.0.1:8083/path")
-				.header("accept", "application/json")
-				.queryString("apiKey", "123").field("parameter", "valuΩΩΩΩe")
-				.field("foo", "bar").asString();
+		Unirest.post("http://127.0.0.1:8083/path").header("accept", "application/json").queryString("apiKey", "123").field("parameter", "valuΩΩΩΩe").field("foo", "bar").asString();
 		Unirest.shutdown();
 		while (!dataRecieved.get()) {
 		}
@@ -140,8 +135,7 @@ public class AnalyticsFilterIntegrationTest {
 			public void run() {
 				try {
 					Server server = new Server(8083);
-					ServletContextHandler context = new ServletContextHandler(
-							ServletContextHandler.NO_SESSIONS);
+					ServletContextHandler context = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
 					context.setContextPath("/");
 					server.setHandler(context);
 
@@ -149,15 +143,12 @@ public class AnalyticsFilterIntegrationTest {
 					ServletHolder holder = new ServletHolder(new TestServlet());
 					context.addServlet(holder, "/*");
 
-					FilterHolder fh = handler.addFilterWithMapping(
-							AnalyticsFilter.class, "/*",
-							EnumSet.of(DispatcherType.REQUEST));
+					FilterHolder fh = handler.addFilterWithMapping(AnalyticsFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));
 					Map<String, String> map = new HashMap<String, String>();
 					map.put("analytics.server.url", "127.0.0.1");
 					map.put("analytics.server.port", "5555");
 					fh.setInitParameters(map);
-					context.addFilter(fh, "/*",
-							EnumSet.of(DispatcherType.REQUEST));
+					context.addFilter(fh, "/*", EnumSet.of(DispatcherType.REQUEST));
 					server.start();
 				} catch (Exception e) {
 					e.printStackTrace();

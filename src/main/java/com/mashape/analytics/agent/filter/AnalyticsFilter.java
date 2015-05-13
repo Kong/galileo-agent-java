@@ -41,7 +41,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -58,9 +57,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
 import com.mashape.analytics.agent.common.Util;
-import com.mashape.analytics.agent.connection.pool.ObjectPool;
 import com.mashape.analytics.agent.connection.pool.SendAnalyticsTask;
-import com.mashape.analytics.agent.connection.pool.Work;
 import com.mashape.analytics.agent.mapper.AnalyticsDataMapper;
 import com.mashape.analytics.agent.modal.Entry;
 import com.mashape.analytics.agent.wrapper.RequestInterceptorWrapper;
@@ -79,7 +76,6 @@ public class AnalyticsFilter implements Filter {
 
 	final static Logger logger = Logger.getLogger(AnalyticsFilter.class);
 
-	private final static int QUEUE_SIZE = 10;
 	private BlockingQueue<Runnable> blockingQueue;
 	private ThreadPoolExecutor worker;
 	private String analyticsServerUrl;
