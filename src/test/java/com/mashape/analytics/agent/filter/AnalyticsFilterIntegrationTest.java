@@ -51,7 +51,7 @@ public class AnalyticsFilterIntegrationTest {
 	@Test
 	public void test() throws Exception {
 		Unirest.setTimeouts(0, 0);
-		Unirest.post("http://127.0.0.1:8083/path").header("accept", "application/json").queryString("apiKey", "123").field("parameter", "valuΩΩΩΩe").field("foo", "bar").asString();
+		Unirest.post("http://127.0.0.1:8083/path").header("accept", "application/json").header("Cookies", "name=Nicholas; domain=nczonline.net; path=/").queryString("apiKey", "123").field("parameter", "valuΩΩΩΩe").field("foo", "bar").asString();
 		Unirest.shutdown();
 		while (!dataRecieved.get()) {
 		}

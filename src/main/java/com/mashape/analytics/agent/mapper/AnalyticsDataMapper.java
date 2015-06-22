@@ -24,6 +24,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 package com.mashape.analytics.agent.mapper;
 
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -32,11 +33,12 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.TimeZone;
 
+import javax.servlet.http.Cookie;
+
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.log4j.Logger;
 
 import com.google.common.io.BaseEncoding;
-import com.mashape.analytics.agent.wrapper.RequestInterceptorWrapper;
-import com.mashape.analytics.agent.wrapper.ResponseInterceptorWrapper;
 import com.mashape.analytics.agent.modal.Content;
 import com.mashape.analytics.agent.modal.Entry;
 import com.mashape.analytics.agent.modal.Message;
@@ -44,6 +46,8 @@ import com.mashape.analytics.agent.modal.NameValuePair;
 import com.mashape.analytics.agent.modal.Request;
 import com.mashape.analytics.agent.modal.Response;
 import com.mashape.analytics.agent.modal.Timings;
+import com.mashape.analytics.agent.wrapper.RequestInterceptorWrapper;
+import com.mashape.analytics.agent.wrapper.ResponseInterceptorWrapper;
 
 public class AnalyticsDataMapper {
 
@@ -91,6 +95,15 @@ public class AnalyticsDataMapper {
 				size += 6; // 2 for ": " + 2 for ", " if multiple values present
 							// and 2 for CRLF for each header
 			}
+		}
+		
+		for (Cookie cookie : request.getCookies()) {
+			com.mashape.analytics.agent.modal.Cookie harCookie = new com.mashape.analytics.agent.modal.Cookie();
+			try {
+				BeanUtils.copyProperties(harCookie, cookie);
+			} catch (Exception e) {
+			}
+			requestHar.getCookies().add(harCookie);
 		}
 		requestHar.setHeadersSize(size);
 	}

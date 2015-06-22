@@ -83,6 +83,7 @@
 			<element name="content" type="tns:Content" maxOccurs="1"
 				minOccurs="0">
 			</element>
+			<element name="cookies" type="tns:Cookie" maxOccurs="unbounded" minOccurs="0"></element>
 		</sequence>
 	</complexType>
 
@@ -99,6 +100,7 @@
 			<element name="content" type="tns:Content" maxOccurs="1"
 				minOccurs="0">
 			</element>
+			<element name="cookies" type="tns:Cookie" maxOccurs="unbounded" minOccurs="0"></element>
 		</sequence>
 	</complexType>
 
@@ -124,6 +126,19 @@
 			<element name="eTag" type="string"></element>
 			<element name="hitCount" type="int"></element>
 			<element name="comment" type="string"></element>
+		</sequence>
+	</complexType>
+
+	<complexType name="Cookie">
+		<sequence>
+			<element name="name" type="string"></element>
+			<element name="value" type="string"></element>
+			<element name="path" type="string"></element>
+			<element name="httpOnly" type="string"></element>
+			<element name="expires" type="string"></element>
+			<element name="comment" type="string"></element>
+			<element name="secure" type="string"></element>
+			<element name="domain" type="string"></element>
 		</sequence>
 	</complexType>
 </schema>

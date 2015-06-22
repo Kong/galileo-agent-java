@@ -107,7 +107,7 @@ Add following arguments to the server
 
      Property | Value
      -------- |	------
-     analytics.token | You Api analytics token from http://www.apianalyitics.com 
+     analytics.token | Api analytics token from http://www.apianalyitics.com 
      analytics.socket.min |Minimum number of threads/sockets to opened for connection to analytics server, default is 10
      analytics.socket.max | Maximum number of threads/sockets allowed to live in pool, default is 20
      analytics.socket.keepalivetime | when the number of threads is greater than the min, this is the maximum time that excess idle threads will wait for new tasks before terminating.
