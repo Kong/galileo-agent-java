@@ -2,11 +2,11 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.mashape.analytics.agent</groupId>
-	<artifactId>apianalytics-agent</artifactId>
+	<artifactId>mashape-analytics</artifactId>
 	<version>1.0.0-alpha-3-SNAPSHOT</version>
-	<name>apianalytics-agent</name>
-	<description>Apianalytics java agent</description>
-	<url>http://apianalytics.com</url>
+	<name>mashape-analytics</name>
+	<description>Java Agent for Mashape Analytics (https://analytics.mashape.com)</description>
+	<url>https://analytics.mashape.com</url>
 
 	<parent>
 		<groupId>org.sonatype.oss</groupId>
@@ -23,15 +23,15 @@
 	</licenses>
 
 	<scm>
-		<url>https://github.com/Mashape/analytics-java-agent</url>
-		<connection>scm:git:git@github.com:Mashape/analytics-java-agent.git</connection>
-		<developerConnection>scm:git:git@github.com:Mashape/analytics-java-agent.git</developerConnection>
+		<url>https://github.com/Mashape/analytics-agent-java</url>
+		<connection>scm:git:git@github.com:Mashape/analytics-agent-java.git</connection>
+		<developerConnection>scm:git:git@github.com:Mashape/analytics-agent-java.git</developerConnection>
 	</scm>
 
 	<developers>
 		<developer>
 			<id>mashape</id>
-			<name>Mashape</name>
+			<name>Mashape Inc.</name>
 			<email>opensource@mashape.com</email>
 			<url>https://github.com/Mashape</url>
 			<organization>Mashape</organization>
