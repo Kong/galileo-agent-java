@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema xmlns="http://www.w3.org/2001/XMLSchema"
-	targetNamespace="http://www.mashape.com/analytics"
-	xmlns:tns="http://www.mashape.com/analytics"
-	elementFormDefault="qualified">
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.mashape.com/analytics"
+	xmlns:tns="http://www.mashape.com/analytics" elementFormDefault="qualified">
 
 	<element name="Message" type="tns:Message"></element>
 
@@ -26,8 +24,8 @@
 		<sequence>
 			<element name="version" type="string"></element>
 			<element name="creator" type="tns:Creator"></element>
-			<element name="entries" type="tns:Entry"
-				maxOccurs="unbounded" minOccurs="0">
+			<element name="entries" type="tns:Entry" maxOccurs="unbounded"
+				minOccurs="0">
 			</element>
 		</sequence>
 	</complexType>
@@ -47,8 +45,7 @@
 			<element name="encoding" type="string" maxOccurs="1"
 				minOccurs="0">
 			</element>
-			<element name="text" type="string" maxOccurs="1"
-				minOccurs="0">
+			<element name="text" type="string" maxOccurs="1" minOccurs="0">
 			</element>
 		</sequence>
 	</complexType>
@@ -75,15 +72,16 @@
 			<element name="queryString" type="tns:NameValuePair"
 				maxOccurs="unbounded" minOccurs="0">
 			</element>
-			<element name="headers" type="tns:NameValuePair"
-				maxOccurs="unbounded" minOccurs="0">
+			<element name="headers" type="tns:NameValuePair" maxOccurs="unbounded"
+				minOccurs="0">
 			</element>
 			<element name="headersSize" type="int"></element>
 			<element name="bodySize" type="int"></element>
 			<element name="content" type="tns:Content" maxOccurs="1"
 				minOccurs="0">
 			</element>
-			<element name="cookies" type="tns:Cookie" maxOccurs="unbounded" minOccurs="0"></element>
+			<element name="cookies" type="tns:Cookie" maxOccurs="unbounded"
+				minOccurs="0"></element>
 		</sequence>
 	</complexType>
 
@@ -92,16 +90,16 @@
 			<element name="status" type="int"></element>
 			<element name="statusText" type="string"></element>
 			<element name="httpVersion" type="string"></element>
-			<element name="headers" type="tns:NameValuePair"
-				maxOccurs="unbounded" minOccurs="0">
+			<element name="headers" type="tns:NameValuePair" maxOccurs="unbounded"
+				minOccurs="0">
 			</element>
 			<element name="headersSize" type="int"></element>
 			<element name="bodySize" type="int"></element>
 			<element name="content" type="tns:Content" maxOccurs="1"
 				minOccurs="0">
 			</element>
-			<element name="cookies" type="tns:Cookie"
-				maxOccurs="unbounded" minOccurs="0">
+			<element name="cookies" type="tns:Cookie" maxOccurs="unbounded"
+				minOccurs="0">
 			</element>
 			<element name="redirectURL" type="string"></element>
 		</sequence>
@@ -115,8 +113,8 @@
 			<element name="request" type="tns:Request"></element>
 			<element name="response" type="tns:Response"></element>
 			<element name="timings" type="tns:Timings"></element>
-			<element name="cache" type="tns:Cache"
-				maxOccurs="unbounded" minOccurs="0">
+			<element name="cache" type="tns:Cache" maxOccurs="unbounded"
+				minOccurs="0">
 			</element>
 			<element name="connection" type="string"></element>
 		</sequence>

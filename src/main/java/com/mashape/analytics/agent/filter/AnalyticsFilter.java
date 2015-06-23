@@ -64,7 +64,6 @@ import com.mashape.analytics.agent.wrapper.RequestInterceptorWrapper;
 import com.mashape.analytics.agent.wrapper.ResponseInterceptorWrapper;
 
 /**
- * 
  *         AnalyticsFilter is a custom filter designed to intercept http request
  *         and response and send compiled data to Mashape analytics server.
  *
