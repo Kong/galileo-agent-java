@@ -1,7 +1,7 @@
-# Analytics Java Agent
+# Mashape Analytics Java Agent
 
 
-It is a java Agent to report HTTP traffic to [Mashape API Analytics](http://apianalytics.com/) using [API Log Format](https://github.com/APIAnalytics/spec).Analytics Java Agent is a custom servlet filter which intercepts the request and response and sends it to API Analytics server asynchronously to generate analytics information. It needs a web container to run, to send data from a app running in Java SE environment please use our standalone proxy or use one of our data collection APIs.
+Java Agent to report HTTP traffic to [MashapeAPI Analytics](https://www.apianalytics.com/) using [API Log Format](https://github.com/Mashape/api-log-format/).Analytics Java Agent is a custom servlet filter which intercepts the request and response and sends it to API Analytics server asynchronously to generate analytics information. It needs a web container to run, to send data from a app running in Java SE environment please use our standalone proxy or use one of our data collection APIs.
 
 
 ## Installation 
@@ -13,7 +13,7 @@ It is a java Agent to report HTTP traffic to [Mashape API Analytics](http://apia
 ```xml
 <dependency>
   <groupId>com.mashape.analytics.agent</groupId>
-  <artifactId>apianalytics-agent</artifactId>
+  <artifactId>mashape-analytics</artifactId>
   <version>1.0.0-alpha-2</version>
 </dependency>
 ``` 
@@ -22,79 +22,74 @@ It is a java Agent to report HTTP traffic to [Mashape API Analytics](http://apia
 
 
 
-Application depends on javax.servlet-api-3.0.1, jeromq-0.3.4, gson-1.2.17, log4j-1.2.17 and guava-14.0.1. For testing it depends on jmockit-1.7, junit-4.12, 
-unirest-java-1.4.5 and embedded Jetty
+Application depends on `javax.servlet-api-3.0.1`, `jeromq-0.3.4`, `gson-1.2.17`, `log4j-1.2.17` and `guava-14.0.1`. For testing it depends on `jmockit-1.7`, `junit-4.12`, `unirest-java-1.4.5` and embedded Jetty
 	
-You can download the analytics jar from 
-<https://oss.sonatype.org/content/repositories/releases/com/mashape/analytics/agent/apianalytics-agent/1.0.0-alpha-2/apianalytics-agent-1.0.0-alpha-2.jar>
+You can download the analytics jar from: <https://oss.sonatype.org/content/repositories/releases/com/mashape/analytics/agent/apianalytics-agent/1.0.0-alpha-2/apianalytics-agent-1.0.0-alpha-2.jar>
 	
-or clone the project from github
-<https://github.com/Mashape/analytics-agent-java>
+or clone the project from github: <https://github.com/Mashape/analytics-agent-java>
 	
 Dependencies
 
 ```xml
-	
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>javax.servlet-api</artifactId>
-			<version>3.0.1</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.zeromq</groupId>
-			<artifactId>jeromq</artifactId>
-			<version>0.3.4</version>
-		</dependency>
-		<dependency>
-			<artifactId>guava</artifactId>
-			<groupId>com.google.guava</groupId>
-			<type>jar</type>
-			<version>14.0.1</version>
-		</dependency>
-		<dependency>
-			<groupId>com.google.code.gson</groupId>
-			<artifactId>gson</artifactId>
-			<version>2.3.1</version>
-		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.17</version>
-		</dependency>
-		
-		<!-- Test dependencies -->
-		<dependency>
-			<groupId>com.googlecode.jmockit</groupId>
-			<artifactId>jmockit</artifactId>
-			<version>1.7</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.12</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.jetty</groupId>
-			<artifactId>jetty-server</artifactId>
-			<version>9.3.0.M1</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.jetty</groupId>
-			<artifactId>jetty-webapp</artifactId>
-			<version>9.3.0.M1</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.mashape.unirest</groupId>
-			<artifactId>unirest-java</artifactId>
-			<version>1.4.5</version>
-			<scope>test</scope>
-		</dependency>
-		
+<dependency>
+	<groupId>javax.servlet</groupId>
+	<artifactId>javax.servlet-api</artifactId>
+	<version>3.0.1</version>
+	<scope>provided</scope>
+</dependency>
+<dependency>
+	<groupId>org.zeromq</groupId>
+	<artifactId>jeromq</artifactId>
+	<version>0.3.4</version>
+</dependency>
+<dependency>
+	<artifactId>guava</artifactId>
+	<groupId>com.google.guava</groupId>
+	<type>jar</type>
+	<version>14.0.1</version>
+</dependency>
+<dependency>
+	<groupId>com.google.code.gson</groupId>
+	<artifactId>gson</artifactId>
+	<version>2.3.1</version>
+</dependency>
+<dependency>
+	<groupId>log4j</groupId>
+	<artifactId>log4j</artifactId>
+	<version>1.2.17</version>
+</dependency>
+
+<!-- Test dependencies -->
+<dependency>
+	<groupId>com.googlecode.jmockit</groupId>
+	<artifactId>jmockit</artifactId>
+	<version>1.7</version>
+	<scope>test</scope>
+</dependency>
+<dependency>
+	<groupId>junit</groupId>
+	<artifactId>junit</artifactId>
+	<version>4.12</version>
+	<scope>test</scope>
+</dependency>
+<dependency>
+	<groupId>org.eclipse.jetty</groupId>
+	<artifactId>jetty-server</artifactId>
+	<version>9.3.0.M1</version>
+	<scope>test</scope>
+</dependency>
+<dependency>
+	<groupId>org.eclipse.jetty</groupId>
+	<artifactId>jetty-webapp</artifactId>
+	<version>9.3.0.M1</version>
+	<scope>test</scope>
+</dependency>
+<dependency>
+	<groupId>com.mashape.unirest</groupId>
+	<artifactId>unirest-java</artifactId>
+	<version>1.4.5</version>
+	<scope>test</scope>
+</dependency>
 ```
 
 
