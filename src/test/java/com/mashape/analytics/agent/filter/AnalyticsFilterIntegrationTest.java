@@ -51,15 +51,16 @@ public class AnalyticsFilterIntegrationTest {
 	@Test
 	public void test() throws Exception {
 		Unirest.setTimeouts(0, 0);
-		Unirest.post("http://127.0.0.1:8083/path").header("accept", "application/json").header("Cookies", "name=Nicholas; domain=nczonline.net; path=/").queryString("apiKey", "123").field("parameter", "valuΩΩΩΩe").field("foo", "bar").asString();
+		Unirest.post("http://127.0.0.1:8083/path").header("accept", "application/json").queryString("apiKey", "123").field("parameter", "valuΩΩΩΩe").field("foo", "bar").asString();
 		Unirest.shutdown();
 		while (!dataRecieved.get()) {
 		}
-		Message message = new Gson().fromJson(analyticsData, Message.class);
+		Message message = new Gson().fromJson(analyticsData.substring(9), Message.class);
 		System.out.println(analyticsData);
 		assertNotNull(message);
 		assertNotNull(message.getServiceToken());
 		assertNotNull(message.getHar());
+		assertNotNull(message.getVersion());
 		assertNotNull(message.getHar().getLog());
 		assertNotNull(message.getHar().getLog().getCreator());
 		assertTrue(message.getHar().getLog().getEntries().size() > 0);

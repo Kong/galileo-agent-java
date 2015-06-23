@@ -24,7 +24,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 package com.mashape.analytics.agent.mapper;
 
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.InvocationTargetException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -33,9 +32,6 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.TimeZone;
 
-import javax.servlet.http.Cookie;
-
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.log4j.Logger;
 
 import com.google.common.io.BaseEncoding;
@@ -49,6 +45,10 @@ import com.mashape.analytics.agent.modal.Timings;
 import com.mashape.analytics.agent.wrapper.RequestInterceptorWrapper;
 import com.mashape.analytics.agent.wrapper.ResponseInterceptorWrapper;
 
+/**
+ *  Maps the analytics data to HAR format
+ *
+ */
 public class AnalyticsDataMapper {
 
 	Logger logger = Logger.getLogger(AnalyticsDataMapper.class);
@@ -59,14 +59,12 @@ public class AnalyticsDataMapper {
 	private ResponseInterceptorWrapper response;
 	Message message;
 
-	public AnalyticsDataMapper(RequestInterceptorWrapper request,
-			ResponseInterceptorWrapper response) {
+	public AnalyticsDataMapper(RequestInterceptorWrapper request, ResponseInterceptorWrapper response) {
 		this.request = (RequestInterceptorWrapper) request;
 		this.response = (ResponseInterceptorWrapper) response;
 	}
 
-	public Entry getAnalyticsData(Date requestReceivedTime, long sendTime,
-			long waitTime) {
+	public Entry getAnalyticsData(Date requestReceivedTime, long sendTime, long waitTime) {
 		Entry entry = new Entry();
 		entry.setServerIPAddress(request.getLocalAddr());
 		entry.setStartedDateTime(dateAsIso(requestReceivedTime));
@@ -74,6 +72,7 @@ public class AnalyticsDataMapper {
 		entry.setResponse(mapResponse());
 		entry.setTimings(mapTimings(requestReceivedTime, sendTime, waitTime));
 		entry.setConnection("");
+		entry.getCache();
 		return entry;
 	}
 
@@ -96,15 +95,7 @@ public class AnalyticsDataMapper {
 							// and 2 for CRLF for each header
 			}
 		}
-		
-		for (Cookie cookie : request.getCookies()) {
-			com.mashape.analytics.agent.modal.Cookie harCookie = new com.mashape.analytics.agent.modal.Cookie();
-			try {
-				BeanUtils.copyProperties(harCookie, cookie);
-			} catch (Exception e) {
-			}
-			requestHar.getCookies().add(harCookie);
-		}
+		requestHar.getCookies();
 		requestHar.setHeadersSize(size);
 	}
 
@@ -125,6 +116,7 @@ public class AnalyticsDataMapper {
 							// and 2 for CRLF for each header
 			}
 		}
+		responseHar.getCookies();
 		responseHar.setHeadersSize(size);
 	}
 
@@ -167,14 +159,8 @@ public class AnalyticsDataMapper {
 		content.setSize(request.getPayload().length());
 		if (request.getPayload().length() > 0) {
 			try {
-				content.setText(BaseEncoding
-						.base64()
-						.encode(request
-								.getPayload()
-								.getBytes(
-										request.getCharacterEncoding() == null ? "UTF-8"
-												: request
-														.getCharacterEncoding())));
+				content.setText(BaseEncoding.base64().encode(request.getPayload().getBytes(request.getCharacterEncoding() == null ? "UTF-8"
+						: request.getCharacterEncoding())));
 			} catch (UnsupportedEncodingException e) {
 				throw new RuntimeException("Failed to encode request body");
 			}
@@ -187,10 +173,10 @@ public class AnalyticsDataMapper {
 		responseHar.setBodySize(response.getClone().length);
 		responseHar.setContent(mapResponseContent());
 		responseHar.setHttpVersion(request.getProtocol());
-		responseHar.setStatus(Integer.toString(response.getStatus()));
-		responseHar.setStatusText(responseHar.getStatus());
+		responseHar.setStatus(response.getStatus());
+		responseHar.setStatusText(Integer.toString(responseHar.getStatus()));
+		responseHar.setRedirectURL("");
 		setResponseHeaders(responseHar);
-
 		return responseHar;
 	}
 
@@ -209,8 +195,7 @@ public class AnalyticsDataMapper {
 		return content;
 	}
 
-	private Timings mapTimings(Date requestReceivedTime, long sendTime,
-			long waitTime) {
+	private Timings mapTimings(Date requestReceivedTime, long sendTime, long waitTime) {
 		Timings timings = new Timings();
 		timings.setReceive(0);
 		timings.setSend(sendTime);

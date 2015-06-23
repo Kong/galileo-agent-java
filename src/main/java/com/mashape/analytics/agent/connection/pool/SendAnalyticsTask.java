@@ -26,9 +26,7 @@ package com.mashape.analytics.agent.connection.pool;
 import java.util.Map;
 
 /*
- * @author shashi
- * 
- * Task use a pooled object to send data
+ * Task use a pooled Messenger to send data
  */
 public class SendAnalyticsTask implements Runnable {
 	private Map<String, Object> analyticsData;
@@ -38,8 +36,6 @@ public class SendAnalyticsTask implements Runnable {
 	}
 
 	public void run() {
-		//Work work = pool.borrowObject();
 		MessangerPool.get().execute(analyticsData);
-		//pool.returnObject(work);
 	}
 }

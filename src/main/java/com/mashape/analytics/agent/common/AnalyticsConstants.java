@@ -20,7 +20,7 @@ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
+ */
 
 package com.mashape.analytics.agent.common;
 
@@ -38,7 +38,7 @@ public class AnalyticsConstants {
 	public static final String AGENT_VERSION = "1.0";
 	public static final String ANALYTICS_ENABLED = "analytics.enabled.flag";
 	public static final String CLIENT_IP_ADDRESS = "clientIpAddress";
-	public static final String ENVIRONMENT = "environment";
-	
-	
+	public static final String ENVIRONMENT = "analytics.environment";
+	public static final String ALF_VERSION = "1.0.0";
+	public static final String ALF_VERSION_PREFIX = "alf_1.0.0 ";
 }

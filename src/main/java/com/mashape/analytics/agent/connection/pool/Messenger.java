@@ -26,6 +26,8 @@ package com.mashape.analytics.agent.connection.pool;
 
 import static com.mashape.analytics.agent.common.AnalyticsConstants.AGENT_NAME;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.AGENT_VERSION;
+import static com.mashape.analytics.agent.common.AnalyticsConstants.ALF_VERSION;
+import static com.mashape.analytics.agent.common.AnalyticsConstants.ALF_VERSION_PREFIX;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_DATA;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_PORT;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_URL;
@@ -60,9 +62,8 @@ public class Messenger implements Work {
 	}
 
 	public void execute(Map<String, Object> analyticsData) {
-		
 		Message msg = getMessage(analyticsData);
-		String data = new Gson().toJson(msg);
+		String data = ALF_VERSION_PREFIX + new Gson().toJson(msg);
 		String analyticsServerUrl = analyticsData.get(ANALYTICS_SERVER_URL).toString();
 		String port = analyticsData.get(ANALYTICS_SERVER_PORT).toString();
 		socket.connect("tcp://" + analyticsServerUrl + ":" + port);
@@ -88,6 +89,7 @@ public class Messenger implements Work {
 		message.setServiceToken(token);
 		message.setClientIPAddress(analyticsData.get(CLIENT_IP_ADDRESS).toString());
 		message.setEnvironment(analyticsData.get(ENVIRONMENT).toString());
+		message.setVersion(ALF_VERSION);
 		return message;
 	}
 

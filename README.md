@@ -13,8 +13,8 @@ It is a java Agent to report HTTP traffic to [Mashape API Analytics](http://apia
 ```xml
 <dependency>
   <groupId>com.mashape.analytics.agent</groupId>
-  <artifactId>apianalytics-agent</artifactId>
-  <version>1.0.0-alpha-2</version>
+  <artifactId>mashape-analytics</artifactId>
+  <version>1.0.0</version>
 </dependency>
 ``` 
 
@@ -26,7 +26,7 @@ Application depends on javax.servlet-api-3.0.1, jeromq-0.3.4, gson-1.2.17, log4j
 unirest-java-1.4.5 and embedded Jetty
 	
 You can download the analytics jar from 
-<https://oss.sonatype.org/content/repositories/releases/com/mashape/analytics/agent/apianalytics-agent/1.0.0-alpha-2/apianalytics-agent-1.0.0-alpha-2.jar>
+<https://oss.sonatype.org/content/repositories/releases/com/mashape/analytics/agent/mashape-analytics/1.0.0/mashape-analytics-1.0.0.jar>
 	
 or clone the project from github
 <https://github.com/Mashape/analytics-agent-java>
@@ -110,9 +110,10 @@ Add following arguments to the server
      analytics.token | Api analytics token from http://www.apianalyitics.com 
      analytics.socket.min |Minimum number of threads/sockets to opened for connection to analytics server, default is 10
      analytics.socket.max | Maximum number of threads/sockets allowed to live in pool, default is 20
-     analytics.socket.keepalivetime | when the number of threads is greater than the min, this is the maximum time that excess idle threads will wait for new tasks before terminating.
-     analytics.queue.size | size of the queue for holding tasks of transferring data to analytics server, default is 100
-     analytics.enabled.flag | true to enable analytics
+     analytics.socket.keepalivetime | When the number of threads is greater than the min, this is the maximum time that excess idle threads will wait for new tasks before terminating.
+     analytics.queue.size | Size of the queue for holding tasks of transferring data to analytics server, default is 100
+     analytics.enabled.flag | Set it true to enable analytics
+     analytics.environment | Server environment name, default is a empty string
 	
 Update web.xml on server
 
@@ -122,7 +123,7 @@ Update web.xml on server
   <filter-class>com.mashape.analytics.agent.filter.AnalyticsFilter</filter-class>
   <init-param>
     <param-name>analytics.server.url</param-name>
-    <param-value>socket.apianalytics.com</param-value>
+    <param-value>socket.analytics.mashape.com</param-value>
   </init-param>
   <init-param>
     <param-name>analytics.server.port</param-name>

@@ -89,7 +89,7 @@
 
 	<complexType name="Response">
 		<sequence>
-			<element name="status" type="string"></element>
+			<element name="status" type="int"></element>
 			<element name="statusText" type="string"></element>
 			<element name="httpVersion" type="string"></element>
 			<element name="headers" type="tns:NameValuePair"
@@ -100,7 +100,10 @@
 			<element name="content" type="tns:Content" maxOccurs="1"
 				minOccurs="0">
 			</element>
-			<element name="cookies" type="tns:Cookie" maxOccurs="unbounded" minOccurs="0"></element>
+			<element name="cookies" type="tns:Cookie"
+				maxOccurs="unbounded" minOccurs="0">
+			</element>
+			<element name="redirectURL" type="string"></element>
 		</sequence>
 	</complexType>
 
@@ -112,7 +115,7 @@
 			<element name="request" type="tns:Request"></element>
 			<element name="response" type="tns:Response"></element>
 			<element name="timings" type="tns:Timings"></element>
-			<element name="cache" type="tns:CacheEntry"
+			<element name="cache" type="tns:Cache"
 				maxOccurs="unbounded" minOccurs="0">
 			</element>
 			<element name="connection" type="string"></element>
@@ -139,6 +142,14 @@
 			<element name="comment" type="string"></element>
 			<element name="secure" type="string"></element>
 			<element name="domain" type="string"></element>
+		</sequence>
+	</complexType>
+
+	<complexType name="Cache">
+		<sequence>
+			<element name="beforeRequest" type="tns:CacheEntry"></element>
+			<element name="afterRequest" type="tns:CacheEntry"></element>
+			<element name="comment" type="string"></element>
 		</sequence>
 	</complexType>
 </schema>
