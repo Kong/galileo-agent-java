@@ -29,17 +29,21 @@ import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_EN
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_PORT;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_URL;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_TOKEN;
+import static com.mashape.analytics.agent.common.AnalyticsConstants.CLIENT_IP_ADDRESS;
+import static com.mashape.analytics.agent.common.AnalyticsConstants.ENVIRONMENT;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.SOCKET_POOL_SIZE_MAX;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.SOCKET_POOL_SIZE_MIN;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.SOCKET_POOL_UPDATE_INTERVAL;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.WORKER_COUNT;
+import static com.mashape.analytics.agent.common.AnalyticsConstants.WORKER_QUEUE_COUNT;
 
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -53,18 +57,13 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
 import com.mashape.analytics.agent.common.Util;
-import com.mashape.analytics.agent.connection.pool.Messenger;
-import com.mashape.analytics.agent.connection.pool.ObjectPool;
 import com.mashape.analytics.agent.connection.pool.SendAnalyticsTask;
-import com.mashape.analytics.agent.connection.pool.Work;
 import com.mashape.analytics.agent.mapper.AnalyticsDataMapper;
+import com.mashape.analytics.agent.modal.Entry;
 import com.mashape.analytics.agent.wrapper.RequestInterceptorWrapper;
 import com.mashape.analytics.agent.wrapper.ResponseInterceptorWrapper;
-import com.mashape.analytics.agent.modal.Entry;
 
 /**
- * 
- * @author Shashi
  * 
  *         AnalyticsFilter is a custom filter designed to intercept http request
  *         and response and send compiled data to Mashape analytics server.
@@ -75,17 +74,22 @@ public class AnalyticsFilter implements Filter {
 
 	final static Logger logger = Logger.getLogger(AnalyticsFilter.class);
 
-	private ExecutorService analyticsServicexeExecutor;
+	private BlockingQueue<Runnable> blockingQueue;
+	private ThreadPoolExecutor worker;
 	private String analyticsServerUrl;
+	private String environment = "";
 	private String analyticsServerPort;
 	private String analyticsToken;
-	private ObjectPool<Work> pool;
 	private boolean isAnlayticsEnabled = false;
 
 	@Override
 	public void destroy() {
-		analyticsServicexeExecutor.shutdown();
-		pool.terminate();
+		try {
+			worker.shutdown();
+			worker.awaitTermination(30, TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
+			logger.error("Error during shutdown of analytics pool", e);
+		}
 	}
 
 	/**
@@ -96,20 +100,16 @@ public class AnalyticsFilter implements Filter {
 	 * @see ResponseInterceptorWrapper
 	 */
 	@Override
-	public void doFilter(ServletRequest req, ServletResponse res,
-			FilterChain chain) throws IOException, ServletException {
+	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
 		if (isAnlayticsEnabled) {
 			long sendStartTime = System.currentTimeMillis();
 			Date requestReceivedTime = new Date();
-			RequestInterceptorWrapper request = new RequestInterceptorWrapper(
-					(HttpServletRequest) req);
-			ResponseInterceptorWrapper response = new ResponseInterceptorWrapper(
-					(HttpServletResponse) res);
+			RequestInterceptorWrapper request = new RequestInterceptorWrapper((HttpServletRequest) req);
+			ResponseInterceptorWrapper response = new ResponseInterceptorWrapper((HttpServletResponse) res);
 			long waitStartTime = System.currentTimeMillis();
 			chain.doFilter(request, response);
 			long waitEndTime = System.currentTimeMillis();
-			callAsyncAnalytics(requestReceivedTime, request, response,
-					waitStartTime - sendStartTime, waitEndTime - waitStartTime);
+			callAsyncAnalytics(requestReceivedTime, request, response, waitStartTime - sendStartTime, waitEndTime - waitStartTime);
 		} else {
 			chain.doFilter(req, res);
 		}
@@ -133,24 +133,22 @@ public class AnalyticsFilter implements Filter {
 	 * @see AnalyticsDataMapper
 	 * @see SendAnalyticsTask
 	 */
-	private void callAsyncAnalytics(Date requestReceivedTime,
-			RequestInterceptorWrapper request,
-			ResponseInterceptorWrapper response, long sendTime, long waitTime) {
+	private void callAsyncAnalytics(Date requestReceivedTime, RequestInterceptorWrapper request, ResponseInterceptorWrapper response, long sendTime,
+			long waitTime) {
 		try {
 			long recvStartTime = System.currentTimeMillis();
 			Map<String, Object> messageProperties = new HashMap<String, Object>();
 			messageProperties.put(ANALYTICS_SERVER_URL, analyticsServerUrl);
 			messageProperties.put(ANALYTICS_SERVER_PORT, analyticsServerPort);
-			Entry analyticsData = new AnalyticsDataMapper(request, response)
-					.getAnalyticsData(requestReceivedTime, sendTime, waitTime);
+			Entry analyticsData = new AnalyticsDataMapper(request, response).getAnalyticsData(requestReceivedTime, sendTime, waitTime);
 			long recvEndTime = System.currentTimeMillis();
 			analyticsData.getTimings().setReceive(recvEndTime - recvStartTime);
-			analyticsData.setTime((recvEndTime - recvStartTime) + sendTime
-					+ waitTime);
+			analyticsData.setTime((recvEndTime - recvStartTime) + sendTime + waitTime);
 			messageProperties.put(ANALYTICS_DATA, analyticsData);
 			messageProperties.put(ANALYTICS_TOKEN, analyticsToken);
-			analyticsServicexeExecutor.execute(new SendAnalyticsTask(pool,
-					messageProperties));
+			messageProperties.put(CLIENT_IP_ADDRESS, request.getRemoteAddr());
+			messageProperties.put(ENVIRONMENT, environment);
+			worker.execute(new SendAnalyticsTask(messageProperties));
 		} catch (Throwable x) {
 			logger.error("Failed to send analytics data", x);
 		}
@@ -162,31 +160,25 @@ public class AnalyticsFilter implements Filter {
 	@Override
 	public void init(FilterConfig config) throws ServletException {
 		if (isAnlayticsEnabled = isAnalyticsFlagEnabled()) {
-			if (!(Util.notBlank(analyticsServerUrl = config
-					.getInitParameter(ANALYTICS_SERVER_URL))
-					&& Util.notBlank(analyticsServerPort = config
-							.getInitParameter(ANALYTICS_SERVER_PORT)) && Util
-						.notBlank(analyticsToken = System
-								.getProperty(ANALYTICS_TOKEN)))) {
+			if (!(Util.notBlank(analyticsServerUrl = config.getInitParameter(ANALYTICS_SERVER_URL))
+					&& Util.notBlank(analyticsServerPort = config.getInitParameter(ANALYTICS_SERVER_PORT)) && Util.notBlank(analyticsToken = System.getProperty(ANALYTICS_TOKEN)))) {
 				isAnlayticsEnabled = false;
 				logger.error("Analytics URl or Port or Token not set");
 				return;
 			}
-			int poolSize = getEnvVarOrDefault(WORKER_COUNT, Runtime
-					.getRuntime().availableProcessors() * 2);
+			int poolSize = getEnvVarOrDefault(WORKER_QUEUE_COUNT, 100);
 			int socketPoolMin = getEnvVarOrDefault(SOCKET_POOL_SIZE_MIN, 10);
 			int socketPoolMax = getEnvVarOrDefault(SOCKET_POOL_SIZE_MAX, 20);
-			int poolUpdateInterval = getEnvVarOrDefault(
-					SOCKET_POOL_UPDATE_INTERVAL, 5);
-			pool = new ObjectPool<Work>(socketPoolMin, socketPoolMax,
-					poolUpdateInterval) {
-				@Override
-				public Work createPoolObject() {
-					return new Messenger();
-				}
-			};
-			analyticsServicexeExecutor = Executors.newFixedThreadPool(poolSize);
+			int poolUpdateInterval = getEnvVarOrDefault(SOCKET_POOL_UPDATE_INTERVAL, 5);
+			environment = getEnvironment();
+			blockingQueue = new LinkedBlockingQueue<Runnable>(poolSize);
+			worker = new ThreadPoolExecutor(socketPoolMin, socketPoolMax, poolUpdateInterval, TimeUnit.MILLISECONDS, blockingQueue);
 		}
+	}
+
+	private String getEnvironment() {
+		String val = System.getProperty(ENVIRONMENT);
+		return Util.notBlank(val) ? val : "";
 	}
 
 	private int getEnvVarOrDefault(String name, int defaultVal) {

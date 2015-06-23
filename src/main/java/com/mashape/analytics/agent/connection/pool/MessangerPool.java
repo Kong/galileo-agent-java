@@ -21,21 +21,20 @@ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
+
 package com.mashape.analytics.agent.connection.pool;
-
-import java.util.Map;
-
 /*
- * Task use a pooled Messenger to send data
+ * Messenger pool with each messenger having their own zmq socket 
  */
-public class SendAnalyticsTask implements Runnable {
-	private Map<String, Object> analyticsData;
-
-	public SendAnalyticsTask(Map<String, Object> analyticsData) {
-		this.analyticsData = analyticsData;
+public class MessangerPool {
+	private static final ThreadLocal<Messenger> MESSANGERPOOL = new ThreadLocal<Messenger>() {
+		protected Messenger initialValue() {
+			return new Messenger();
+		}
+	};
+	
+	public static Messenger get(){
+		return MESSANGERPOOL.get();
 	}
 
-	public void run() {
-		MessangerPool.get().execute(analyticsData);
-	}
 }

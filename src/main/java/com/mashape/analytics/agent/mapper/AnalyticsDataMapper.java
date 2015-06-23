@@ -35,8 +35,6 @@ import java.util.TimeZone;
 import org.apache.log4j.Logger;
 
 import com.google.common.io.BaseEncoding;
-import com.mashape.analytics.agent.wrapper.RequestInterceptorWrapper;
-import com.mashape.analytics.agent.wrapper.ResponseInterceptorWrapper;
 import com.mashape.analytics.agent.modal.Content;
 import com.mashape.analytics.agent.modal.Entry;
 import com.mashape.analytics.agent.modal.Message;
@@ -44,7 +42,13 @@ import com.mashape.analytics.agent.modal.NameValuePair;
 import com.mashape.analytics.agent.modal.Request;
 import com.mashape.analytics.agent.modal.Response;
 import com.mashape.analytics.agent.modal.Timings;
+import com.mashape.analytics.agent.wrapper.RequestInterceptorWrapper;
+import com.mashape.analytics.agent.wrapper.ResponseInterceptorWrapper;
 
+/**
+ *  Maps the analytics data to HAR format
+ *
+ */
 public class AnalyticsDataMapper {
 
 	Logger logger = Logger.getLogger(AnalyticsDataMapper.class);
@@ -55,21 +59,20 @@ public class AnalyticsDataMapper {
 	private ResponseInterceptorWrapper response;
 	Message message;
 
-	public AnalyticsDataMapper(RequestInterceptorWrapper request,
-			ResponseInterceptorWrapper response) {
+	public AnalyticsDataMapper(RequestInterceptorWrapper request, ResponseInterceptorWrapper response) {
 		this.request = (RequestInterceptorWrapper) request;
 		this.response = (ResponseInterceptorWrapper) response;
 	}
 
-	public Entry getAnalyticsData(Date requestReceivedTime, long sendTime,
-			long waitTime) {
+	public Entry getAnalyticsData(Date requestReceivedTime, long sendTime, long waitTime) {
 		Entry entry = new Entry();
-		entry.setClientIPAddress(request.getRemoteAddr());
 		entry.setServerIPAddress(request.getLocalAddr());
 		entry.setStartedDateTime(dateAsIso(requestReceivedTime));
 		entry.setRequest(mapRequest());
 		entry.setResponse(mapResponse());
 		entry.setTimings(mapTimings(requestReceivedTime, sendTime, waitTime));
+		entry.setConnection("");
+		entry.getCache();
 		return entry;
 	}
 
@@ -92,6 +95,7 @@ public class AnalyticsDataMapper {
 							// and 2 for CRLF for each header
 			}
 		}
+		requestHar.getCookies();
 		requestHar.setHeadersSize(size);
 	}
 
@@ -112,6 +116,7 @@ public class AnalyticsDataMapper {
 							// and 2 for CRLF for each header
 			}
 		}
+		responseHar.getCookies();
 		responseHar.setHeadersSize(size);
 	}
 
@@ -154,14 +159,8 @@ public class AnalyticsDataMapper {
 		content.setSize(request.getPayload().length());
 		if (request.getPayload().length() > 0) {
 			try {
-				content.setText(BaseEncoding
-						.base64()
-						.encode(request
-								.getPayload()
-								.getBytes(
-										request.getCharacterEncoding() == null ? "UTF-8"
-												: request
-														.getCharacterEncoding())));
+				content.setText(BaseEncoding.base64().encode(request.getPayload().getBytes(request.getCharacterEncoding() == null ? "UTF-8"
+						: request.getCharacterEncoding())));
 			} catch (UnsupportedEncodingException e) {
 				throw new RuntimeException("Failed to encode request body");
 			}
@@ -174,10 +173,10 @@ public class AnalyticsDataMapper {
 		responseHar.setBodySize(response.getClone().length);
 		responseHar.setContent(mapResponseContent());
 		responseHar.setHttpVersion(request.getProtocol());
-		responseHar.setStatus(Integer.toString(response.getStatus()));
-		responseHar.setStatusText(responseHar.getStatus());
+		responseHar.setStatus(response.getStatus());
+		responseHar.setStatusText(Integer.toString(responseHar.getStatus()));
+		responseHar.setRedirectURL("");
 		setResponseHeaders(responseHar);
-
 		return responseHar;
 	}
 
@@ -196,8 +195,7 @@ public class AnalyticsDataMapper {
 		return content;
 	}
 
-	private Timings mapTimings(Date requestReceivedTime, long sendTime,
-			long waitTime) {
+	private Timings mapTimings(Date requestReceivedTime, long sendTime, long waitTime) {
 		Timings timings = new Timings();
 		timings.setReceive(0);
 		timings.setSend(sendTime);

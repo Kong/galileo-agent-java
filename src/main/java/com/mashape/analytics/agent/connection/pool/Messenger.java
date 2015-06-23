@@ -26,10 +26,14 @@ package com.mashape.analytics.agent.connection.pool;
 
 import static com.mashape.analytics.agent.common.AnalyticsConstants.AGENT_NAME;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.AGENT_VERSION;
+import static com.mashape.analytics.agent.common.AnalyticsConstants.ALF_VERSION;
+import static com.mashape.analytics.agent.common.AnalyticsConstants.ALF_VERSION_PREFIX;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_DATA;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_PORT;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_URL;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_TOKEN;
+import static com.mashape.analytics.agent.common.AnalyticsConstants.CLIENT_IP_ADDRESS;
+import static com.mashape.analytics.agent.common.AnalyticsConstants.ENVIRONMENT;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.HAR_VERSION;
 
 import java.util.Map;
@@ -49,7 +53,6 @@ import com.mashape.analytics.agent.modal.Message;
 public class Messenger implements Work {
 
 	Logger logger = Logger.getLogger(Messenger.class);
-
 	private ZMQ.Context context;
 	private ZMQ.Socket socket;
 	
@@ -59,10 +62,8 @@ public class Messenger implements Work {
 	}
 
 	public void execute(Map<String, Object> analyticsData) {
-		Entry entry = (Entry) analyticsData.get(ANALYTICS_DATA);
-		String token = analyticsData.get(ANALYTICS_TOKEN).toString();
-		Message msg = getMessage(entry, token);
-		String data = new Gson().toJson(msg);
+		Message msg = getMessage(analyticsData);
+		String data = ALF_VERSION_PREFIX + new Gson().toJson(msg);
 		String analyticsServerUrl = analyticsData.get(ANALYTICS_SERVER_URL).toString();
 		String port = analyticsData.get(ANALYTICS_SERVER_PORT).toString();
 		socket.connect("tcp://" + analyticsServerUrl + ":" + port);
@@ -80,10 +81,15 @@ public class Messenger implements Work {
 		}
 	}
 
-	public Message getMessage(Entry entry, String token) {
+	public Message getMessage(Map<String, Object> analyticsData) {
+		Entry entry = (Entry) analyticsData.get(ANALYTICS_DATA);
+		String token = analyticsData.get(ANALYTICS_TOKEN).toString();
 		Message message = new Message();
 		message.setHar(setHar(entry));
 		message.setServiceToken(token);
+		message.setClientIPAddress(analyticsData.get(CLIENT_IP_ADDRESS).toString());
+		message.setEnvironment(analyticsData.get(ENVIRONMENT).toString());
+		message.setVersion(ALF_VERSION);
 		return message;
 	}
 
@@ -107,4 +113,5 @@ public class Messenger implements Work {
 		creator.setVersion(AGENT_VERSION);
 		return creator;
 	}
+
 }

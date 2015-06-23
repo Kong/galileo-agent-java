@@ -4,10 +4,11 @@ import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_EN
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_PORT;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_URL;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_TOKEN;
+import static com.mashape.analytics.agent.common.AnalyticsConstants.ENVIRONMENT;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.SOCKET_POOL_SIZE_MAX;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.SOCKET_POOL_SIZE_MIN;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.SOCKET_POOL_UPDATE_INTERVAL;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.WORKER_COUNT;
+import static com.mashape.analytics.agent.common.AnalyticsConstants.WORKER_QUEUE_COUNT;
 import static org.junit.Assert.fail;
 
 import java.io.BufferedReader;
@@ -21,7 +22,7 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.servlet.AsyncContext;
@@ -53,12 +54,11 @@ import org.junit.runner.RunWith;
 
 import com.mashape.analytics.agent.connection.pool.Messenger;
 import com.mashape.analytics.agent.connection.pool.Work;
-import com.mashape.analytics.agent.filter.AnalyticsFilter;
 import com.mashape.analytics.agent.mapper.AnalyticsDataMapper;
-import com.mashape.analytics.agent.wrapper.RequestInterceptorWrapper;
-import com.mashape.analytics.agent.wrapper.ResponseInterceptorWrapper;
 import com.mashape.analytics.agent.modal.Entry;
 import com.mashape.analytics.agent.modal.Timings;
+import com.mashape.analytics.agent.wrapper.RequestInterceptorWrapper;
+import com.mashape.analytics.agent.wrapper.ResponseInterceptorWrapper;
 
 @RunWith(JMockit.class)
 public class AnalyticsFilterTest {
@@ -73,8 +73,8 @@ public class AnalyticsFilterTest {
 	@Mocked("doFilter")
 	private FilterChain chain;
 	
-	@Mocked("newFixedThreadPool")
-	private Executors mokedExecutors;
+	@Mocked
+	private ThreadPoolExecutor mokedExecutors;
 	
 	@Mocked
 	private ExecutorService analyticsServicexeExecutor; 
@@ -106,7 +106,7 @@ public class AnalyticsFilterTest {
 	@Test
 	public void test() throws IOException, ServletException {
 
-		new Expectations() {
+		new NonStrictExpectations() {
 
 			{
 				System.getProperty(ANALYTICS_ENABLED);
@@ -117,7 +117,7 @@ public class AnalyticsFilterTest {
 				result = "5000";
 				System.getProperty(ANALYTICS_TOKEN);
 				result= "abcedf";
-				System.getProperty(WORKER_COUNT);
+				System.getProperty(WORKER_QUEUE_COUNT);
 				result= "2";
 				System.getProperty(SOCKET_POOL_SIZE_MIN);
 				result= "5";
@@ -125,15 +125,15 @@ public class AnalyticsFilterTest {
 				result= "10";
 				System.getProperty(SOCKET_POOL_UPDATE_INTERVAL);
 				result= "5";
-				Executors.newFixedThreadPool(anyInt);
-				result = analyticsServicexeExecutor;	
+				System.getProperty(ENVIRONMENT);
+				result= "TEST";
 				chain.doFilter((RequestInterceptorWrapper) any,
 						(ResponseInterceptorWrapper) any);
 				new AnalyticsDataMapper((RequestInterceptorWrapper) any,
 						(ResponseInterceptorWrapper) any).getAnalyticsData(
 						(Date) any, anyLong, anyLong);
 				result = getEntry();
-				analyticsServicexeExecutor.execute((Runnable) any);
+				mokedExecutors.execute((Runnable) any);
 			}
 		};
 
@@ -163,7 +163,7 @@ public class AnalyticsFilterTest {
 				result = "5000";
 				System.getProperty(ANALYTICS_TOKEN);
 				result= "abcedf";
-				System.getProperty(WORKER_COUNT);
+				System.getProperty(WORKER_QUEUE_COUNT);
 				result= "2";
 				System.getProperty(SOCKET_POOL_SIZE_MIN);
 				result= "5";
@@ -171,8 +171,6 @@ public class AnalyticsFilterTest {
 				result= "10";
 				System.getProperty(SOCKET_POOL_UPDATE_INTERVAL);
 				result= "5";
-				Executors.newFixedThreadPool(anyInt);
-				result = analyticsServicexeExecutor;
 				chain.doFilter((RequestInterceptorWrapper) any,
 						(ResponseInterceptorWrapper) any);
 				new AnalyticsDataMapper((RequestInterceptorWrapper) any,
@@ -197,7 +195,7 @@ public class AnalyticsFilterTest {
 	@Test
 	public void testNoEnvVarSet() throws IOException, ServletException {
 
-		new Expectations() {
+		new NonStrictExpectations() {
 
 			{	
 				System.getProperty(ANALYTICS_ENABLED);
@@ -208,7 +206,7 @@ public class AnalyticsFilterTest {
 				result = "5000";
 				System.getProperty(ANALYTICS_TOKEN);
 				result= "abcedf";
-				System.getProperty(WORKER_COUNT);
+				System.getProperty(WORKER_QUEUE_COUNT);
 				result= null;
 				System.getProperty(SOCKET_POOL_SIZE_MIN);
 				result= null;
@@ -216,15 +214,15 @@ public class AnalyticsFilterTest {
 				result= null;
 				System.getProperty(SOCKET_POOL_UPDATE_INTERVAL);
 				result= null;
-				Executors.newFixedThreadPool(anyInt);
-				result = analyticsServicexeExecutor;	
+				System.getProperty(ENVIRONMENT);
+				result= "TEST";
 				chain.doFilter((RequestInterceptorWrapper) any,
 						(ResponseInterceptorWrapper) any);
 				new AnalyticsDataMapper((RequestInterceptorWrapper) any,
 						(ResponseInterceptorWrapper) any).getAnalyticsData(
 						(Date) any, anyLong, anyLong);
 				result = getEntry();
-				analyticsServicexeExecutor.execute((Runnable) any);
+				mokedExecutors.execute((Runnable) any);
 			}
 		};
 
@@ -270,10 +268,6 @@ public class AnalyticsFilterTest {
 		return entry;
 	}
 	
-	private Entry getEntryWithNotimming() {
-		Entry entry = new Entry();
-		return entry;
-	}
 
 	private ServletRequest req = new HttpServletRequest() {
 
