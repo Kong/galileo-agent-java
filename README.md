@@ -102,7 +102,7 @@ Add following arguments to the server
 
      Property | Value
      -------- |	------
-     analytics.token | You Api analytics token from http://www.apianalyitics.com 
+     analytics.token | You Api analytics token from https://analytics.mashape.com 
      analytics.socket.min |Minimum number of sockets to opened for connection to analytics server, default is 10
      analytics.socket.max | Maximum number of sockets allowed to live in pool, default is 20
      analytics.socket.interval | New sockets are added if its less than minimum value  or removed if its greater than maximum value at set interval, default is 5 seconds
@@ -129,14 +129,3 @@ Update web.xml on server
   <url-pattern>/*</url-pattern>
 </filter-mapping> 
 ```
-	
-     
-
-
-
-	
-
-
- 
- 
-
