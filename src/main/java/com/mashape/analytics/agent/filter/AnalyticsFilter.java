@@ -168,7 +168,7 @@ public class AnalyticsFilter implements Filter {
 			int poolSize = getEnvVarOrDefault(WORKER_QUEUE_COUNT, 100);
 			int socketPoolMin = getEnvVarOrDefault(SOCKET_POOL_SIZE_MIN, 10);
 			int socketPoolMax = getEnvVarOrDefault(SOCKET_POOL_SIZE_MAX, 20);
-			int poolUpdateInterval = getEnvVarOrDefault(SOCKET_POOL_UPDATE_INTERVAL, 5);
+			int poolUpdateInterval = getEnvVarOrDefault(SOCKET_POOL_UPDATE_INTERVAL, 30);
 			environment = getEnvironment();
 			blockingQueue = new LinkedBlockingQueue<Runnable>(poolSize);
 			worker = new ThreadPoolExecutor(socketPoolMin, socketPoolMax, poolUpdateInterval, TimeUnit.MILLISECONDS, blockingQueue);

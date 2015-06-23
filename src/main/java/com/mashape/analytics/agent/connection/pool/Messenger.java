@@ -77,6 +77,7 @@ public class Messenger implements Work {
 			socket.close();
 		}
 		if (context != null) {
+			context.close();
 			context.term();
 		}
 	}
@@ -113,5 +114,10 @@ public class Messenger implements Work {
 		creator.setVersion(AGENT_VERSION);
 		return creator;
 	}
-
+	
+	@Override
+	protected void finalize() throws Throwable {
+		this.terminate();
+		logger.debug("Messanger resources destroyed:"+ this.toString());
+	}
 }

@@ -104,7 +104,7 @@ Add following arguments to the server
      analytics.token | Api analytics token from https://analytics.mashape.com 
      analytics.socket.min |Minimum number of threads/sockets to opened for connection to analytics server, default is 10
      analytics.socket.max | Maximum number of threads/sockets allowed to live in pool, default is 20
-     analytics.socket.keepalivetime | When the number of threads are greater than the min, this is the maximum time that excess idle threads will wait for new tasks before terminating.
+     analytics.socket.keepalivetime | When the number of threads are greater than the min, this is the maximum time in second that excess idle threads will wait for new tasks before terminating. Default is 30 seconds.
      analytics.queue.size | Size of the queue for holding the tasks of transferring data to analytics server, default is 100 
      analytics.enabled.flag | Set it true to enable analytics
      analytics.environment | Server environment name, default is a empty string
