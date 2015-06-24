@@ -37,7 +37,7 @@ The agent is a custom servlet filter which intercepts the request and response a
 
 ### Without Maven
 
-- Download the [jar](https://oss.sonatype.org/content/repositories/releases/com/mashape/analytics/agent/analytics-java-agent/)
+- Download the [jar](https://oss.sonatype.org/content/repositories/releases/com/mashape/analytics/agent//mashape-analytics/)
 - clone from [Github](https://github.com/Mashape/analytics-agent-java)
 
 ## Usage
