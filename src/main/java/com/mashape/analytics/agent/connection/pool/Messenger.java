@@ -50,15 +50,17 @@ import com.mashape.analytics.agent.modal.Message;
 /*
  * Opens a connection to Analytics server and sends data
  */
-public class Messenger implements Work {
+public class Messenger implements Executor {
 
-	Logger logger = Logger.getLogger(Messenger.class);
+	private static Logger LOGGER = Logger.getLogger(Messenger.class);
+
 	private ZMQ.Context context;
 	private ZMQ.Socket socket;
-	
+
 	public  Messenger(){
 		 context = ZMQ.context(1);
 		 socket = context.socket(ZMQ.PUSH);
+		 LOGGER.debug("Socket created: " + socket.toString());
 	}
 
 	public void execute(Map<String, Object> analyticsData) {
@@ -68,12 +70,12 @@ public class Messenger implements Work {
 		String port = analyticsData.get(ANALYTICS_SERVER_PORT).toString();
 		socket.connect("tcp://" + analyticsServerUrl + ":" + port);
 		socket.send(data);
-		logger.debug("Message sent:" + data);
+		LOGGER.debug("Message sent:" + data);
 	}
 
 	public void terminate() {
 		if (socket != null) {
-			logger.debug("Closing socket:" + socket.toString());
+			LOGGER.debug("Closing socket:" + socket.toString());
 			socket.close();
 		}
 		if (context != null) {
@@ -118,6 +120,7 @@ public class Messenger implements Work {
 	@Override
 	protected void finalize() throws Throwable {
 		this.terminate();
-		logger.debug("Messanger resources destroyed:"+ this.toString());
+		LOGGER.debug("Messanger resources destroyed:"+ this.toString());
+		super.finalize();
 	}
 }

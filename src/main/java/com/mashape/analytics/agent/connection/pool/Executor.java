@@ -25,7 +25,7 @@ package com.mashape.analytics.agent.connection.pool;
 
 import java.util.Map;
 
-public interface Work {
+public interface Executor {
 	void terminate();
 	void execute(Map<String, Object> analyticsData);
 }

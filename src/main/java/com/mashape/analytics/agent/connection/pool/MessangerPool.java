@@ -20,21 +20,43 @@ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
+ */
 
 package com.mashape.analytics.agent.connection.pool;
+
+import org.apache.log4j.Logger;
+
+import com.mashape.analytics.agent.filter.AnalyticsFilter;
+
 /*
  * Messenger pool with each messenger having their own zmq socket 
  */
 public class MessangerPool {
+
+	final static Logger logger = Logger.getLogger(MessangerPool.class);
+
 	private static final ThreadLocal<Messenger> MESSANGERPOOL = new ThreadLocal<Messenger>() {
+
+		@Override
+		public void remove() {
+			Messenger messenger = MESSANGERPOOL.get();
+			logger.debug("Messenger removed: " + messenger.toString());
+			messenger.terminate();
+			super.remove();
+		}
+
 		protected Messenger initialValue() {
+			Messenger messenger = new Messenger();
+			logger.debug("Messenger Created: " + messenger.toString());
 			return new Messenger();
 		}
 	};
-	
-	public static Messenger get(){
+
+	public static Messenger get() {
 		return MESSANGERPOOL.get();
 	}
 
+	public static void remove() {
+		MESSANGERPOOL.remove();
+	}
 }

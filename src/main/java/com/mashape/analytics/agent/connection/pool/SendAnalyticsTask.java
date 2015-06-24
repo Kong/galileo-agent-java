@@ -25,13 +25,21 @@ package com.mashape.analytics.agent.connection.pool;
 
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
+import com.mashape.analytics.agent.filter.AnalyticsFilter;
+
 /*
  * Task use a pooled Messenger to send data
  */
 public class SendAnalyticsTask implements Runnable {
+
+	final static Logger LOGGER = Logger.getLogger(AnalyticsFilter.class);
+
 	private Map<String, Object> analyticsData;
 
 	public SendAnalyticsTask(Map<String, Object> analyticsData) {
+		LOGGER.debug("New task created:" + this.toString());
 		this.analyticsData = analyticsData;
 	}
 

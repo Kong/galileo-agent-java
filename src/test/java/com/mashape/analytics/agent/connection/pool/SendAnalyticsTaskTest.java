@@ -24,7 +24,7 @@ public class SendAnalyticsTaskTest {
 
 	
 	
-	private Work mockMessanger = new Messenger(){
+	private Executor mockMessanger = new Messenger(){
 		@Override
 		public void terminate() {
 			val.addAndGet(1);

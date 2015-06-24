@@ -53,7 +53,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.mashape.analytics.agent.connection.pool.Messenger;
-import com.mashape.analytics.agent.connection.pool.Work;
+import com.mashape.analytics.agent.connection.pool.Executor;
 import com.mashape.analytics.agent.mapper.AnalyticsDataMapper;
 import com.mashape.analytics.agent.modal.Entry;
 import com.mashape.analytics.agent.modal.Timings;
@@ -90,7 +90,7 @@ public class AnalyticsFilterTest {
 
 
 	@Injectable
-	private  Work messanger  = new Messenger() {
+	private  Executor messanger  = new Messenger() {
 		
 		@Override
 		public void terminate() {
