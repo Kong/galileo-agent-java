@@ -20,7 +20,7 @@ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
+ */
 
 package com.mashape.analytics.agent.connection.pool;
 
@@ -39,7 +39,10 @@ import static com.mashape.analytics.agent.common.AnalyticsConstants.HAR_VERSION;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
+import org.zeromq.ZMQ.Context;
+import org.zeromq.ZMQ.Socket;
 
 import com.google.gson.Gson;
 import com.mashape.analytics.agent.modal.Creator;
@@ -47,6 +50,7 @@ import com.mashape.analytics.agent.modal.Entry;
 import com.mashape.analytics.agent.modal.Har;
 import com.mashape.analytics.agent.modal.Log;
 import com.mashape.analytics.agent.modal.Message;
+
 /*
  * Opens a connection to Analytics server and sends data
  */
@@ -54,23 +58,43 @@ public class Messenger implements Executor {
 
 	private static Logger LOGGER = Logger.getLogger(Messenger.class);
 
-	private ZMQ.Context context;
-	private ZMQ.Socket socket;
+	private Context context;
+	private Socket socket;
 
-	public  Messenger(){
-		 context = ZMQ.context(1);
-		 socket = context.socket(ZMQ.PUSH);
-		 LOGGER.debug("Socket created: " + socket.toString());
+	public Messenger() {
+		context = ZMQ.context(1);
+		socket = context.socket(ZMQ.PUSH);
+		LOGGER.debug("Socket created: " + socket.toString());
 	}
 
 	public void execute(Map<String, Object> analyticsData) {
-		Message msg = getMessage(analyticsData);
-		String data = ALF_VERSION_PREFIX + new Gson().toJson(msg);
-		String analyticsServerUrl = analyticsData.get(ANALYTICS_SERVER_URL).toString();
-		String port = analyticsData.get(ANALYTICS_SERVER_PORT).toString();
-		socket.connect("tcp://" + analyticsServerUrl + ":" + port);
-		socket.send(data);
-		LOGGER.debug("Message sent:" + data);
+		int tryLeft = 3;
+		while (tryLeft > 0) {
+			try{
+				send(analyticsData);
+				break;
+			}catch (Exception e) {
+				if(tryLeft  > 0){
+					socket.close();
+					socket = context.socket(ZMQ.PUSH);
+					LOGGER.error("Failed to send data, trying again:", e);
+				}else{
+					LOGGER.error("Failed to send data, dropping data", e);
+				}
+				tryLeft--;
+			}
+		}
+	}
+
+	private void send(Map<String, Object> analyticsData) {
+			Message msg = getMessage(analyticsData);
+			String data = ALF_VERSION_PREFIX + new Gson().toJson(msg);
+			String analyticsServerUrl = analyticsData.get(ANALYTICS_SERVER_URL).toString();
+			String port = analyticsData.get(ANALYTICS_SERVER_PORT).toString();
+			socket.connect("tcp://" + analyticsServerUrl + ":" + port);
+			socket.send(data);
+			LOGGER.debug("Message sent:" + data);
+			//socket.close();
 	}
 
 	public void terminate() {
@@ -80,7 +104,6 @@ public class Messenger implements Executor {
 		}
 		if (context != null) {
 			context.close();
-			context.term();
 		}
 	}
 
@@ -116,11 +139,10 @@ public class Messenger implements Executor {
 		creator.setVersion(AGENT_VERSION);
 		return creator;
 	}
-	
+
 	@Override
-	protected void finalize() throws Throwable {
+	protected void finalize(){
 		this.terminate();
-		LOGGER.debug("Messanger resources destroyed:"+ this.toString());
-		super.finalize();
+		LOGGER.debug("Messanger resources destroyed:" + this.toString());
 	}
 }

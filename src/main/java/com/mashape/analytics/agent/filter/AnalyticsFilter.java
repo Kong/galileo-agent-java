@@ -42,6 +42,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -64,8 +65,8 @@ import com.mashape.analytics.agent.wrapper.RequestInterceptorWrapper;
 import com.mashape.analytics.agent.wrapper.ResponseInterceptorWrapper;
 
 /**
- *         AnalyticsFilter is a custom filter designed to intercept http request
- *         and response and send compiled data to Mashape analytics server.
+ * AnalyticsFilter is a custom filter designed to intercept http request and
+ * response and send compiled data to Mashape analytics server.
  *
  */
 
@@ -85,7 +86,9 @@ public class AnalyticsFilter implements Filter {
 	public void destroy() {
 		try {
 			worker.shutdown();
-			worker.awaitTermination(30, TimeUnit.SECONDS);
+			while (!worker.awaitTermination(30, TimeUnit.SECONDS)) {
+				logger.debug("Waiting to theads to finish...");
+			}
 		} catch (InterruptedException e) {
 			logger.error("Error during shutdown of analytics pool", e);
 		}
@@ -148,6 +151,8 @@ public class AnalyticsFilter implements Filter {
 			messageProperties.put(CLIENT_IP_ADDRESS, request.getRemoteAddr());
 			messageProperties.put(ENVIRONMENT, environment);
 			worker.execute(new SendAnalyticsTask(messageProperties));
+		} catch (RejectedExecutionException e) {
+			logger.error("Queue is full, dropping the data", e);
 		} catch (Throwable x) {
 			logger.error("Failed to send analytics data", x);
 		}
@@ -165,10 +170,10 @@ public class AnalyticsFilter implements Filter {
 				logger.error("Analytics URl or Port or Token not set");
 				return;
 			}
-			int poolSize = getEnvVarOrDefault(WORKER_QUEUE_COUNT, 100);
-			int socketPoolMin = getEnvVarOrDefault(SOCKET_POOL_SIZE_MIN, 10);
-			int socketPoolMax = getEnvVarOrDefault(SOCKET_POOL_SIZE_MAX, 20);
-			int poolUpdateInterval = getEnvVarOrDefault(SOCKET_POOL_UPDATE_INTERVAL, 30);
+			int poolSize = getEnvVarOrDefault(WORKER_QUEUE_COUNT, 5000);
+			int socketPoolMin = getEnvVarOrDefault(SOCKET_POOL_SIZE_MIN, 2);
+			int socketPoolMax = getEnvVarOrDefault(SOCKET_POOL_SIZE_MAX, 4);
+			int poolUpdateInterval = getEnvVarOrDefault(SOCKET_POOL_UPDATE_INTERVAL, 20);
 			environment = getEnvironment();
 			blockingQueue = new LinkedBlockingQueue<Runnable>(poolSize);
 			worker = new ThreadPoolExecutor(socketPoolMin, socketPoolMax, poolUpdateInterval, TimeUnit.MILLISECONDS, blockingQueue);

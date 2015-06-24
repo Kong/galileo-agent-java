@@ -40,15 +40,16 @@ public class MessangerPool {
 		@Override
 		public void remove() {
 			Messenger messenger = MESSANGERPOOL.get();
-			logger.debug("Messenger removed: " + messenger.toString());
+			logger.debug("Messenger removed: " + messenger.toString() + " for thread: " + Thread.currentThread().getName());
 			messenger.terminate();
 			super.remove();
 		}
 
+		@Override
 		protected Messenger initialValue() {
 			Messenger messenger = new Messenger();
-			logger.debug("Messenger Created: " + messenger.toString());
-			return new Messenger();
+			logger.debug("Messenger Created: " + messenger.toString() + " for thread: " + Thread.currentThread().getName());
+			return messenger;
 		}
 	};
 
