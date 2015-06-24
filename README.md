@@ -4,7 +4,7 @@
 
 ## About
 
-The agent is a custom servlet filter which intercepts the request and response and sends it to API Analytics server asynchronously to generate analytics information. It needs a web container to run, to send data from a app running in Java SE environment please use our standalone proxy or use one of our data collection APIs.
+The agent is a custom servlet filter which intercepts the request and response and sends it to API Analytics server asynchronously to generate analytics information. It needs a web container to run, to send data from a app running in Java SE environment please use our stand alone proxy or use one of our data collection APIs.
 
 ## Dependencies
 
