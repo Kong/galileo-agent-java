@@ -1,4 +1,4 @@
-# Mashape Analytics Java Agent
+# Mashape Analytics Java Agent [![Build Status][travis-image]][travis-url]
 
 > for more information on Mashape Analytics, please visit [apianalytics.com](https://www.apianalytics.com)
 
@@ -83,3 +83,6 @@ Update `web.xml`:
 Copyright Mashape Inc, 2015.
 
 Licensed under [the MIT License](https://github.com/mashape/analytics-agent-java/blob/master/LICENSE)
+
+[travis-url]: https://travis-ci.org/Mashape/analytics-agent-java
+[travis-image]: https://travis-ci.org/Mashape/analytics-agent-java.svg?style=flat
