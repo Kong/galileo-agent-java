@@ -34,7 +34,7 @@ public class AnalyticsConstants {
 	public static final String SOCKET_POOL_UPDATE_INTERVAL = "analytics.socket.keepalivetime";
 	public static final String ANALYTICS_TOKEN = "analytics.token";
 	public static final String HAR_VERSION = "1.2";
-	public static final String AGENT_NAME = "Analytics Java Agent";
+	public static final String AGENT_NAME = "mashape-analytics-agent-java";
 	public static final String AGENT_VERSION = "1.0";
 	public static final String ANALYTICS_ENABLED = "analytics.enabled.flag";
 	public static final String CLIENT_IP_ADDRESS = "clientIpAddress";
