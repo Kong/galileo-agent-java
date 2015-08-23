@@ -18,6 +18,7 @@ import mockit.integration.junit4.JMockit;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.zeromq.ZContext;
 import org.zeromq.ZMQ.Context;
 import org.zeromq.ZMQ.Socket;
 
@@ -27,13 +28,21 @@ import com.mashape.analytics.agent.modal.Entry;
 public class MessengerTest {
 
 	
-	@Mocked
-	@Injectable
-	private Context context;
-
+	
 	@Mocked
 	@Injectable
 	private Socket socket;
+	
+	@Injectable
+	private ZContext context = new ZContext(){
+
+		@Override
+		public Socket createSocket(int type) {
+			// TODO Auto-generated method stub
+			return socket;
+		}
+		
+	};
 
 	@Tested
 	private Messenger subject;
@@ -43,8 +52,6 @@ public class MessengerTest {
 		Map<String, Object> analyticsData = getMockedData();
 		new NonStrictExpectations() {
 			{
-				context.socket(anyInt);
-				result = socket;
 				socket.connect(anyString);
 				socket.send(anyString);
 			}

@@ -58,14 +58,14 @@ public class Messenger implements Executor {
 
 	private static Logger LOGGER = Logger.getLogger(Messenger.class);
 
-	private Context context;
+	private final ZContext context ;
 	private Socket socket;
-
-	public Messenger() {
-		context = ZMQ.context(1);
-		socket = context.socket(ZMQ.PUSH);
-		LOGGER.debug("Socket created: " + socket.toString());
+	
+	public Messenger(ZContext context) {
+		this.context = context;
+		socket = context.createSocket(ZMQ.PUSH);
 	}
+
 
 	public void execute(Map<String, Object> analyticsData) {
 		int tryLeft = 3;
@@ -75,8 +75,8 @@ public class Messenger implements Executor {
 				break;
 			}catch (Exception e) {
 				if(tryLeft  > 0){
-					socket.close();
-					socket = context.socket(ZMQ.PUSH);
+					context.destroySocket(socket);
+					socket = context.createSocket(ZMQ.PUSH);
 					LOGGER.error("Failed to send data, trying again:", e);
 				}else{
 					LOGGER.error("Failed to send data, dropping data", e);
@@ -94,16 +94,15 @@ public class Messenger implements Executor {
 			socket.connect("tcp://" + analyticsServerUrl + ":" + port);
 			socket.send(data);
 			LOGGER.debug("Message sent:" + data);
-			//socket.close();
 	}
 
 	public void terminate() {
 		if (socket != null) {
-			LOGGER.debug("Closing socket:" + socket.toString());
-			socket.close();
+			context.destroySocket(socket);
 		}
 		if (context != null) {
-			context.close();
+			context.destroySocket(socket);
+			context.destroy();
 		}
 	}
 
@@ -141,8 +140,9 @@ public class Messenger implements Executor {
 	}
 
 	@Override
-	protected void finalize(){
+	protected void finalize() throws Throwable{
 		this.terminate();
 		LOGGER.debug("Messanger resources destroyed:" + this.toString());
+		super.finalize();
 	}
 }

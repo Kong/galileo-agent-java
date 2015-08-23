@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import mockit.Injectable;
 import mockit.Mocked;
 import mockit.NonStrictExpectations;
 import mockit.integration.junit4.JMockit;
@@ -13,6 +14,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.zeromq.ZContext;
+import org.zeromq.ZMQ.Socket;
 
 @RunWith(JMockit.class)
 public class SendAnalyticsTaskTest {
@@ -23,8 +26,17 @@ public class SendAnalyticsTaskTest {
 	private MessangerPool messangerPool;
 
 	
-	
-	private Executor mockMessanger = new Messenger(){
+	@Injectable
+	private ZContext context = new ZContext(){
+
+		@Override
+		public Socket createSocket(int type) {
+			// TODO Auto-generated method stub
+			return super.createSocket(type);
+		}
+		
+	};
+	private Executor mockMessanger = new Messenger(context){
 		@Override
 		public void terminate() {
 			val.addAndGet(1);

@@ -25,6 +25,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 package com.mashape.analytics.agent.connection.pool;
 
 import org.apache.log4j.Logger;
+import org.zeromq.ZContext;
 
 import com.mashape.analytics.agent.filter.AnalyticsFilter;
 
@@ -34,6 +35,7 @@ import com.mashape.analytics.agent.filter.AnalyticsFilter;
 public class MessangerPool {
 
 	final static Logger logger = Logger.getLogger(MessangerPool.class);
+	private static final ZContext context = new ZContext();
 
 	private static final ThreadLocal<Messenger> MESSANGERPOOL = new ThreadLocal<Messenger>() {
 
@@ -47,7 +49,7 @@ public class MessangerPool {
 
 		@Override
 		protected Messenger initialValue() {
-			Messenger messenger = new Messenger();
+			Messenger messenger = new Messenger(context);
 			logger.debug("Messenger Created: " + messenger.toString() + " for thread: " + Thread.currentThread().getName());
 			return messenger;
 		}
@@ -59,5 +61,9 @@ public class MessangerPool {
 
 	public static void remove() {
 		MESSANGERPOOL.remove();
+	}
+	
+	public static void terminate() {
+		context.destroy();
 	}
 }

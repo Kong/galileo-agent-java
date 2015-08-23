@@ -58,6 +58,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
 import com.mashape.analytics.agent.common.Util;
+import com.mashape.analytics.agent.connection.pool.MessangerPool;
 import com.mashape.analytics.agent.connection.pool.SendAnalyticsTask;
 import com.mashape.analytics.agent.mapper.AnalyticsDataMapper;
 import com.mashape.analytics.agent.modal.Entry;
@@ -85,6 +86,7 @@ public class AnalyticsFilter implements Filter {
 	@Override
 	public void destroy() {
 		try {
+			MessangerPool.terminate();
 			worker.shutdown();
 			while (!worker.awaitTermination(30, TimeUnit.SECONDS)) {
 				logger.debug("Waiting to theads to finish...");

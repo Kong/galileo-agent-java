@@ -51,6 +51,8 @@ import mockit.integration.junit4.JMockit;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.zeromq.ZContext;
+import org.zeromq.ZMQ.Socket;
 
 import com.mashape.analytics.agent.connection.pool.Messenger;
 import com.mashape.analytics.agent.connection.pool.Executor;
@@ -87,10 +89,24 @@ public class AnalyticsFilterTest {
 	private AnalyticsDataMapper mapper;
 	
 	private AtomicInteger val = new AtomicInteger(0);
+	
+	@Mocked
+	private Socket socket;
 
+	
+	@Injectable
+	private ZContext context = new ZContext(){
+
+		@Override
+		public Socket createSocket(int type) {
+			// TODO Auto-generated method stub
+			return socket;
+		}
+		
+	};
 
 	@Injectable
-	private  Executor messanger  = new Messenger() {
+	private  Executor messanger  = new Messenger(context) {
 		
 		@Override
 		public void terminate() {
