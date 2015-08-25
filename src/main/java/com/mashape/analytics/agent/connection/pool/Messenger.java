@@ -41,7 +41,6 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
-import org.zeromq.ZMQ.Context;
 import org.zeromq.ZMQ.Socket;
 
 import com.google.gson.Gson;
@@ -63,9 +62,15 @@ public class Messenger implements Executor {
 	
 	public Messenger(ZContext context) {
 		this.context = context;
-		socket = context.createSocket(ZMQ.PUSH);
+		socket = createSocket();
 	}
 
+	private Socket createSocket() {
+		Socket socket = context.createSocket(ZMQ.PUSH);
+		socket.setLinger(1000);
+		LOGGER.debug("New socket created: "+ socket);
+		return socket;
+	}
 
 	public void execute(Map<String, Object> analyticsData) {
 		int tryLeft = 3;
@@ -76,7 +81,7 @@ public class Messenger implements Executor {
 			}catch (Exception e) {
 				if(tryLeft  > 0){
 					context.destroySocket(socket);
-					socket = context.createSocket(ZMQ.PUSH);
+					socket = createSocket();
 					LOGGER.error("Failed to send data, trying again:", e);
 				}else{
 					LOGGER.error("Failed to send data, dropping data", e);
@@ -93,6 +98,7 @@ public class Messenger implements Executor {
 			String port = analyticsData.get(ANALYTICS_SERVER_PORT).toString();
 			socket.connect("tcp://" + analyticsServerUrl + ":" + port);
 			socket.send(data);
+			socket.close();
 			LOGGER.debug("Message sent:" + data);
 	}
 

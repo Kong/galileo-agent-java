@@ -148,6 +148,7 @@ public class AnalyticsFilterIntegrationTest {
 					Map<String, String> map = new HashMap<String, String>();
 					map.put("analytics.server.url", "127.0.0.1");
 					map.put("analytics.server.port", "5555");
+					
 					fh.setInitParameters(map);
 					context.addFilter(fh, "/*", EnumSet.of(DispatcherType.REQUEST));
 					server.start();

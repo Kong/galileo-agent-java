@@ -44,11 +44,14 @@ import javax.servlet.http.Part;
 
 import mockit.Expectations;
 import mockit.Injectable;
+import mockit.Mock;
+import mockit.MockUp;
 import mockit.Mocked;
 import mockit.NonStrictExpectations;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.zeromq.ZContext;
@@ -89,35 +92,6 @@ public class AnalyticsFilterTest {
 	private AnalyticsDataMapper mapper;
 	
 	private AtomicInteger val = new AtomicInteger(0);
-	
-	@Mocked
-	private Socket socket;
-
-	
-	@Injectable
-	private ZContext context = new ZContext(){
-
-		@Override
-		public Socket createSocket(int type) {
-			// TODO Auto-generated method stub
-			return socket;
-		}
-		
-	};
-
-	@Injectable
-	private  Executor messanger  = new Messenger(context) {
-		
-		@Override
-		public void terminate() {
-			val.addAndGet(-1);
-		}
-		
-		@Override
-		public void execute(Map<String, Object> analyticsData) {
-			val.addAndGet(2);
-		}
-	};
 	
 	@Test
 	public void test() throws IOException, ServletException {
