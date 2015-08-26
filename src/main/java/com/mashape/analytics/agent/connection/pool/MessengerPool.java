@@ -32,9 +32,9 @@ import com.mashape.analytics.agent.filter.AnalyticsFilter;
 /*
  * Messenger pool with each messenger having their own zmq socket 
  */
-public class MessangerPool {
+public class MessengerPool {
 
-	final static Logger logger = Logger.getLogger(MessangerPool.class);
+	final static Logger logger = Logger.getLogger(MessengerPool.class);
 	private static final ZContext context = new ZContext();
 
 	private static final ThreadLocal<Messenger> MESSANGERPOOL = new ThreadLocal<Messenger>() {

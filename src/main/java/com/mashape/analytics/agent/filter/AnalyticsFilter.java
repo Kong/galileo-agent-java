@@ -25,6 +25,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 package com.mashape.analytics.agent.filter;
 
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_DATA;
+import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_ENABLED;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_PORT;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_URL;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_TOKEN;
@@ -51,6 +52,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
+import com.mashape.analytics.agent.common.AnalyticsConstants;
 import com.mashape.analytics.agent.connection.pool.AnalyticsConfiguration;
 import com.mashape.analytics.agent.connection.pool.SendAnalyticsTask;
 import com.mashape.analytics.agent.mapper.AnalyticsDataMapper;
@@ -128,9 +130,9 @@ public class AnalyticsFilter implements Filter {
 			messageProperties.put(CLIENT_IP_ADDRESS, request.getRemoteAddr());
 			analyticsConfiguration.getWorkers().execute(new SendAnalyticsTask(messageProperties));
 		} catch (RejectedExecutionException e) {
-			LOGGER.error("Queue is full, dropping the data", e);
+			LOGGER.error("Task Queue is full, dropping the data", e);
 		} catch (Throwable x) {
-			LOGGER.error("Failed to send analytics data", x);
+			LOGGER.error("Failed to send Analytics data", x);
 		}
 	}
 
@@ -139,6 +141,6 @@ public class AnalyticsFilter implements Filter {
 	 */
 	@Override
 	public void init(FilterConfig config) throws ServletException {
-		analyticsConfiguration = new AnalyticsConfiguration.Builder().analyticsServerUrl(config.getInitParameter(ANALYTICS_SERVER_URL)).analyticsServerPort(config.getInitParameter(ANALYTICS_SERVER_PORT)).analyticsToken(System.getProperty(ANALYTICS_TOKEN)).environment(System.getProperty(ENVIRONMENT)).workerCountMin(System.getProperty(SOCKET_POOL_SIZE_MIN)).workerCountMax(System.getProperty(SOCKET_POOL_SIZE_MAX)).workerKeepAliveTime(System.getProperty(SOCKET_POOL_UPDATE_INTERVAL)).build();
+		analyticsConfiguration = new AnalyticsConfiguration.Builder().isAnlayticsEnabled(System.getProperty(ANALYTICS_ENABLED)).analyticsServerUrl(config.getInitParameter(ANALYTICS_SERVER_URL)).analyticsServerPort(config.getInitParameter(ANALYTICS_SERVER_PORT)).analyticsToken(System.getProperty(ANALYTICS_TOKEN)).environment(System.getProperty(ENVIRONMENT)).workerCountMin(System.getProperty(SOCKET_POOL_SIZE_MIN)).workerCountMax(System.getProperty(SOCKET_POOL_SIZE_MAX)).workerKeepAliveTime(System.getProperty(SOCKET_POOL_UPDATE_INTERVAL)).taskQueueSize(System.getProperty(AnalyticsConstants.WORKER_QUEUE_COUNT)).build();
 	}
 }

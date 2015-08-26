@@ -230,7 +230,7 @@ public class AnalyticsFilterTest {
 	@Test
 	public void testAnalyticsDisabled() throws IOException, ServletException {
 
-		new Expectations() {
+		new NonStrictExpectations() {
 
 			{	
 				System.getProperty(ANALYTICS_ENABLED);

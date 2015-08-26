@@ -1,40 +1,40 @@
 package com.mashape.analytics.agent.connection.pool;
 
-import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_ENABLED;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_PORT;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_URL;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_TOKEN;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.SOCKET_POOL_SIZE_MIN;
-
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.codec.binary.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.mashape.analytics.agent.common.Util;
 import com.mashape.analytics.agent.filter.AnalyticsFilter;
 
 public class AnalyticsConfiguration {
-   
+
+	@Override
+	public String toString() {
+		return "AnalyticsConfiguration [analyticsServerUrl=" + analyticsServerUrl + ", environment=" + environment + ", analyticsServerPort="
+				+ analyticsServerPort + ", isAnlayticsEnabled=" + isAnlayticsEnabled + "]";
+	}
+
 	private String analyticsServerUrl;
 	private String environment;
 	private String analyticsServerPort;
 	private String analyticsToken;
 	private boolean isAnlayticsEnabled = false;
 	private ThreadPoolExecutor workers;
-	
+
 	public static final int DEFAULT_TASK_QUEUE_SIZE = 5000;
 	public static final int DEFAULT_WORKER_COUNT_MIN = 0;
 	public static final int DEFAULT_WORKER_COUNT_MAX = Runtime.getRuntime().availableProcessors() * 2;
-	public static final int DEFAULT_WORKER_KEEPALIVE_TIME = 2;
-	
-	private static AnalyticsConfiguration config;
-	
+	public static final int DEFAULT_WORKER_KEEPALIVE_TIME = 5;
 
-	final static Logger logger = Logger.getLogger(AnalyticsFilter.class);
+	private static AnalyticsConfiguration config;
+
+	final static Logger LOGGER = Logger.getLogger(AnalyticsFilter.class);
 
 	public static class Builder {
 		private String analyticsServerUrl;
@@ -45,7 +45,7 @@ public class AnalyticsConfiguration {
 		private int workerCountMin;
 		private int workerCountMax;
 		private int taskQueueSize;
-		private BlockingQueue<Runnable> blockingQueue;
+		private ArrayBlockingQueue<Runnable> blockingQueue;
 		private ThreadPoolExecutor workers;
 		private int workerKeepAliveTime;
 
@@ -55,12 +55,11 @@ public class AnalyticsConfiguration {
 		}
 
 		public Builder environment(String environment) {
-			if(Util.notBlank(environment)){
+			if (Util.notBlank(environment)) {
 				this.environment = environment;
-			}else{
-				this.analyticsServerUrl = "";
+			} else {
+				this.environment = "";
 			}
-			this.environment = environment;
 			return this;
 		}
 
@@ -100,14 +99,38 @@ public class AnalyticsConfiguration {
 		}
 
 		public AnalyticsConfiguration build() {
-			if (!(Util.notBlank(this.analyticsServerUrl )
-					&& Util.notBlank(this.analyticsServerPort) && Util.notBlank(this.analyticsToken))) {
+			if (!this.isAnlayticsEnabled) {
+				LOGGER.info("Analytics disabled");
+			} else if (!(Util.notBlank(this.analyticsServerUrl) && Util.notBlank(this.analyticsServerPort) && Util.notBlank(this.analyticsToken))) {
 				isAnlayticsEnabled = false;
-				logger.error("Analytics URl or Port or Token not set");
-			}else{
-				blockingQueue = new LinkedBlockingQueue<Runnable>(taskQueueSize);
-				this.workers = new ThreadPoolExecutor(workerCountMin, workerCountMax, workerKeepAliveTime, TimeUnit.SECONDS, blockingQueue);
+				LOGGER.error("Analytics URl or Port or Token not set");
+			} else {
+				blockingQueue = new ArrayBlockingQueue<Runnable>(this.taskQueueSize);
+				this.workers = new ThreadPoolExecutor(this.workerCountMin, this.workerCountMax, this.workerKeepAliveTime, TimeUnit.SECONDS, this.blockingQueue);
+				this.workers.setRejectedExecutionHandler(new RejectedExecutionHandler() {
+					@Override
+					public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
+						LOGGER.info("Task queue full");
+						try {
+							LOGGER.info("Sleeping for a second");
+							Thread.sleep(1000);
+						} catch (InterruptedException e) {
+							LOGGER.debug("Failed to sleep", e);
+						}
+						LOGGER.info("Trying one more time");
+						executor.execute(r);
+					}
+				});
+				this.workers.prestartAllCoreThreads();
+				LOGGER.info("**********Analytics Configuration************");
+				LOGGER.info("Workers count min: " + workerCountMin);
+				LOGGER.info("Workers count max: " + workerCountMax);
+				LOGGER.info("Workers keep alive time: " + workerKeepAliveTime + " seconds");
+				LOGGER.info("Task Queue size: " + taskQueueSize);
+				LOGGER.info("Analytics server url: " + analyticsServerUrl);
+				LOGGER.info("Analytics server port: " + analyticsServerPort);
 			}
+
 			return (config = new AnalyticsConfiguration(this));
 		}
 	}
@@ -147,20 +170,24 @@ public class AnalyticsConfiguration {
 
 	public void shutdown() {
 		try {
-			MessangerPool.terminate();
+			MessengerPool.terminate();
 			workers.shutdownNow();
 			while (!workers.awaitTermination(30, TimeUnit.SECONDS)) {
-				logger.debug("Waiting to theads to finish...");
+				LOGGER.debug("Waiting to theads to finish...");
 			}
 		} catch (InterruptedException e) {
-			logger.error("Error during shutdown of analytics pool", e);
+			LOGGER.error("Error during shutdown of analytics pool", e);
 		}
 	}
-	
+
 	public static AnalyticsConfiguration getConfig() {
-		if(config == null){
+		if (config == null) {
 			throw new RuntimeException("Analytics configuration missing");
 		}
 		return config;
+	}
+	
+	public void setRejectedExecutionHandler(RejectedExecutionHandler handler) {
+		this.workers.setRejectedExecutionHandler(handler);
 	}
 }

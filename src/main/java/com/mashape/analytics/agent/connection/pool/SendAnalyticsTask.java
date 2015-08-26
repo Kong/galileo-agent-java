@@ -45,7 +45,7 @@ public class SendAnalyticsTask implements Runnable {
 
 	public void run() {
 		try{
-			MessangerPool.get().execute(analyticsData);
+			MessengerPool.get().execute(analyticsData);
 		}
 		catch(Exception e){
 			LOGGER.error("Failed to send data", e);

@@ -64,7 +64,7 @@ public class Messenger implements Executor {
 		this.context = context;
 		socket = getSocket();
 	}
-
+	
 	private Socket getSocket() {
 		if (socket == null) {
 			socket = context.createSocket(ZMQ.PUSH);
