@@ -129,6 +129,7 @@ public class AnalyticsConfiguration {
 				LOGGER.info("Task Queue size: " + taskQueueSize);
 				LOGGER.info("Analytics server url: " + analyticsServerUrl);
 				LOGGER.info("Analytics server port: " + analyticsServerPort);
+				LOGGER.info("Environment: " + environment);
 			}
 
 			return (config = new AnalyticsConfiguration(this));
