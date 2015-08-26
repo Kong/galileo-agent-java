@@ -50,9 +50,9 @@ Add following arguments to the server
 | Property                          | Value                                                                             | Default |
 | --------------------------------- | --------------------------------------------------------------------------------- | ------- |
 | `analytics.token`                 | Mashape Analytics Access Token                                                    | `-`     |
-| `analytics.socket.min`            | Minimum number of threads/sockets to opened for connection to analytics server    | `2`    |
-| `analytics.socket.max`            | Maximum number of threads/sockets allowed to live in pool                         | `4`    |
-| `analytics.socket.keepalivetime`  | When the number of threads are greater than the min, this is the maximum time that excess idle threads will wait for new tasks before terminating | `-` |
+| `analytics.socket.min`            | Minimum number of threads/sockets to opened for connection to analytics server    | `0`    |
+| `analytics.socket.max`            | Maximum number of threads/sockets allowed to live in pool                         | `2 * # of processor`    |
+| `analytics.socket.keepalivetime`  | When the number of threads are greater than the min, this is the maximum time in seconds that excess idle threads will wait for new tasks before terminating | `5` |
 | `analytics.queue.size`            | Size of the queue for holding the tasks of transferring data to analytics server  | `5000`   |
 | `analytics.enabled.flag`          | Set to `true` to enable analytics                                                 | `-`     |
 | `analytics.environment`           | Server environment name                                                           | `""`    |
