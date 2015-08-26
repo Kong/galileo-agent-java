@@ -39,11 +39,17 @@ public class SendAnalyticsTask implements Runnable {
 	private Map<String, Object> analyticsData;
 
 	public SendAnalyticsTask(Map<String, Object> analyticsData) {
-		LOGGER.debug("New task created:" + this.toString());
 		this.analyticsData = analyticsData;
+		LOGGER.debug("New task created:" + this.toString());
 	}
 
 	public void run() {
-		MessangerPool.get().execute(analyticsData);
+		try{
+			MessangerPool.get().execute(analyticsData);
+		}
+		catch(Exception e){
+			LOGGER.error("Failed to send data", e);
+		}
+		
 	}
 }
