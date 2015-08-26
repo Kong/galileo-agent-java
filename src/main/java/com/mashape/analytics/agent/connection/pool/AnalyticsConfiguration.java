@@ -171,7 +171,7 @@ public class AnalyticsConfiguration {
 	public void shutdown() {
 		try {
 			MessengerPool.terminate();
-			workers.shutdownNow();
+			workers.shutdown();
 			while (!workers.awaitTermination(30, TimeUnit.SECONDS)) {
 				LOGGER.debug("Waiting to theads to finish...");
 			}
@@ -186,7 +186,7 @@ public class AnalyticsConfiguration {
 		}
 		return config;
 	}
-	
+
 	public void setRejectedExecutionHandler(RejectedExecutionHandler handler) {
 		this.workers.setRejectedExecutionHandler(handler);
 	}

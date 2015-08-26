@@ -62,7 +62,7 @@ public class MessengerPool {
 	public static void remove() {
 		MESSANGERPOOL.remove();
 	}
-	
+
 	public static void terminate() {
 		context.destroy();
 	}

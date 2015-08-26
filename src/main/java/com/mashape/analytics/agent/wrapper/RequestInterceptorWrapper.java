@@ -20,7 +20,7 @@ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
+ */
 
 package com.mashape.analytics.agent.wrapper;
 
@@ -44,8 +44,7 @@ public class RequestInterceptorWrapper extends HttpServletRequestWrapper {
 	private final String payload;
 	private Map<String, String> headerMap = new HashMap<String, String>();
 
-	public RequestInterceptorWrapper(HttpServletRequest request)
-			throws IOException {
+	public RequestInterceptorWrapper(HttpServletRequest request) throws IOException {
 		super(request);
 		StringBuilder content = new StringBuilder();
 		BufferedReader reader = null;
@@ -105,8 +104,7 @@ public class RequestInterceptorWrapper extends HttpServletRequestWrapper {
 
 	@Override
 	public ServletInputStream getInputStream() throws IOException {
-		final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
-				payload.getBytes());
+		final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(payload.getBytes());
 		ServletInputStream inputStream = new ServletInputStream() {
 			public int read() throws IOException {
 				return byteArrayInputStream.read();

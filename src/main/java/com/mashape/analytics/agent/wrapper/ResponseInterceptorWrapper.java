@@ -20,7 +20,7 @@ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
+ */
 
 package com.mashape.analytics.agent.wrapper;
 
@@ -65,8 +65,7 @@ public class ResponseInterceptorWrapper extends HttpServletResponseWrapper {
 
 	public ServletOutputStream getOutputStream() throws IOException {
 		if (this.writer != null) {
-			throw new IllegalStateException(
-					"getOutputStream called after getWriter");
+			throw new IllegalStateException("getOutputStream called after getWriter");
 		}
 
 		if (this.contentStream == null) {
@@ -78,14 +77,12 @@ public class ResponseInterceptorWrapper extends HttpServletResponseWrapper {
 
 	public PrintWriter getWriter() throws IOException {
 		if (this.contentStream != null) {
-			throw new IllegalStateException(
-					"getWriter called after getOutputStream ");
+			throw new IllegalStateException("getWriter called after getOutputStream ");
 		}
 
 		if (writer == null) {
 			cloner = new OutputStreamCloner(getResponse().getOutputStream());
-			writer = new PrintWriter(new OutputStreamWriter(cloner,
-					getResponse().getCharacterEncoding()), true);
+			writer = new PrintWriter(new OutputStreamWriter(cloner, getResponse().getCharacterEncoding()), true);
 		}
 		return writer;
 	}
@@ -108,7 +105,7 @@ public class ResponseInterceptorWrapper extends HttpServletResponseWrapper {
 		return values;
 	}
 
-	public int getSize(){
+	public int getSize() {
 		return this.cloner.getClone().length;
 	}
 }
