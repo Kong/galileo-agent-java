@@ -68,7 +68,7 @@ public class Messenger implements Executor {
 	private Socket getSocket() {
 		if (socket == null) {
 			socket = context.createSocket(ZMQ.PUSH);
-			socket.setLinger(1000);
+			socket.setLinger(0);
 			socket.connect("tcp://" + AnalyticsConfiguration.getConfig().getAnalyticsServerUrl() + ":"
 					+ AnalyticsConfiguration.getConfig().getAnalyticsServerPort());
 			LOGGER.debug("Socket created: " + socket);
@@ -100,16 +100,13 @@ public class Messenger implements Executor {
 		socket = getSocket();
 		String data = ALF_VERSION_PREFIX + new Gson().toJson(msg);
 		socket.send(data);
-		LOGGER.debug("Thread: " + Thread.currentThread().getName() + " Socket: " + socket + " Message: " + data);
+		LOGGER.debug("Message sent by Thread: " + Thread.currentThread().getName() + " using Socket: " + socket);
 	}
 
 	public void terminate() {
 		if (socket != null) {
 			LOGGER.debug("Socket destroyed " + socket);
 			context.destroySocket(socket);
-		}
-		if (context != null) {
-			context.destroy();
 		}
 	}
 

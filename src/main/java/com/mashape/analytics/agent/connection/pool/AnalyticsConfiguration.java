@@ -26,16 +26,19 @@ package com.mashape.analytics.agent.connection.pool;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
 import com.mashape.analytics.agent.common.Util;
+
 /***
  * 
- * Analytics Configuration class 
+ * Analytics Configuration class
  *
  */
 public class AnalyticsConfiguration {
@@ -52,6 +55,7 @@ public class AnalyticsConfiguration {
 	private String analyticsToken;
 	private boolean isAnlayticsEnabled = false;
 	private ThreadPoolExecutor workers;
+	private ScheduledExecutorService scheduledService;
 
 	public static final int DEFAULT_TASK_QUEUE_SIZE = 5000;
 	public static final int DEFAULT_WORKER_COUNT_MIN = 0;
@@ -74,6 +78,7 @@ public class AnalyticsConfiguration {
 		private BlockingQueue<Runnable> blockingQueue;
 		private ThreadPoolExecutor workers;
 		private int workerKeepAliveTime;
+		private ScheduledExecutorService scheduledService;
 
 		public Builder analyticsServerUrl(String analyticsServerUrl) {
 			this.analyticsServerUrl = analyticsServerUrl;
@@ -132,7 +137,16 @@ public class AnalyticsConfiguration {
 				LOGGER.error("Analytics URl or Port or Token not set");
 			} else {
 				blockingQueue = new ArrayBlockingQueue<Runnable>(this.taskQueueSize);
-				this.workers = new ThreadPoolExecutor(this.workerCountMin, this.workerCountMax, this.workerKeepAliveTime, TimeUnit.SECONDS, this.blockingQueue);
+				this.workers = new ThreadPoolExecutor(this.workerCountMin, this.workerCountMax, this.workerKeepAliveTime, TimeUnit.SECONDS, this.blockingQueue) {
+
+					@Override
+					protected void afterExecute(Runnable r, Throwable t) {
+						// TODO Auto-generated method stub
+						super.afterExecute(r, t);
+					}
+
+				};
+				// this.workers.allowCoreThreadTimeOut(true);
 				this.workers.setRejectedExecutionHandler(new RejectedExecutionHandler() {
 					@Override
 					public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
@@ -147,7 +161,6 @@ public class AnalyticsConfiguration {
 						executor.execute(r);
 					}
 				});
-				this.workers.prestartAllCoreThreads();
 				LOGGER.info("**********Analytics Configuration************");
 				LOGGER.info("Workers count min: " + workerCountMin);
 				LOGGER.info("Workers count max: " + workerCountMax);
@@ -156,6 +169,13 @@ public class AnalyticsConfiguration {
 				LOGGER.info("Analytics server url: " + analyticsServerUrl);
 				LOGGER.info("Analytics server port: " + analyticsServerPort);
 				LOGGER.info("Environment: " + environment);
+				this.scheduledService = Executors.newScheduledThreadPool(1);
+				scheduledService.scheduleAtFixedRate(new Runnable() {
+					@Override
+					public void run() {
+						LOGGER.debug("Pool status: " + workers.toString());
+					}
+				}, 0, 2, TimeUnit.MINUTES);
 			}
 
 			return (config = new AnalyticsConfiguration(this));
@@ -169,6 +189,7 @@ public class AnalyticsConfiguration {
 		this.analyticsToken = builder.analyticsToken;
 		this.isAnlayticsEnabled = builder.isAnlayticsEnabled;
 		this.workers = builder.workers;
+		this.scheduledService = builder.scheduledService;
 	}
 
 	public String getAnalyticsServerUrl() {
@@ -199,6 +220,7 @@ public class AnalyticsConfiguration {
 		try {
 			MessengerPool.terminate();
 			workers.shutdown();
+			scheduledService.shutdown();
 			while (!workers.awaitTermination(30, TimeUnit.SECONDS)) {
 				LOGGER.debug("Waiting to theads to finish...");
 			}
