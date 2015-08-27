@@ -31,13 +31,13 @@ The agent is a custom servlet filter which intercepts the request and response a
 <dependency>
   <groupId>com.mashape.analytics.agent</groupId>
   <artifactId>mashape-analytics</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
 </dependency>
 ``` 
 
 ### Without Maven
 
-- Download the [jar](https://oss.sonatype.org/content/repositories/releases/com/mashape/analytics/agent//mashape-analytics/)
+- Download the [jar](https://oss.sonatype.org/content/repositories/releases/com/mashape/analytics/agent/mashape-analytics/)
 - clone from [Github](https://github.com/Mashape/analytics-agent-java)
 
 ## Usage
