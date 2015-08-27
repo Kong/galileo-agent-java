@@ -1,8 +1,31 @@
+/*
+The MIT License
+Copyright (c) 2013 Mashape (http://mashape.com)
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
 package com.mashape.analytics.agent.connection.pool;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -10,8 +33,11 @@ import java.util.concurrent.TimeUnit;
 import org.apache.log4j.Logger;
 
 import com.mashape.analytics.agent.common.Util;
-import com.mashape.analytics.agent.filter.AnalyticsFilter;
-
+/***
+ * 
+ * Analytics Configuration class 
+ *
+ */
 public class AnalyticsConfiguration {
 
 	@Override
@@ -34,7 +60,7 @@ public class AnalyticsConfiguration {
 
 	private static AnalyticsConfiguration config;
 
-	final static Logger LOGGER = Logger.getLogger(AnalyticsFilter.class);
+	final static Logger LOGGER = Logger.getLogger(AnalyticsConfiguration.class);
 
 	public static class Builder {
 		private String analyticsServerUrl;
@@ -45,7 +71,7 @@ public class AnalyticsConfiguration {
 		private int workerCountMin;
 		private int workerCountMax;
 		private int taskQueueSize;
-		private ArrayBlockingQueue<Runnable> blockingQueue;
+		private BlockingQueue<Runnable> blockingQueue;
 		private ThreadPoolExecutor workers;
 		private int workerKeepAliveTime;
 
@@ -110,9 +136,9 @@ public class AnalyticsConfiguration {
 				this.workers.setRejectedExecutionHandler(new RejectedExecutionHandler() {
 					@Override
 					public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
-						LOGGER.info("Task queue full");
+						LOGGER.warn("Task queue full");
 						try {
-							LOGGER.info("Sleeping for a second");
+							LOGGER.debug("Sleeping for a second");
 							Thread.sleep(1000);
 						} catch (InterruptedException e) {
 							LOGGER.debug("Failed to sleep", e);
@@ -177,7 +203,7 @@ public class AnalyticsConfiguration {
 				LOGGER.debug("Waiting to theads to finish...");
 			}
 		} catch (InterruptedException e) {
-			LOGGER.error("Error during shutdown of analytics pool", e);
+			LOGGER.error("Workers shutdown iterrupted", e);
 		}
 	}
 

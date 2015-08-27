@@ -129,15 +129,13 @@ public class AnalyticsFilter implements Filter {
 			messageProperties.put(ANALYTICS_DATA, analyticsData);
 			messageProperties.put(CLIENT_IP_ADDRESS, request.getRemoteAddr());
 			analyticsConfiguration.getWorkers().execute(new SendAnalyticsTask(messageProperties));
-		} catch (RejectedExecutionException e) {
-			LOGGER.error("Task Queue is full, dropping the data", e);
 		} catch (Throwable x) {
 			LOGGER.error("Failed to send Analytics data", x);
 		}
 	}
 
 	/**
-	 * Thread pools and socket pools are created
+	 * Analytics configuration setup
 	 */
 	@Override
 	public void init(FilterConfig config) throws ServletException {
