@@ -68,7 +68,7 @@ public class Messenger implements Executor {
 	private Socket getSocket() {
 		if (socket == null) {
 			socket = context.createSocket(ZMQ.PUSH);
-			socket.setLinger(0);
+			socket.setLinger(1000);
 			socket.connect("tcp://" + AnalyticsConfiguration.getConfig().getAnalyticsServerUrl() + ":"
 					+ AnalyticsConfiguration.getConfig().getAnalyticsServerPort());
 			LOGGER.debug("Socket created: " + socket);

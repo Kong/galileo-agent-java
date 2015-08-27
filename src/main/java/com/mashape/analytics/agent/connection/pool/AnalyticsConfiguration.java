@@ -49,18 +49,20 @@ public class AnalyticsConfiguration {
 				+ analyticsServerPort + ", isAnlayticsEnabled=" + isAnlayticsEnabled + "]";
 	}
 
-	private String analyticsServerUrl;
-	private String environment;
-	private String analyticsServerPort;
-	private String analyticsToken;
-	private boolean isAnlayticsEnabled = false;
+	private final String analyticsServerUrl;
+	private final String environment;
+	private final String analyticsServerPort;
+	private final String analyticsToken;
+	private boolean isAnlayticsEnabled;
 	private ThreadPoolExecutor workers;
 	private ScheduledExecutorService scheduledService;
+	private boolean showPoolStatusTicker;
 
 	public static final int DEFAULT_TASK_QUEUE_SIZE = 5000;
 	public static final int DEFAULT_WORKER_COUNT_MIN = 0;
 	public static final int DEFAULT_WORKER_COUNT_MAX = Runtime.getRuntime().availableProcessors() * 2;
 	public static final int DEFAULT_WORKER_KEEPALIVE_TIME = 5;
+	public static final int DEFAULT_TICKER_INTERVAL_TIME = 300;
 
 	private static AnalyticsConfiguration config;
 
@@ -68,17 +70,19 @@ public class AnalyticsConfiguration {
 
 	public static class Builder {
 		private String analyticsServerUrl;
-		private String environment;
+		private String environment = "";
 		private String analyticsServerPort;
 		private String analyticsToken;
-		private boolean isAnlayticsEnabled;
-		private int workerCountMin;
-		private int workerCountMax;
-		private int taskQueueSize;
+		private boolean isAnlayticsEnabled = false;
+		private int workerCountMin = DEFAULT_WORKER_COUNT_MIN;
+		private int workerCountMax = DEFAULT_WORKER_COUNT_MAX;
+		private int taskQueueSize = DEFAULT_TASK_QUEUE_SIZE;
 		private BlockingQueue<Runnable> blockingQueue;
 		private ThreadPoolExecutor workers;
-		private int workerKeepAliveTime;
+		private int workerKeepAliveTime = DEFAULT_WORKER_KEEPALIVE_TIME;
 		private ScheduledExecutorService scheduledService;
+		private boolean showPoolStatusTicker = false;
+		private int tickerInterval = DEFAULT_TICKER_INTERVAL_TIME;
 
 		public Builder analyticsServerUrl(String analyticsServerUrl) {
 			this.analyticsServerUrl = analyticsServerUrl;
@@ -88,8 +92,6 @@ public class AnalyticsConfiguration {
 		public Builder environment(String environment) {
 			if (Util.notBlank(environment)) {
 				this.environment = environment;
-			} else {
-				this.environment = "";
 			}
 			return this;
 		}
@@ -129,6 +131,16 @@ public class AnalyticsConfiguration {
 			return this;
 		}
 
+		public Builder showPoolStatusTicker(String showPoolStatusTicker) {
+			this.showPoolStatusTicker = Boolean.parseBoolean(showPoolStatusTicker);
+			return this;
+		}
+
+		public Builder tickerInterval(String tickerInterval) {
+			this.tickerInterval = Util.getEnvVarOrDefault(tickerInterval, DEFAULT_TICKER_INTERVAL_TIME);
+			return this;
+		}
+
 		public AnalyticsConfiguration build() {
 			if (!this.isAnlayticsEnabled) {
 				LOGGER.info("Analytics disabled");
@@ -137,17 +149,7 @@ public class AnalyticsConfiguration {
 				LOGGER.error("Analytics URl or Port or Token not set");
 			} else {
 				blockingQueue = new ArrayBlockingQueue<Runnable>(this.taskQueueSize);
-				this.workers = new ThreadPoolExecutor(this.workerCountMin, this.workerCountMax, this.workerKeepAliveTime, TimeUnit.SECONDS, this.blockingQueue) {
-
-					@Override
-					protected void afterExecute(Runnable r, Throwable t) {
-						// TODO Auto-generated method stub
-						super.afterExecute(r, t);
-					}
-
-				};
-				// this.workers.allowCoreThreadTimeOut(true);
-				this.workers.setRejectedExecutionHandler(new RejectedExecutionHandler() {
+				workers = new ThreadPoolExecutor(this.workerCountMin, this.workerCountMax, this.workerKeepAliveTime, TimeUnit.SECONDS, this.blockingQueue, new RejectedExecutionHandler() {
 					@Override
 					public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
 						LOGGER.warn("Task queue full");
@@ -161,24 +163,37 @@ public class AnalyticsConfiguration {
 						executor.execute(r);
 					}
 				});
-				LOGGER.info("**********Analytics Configuration************");
-				LOGGER.info("Workers count min: " + workerCountMin);
-				LOGGER.info("Workers count max: " + workerCountMax);
-				LOGGER.info("Workers keep alive time: " + workerKeepAliveTime + " seconds");
-				LOGGER.info("Task Queue size: " + taskQueueSize);
-				LOGGER.info("Analytics server url: " + analyticsServerUrl);
-				LOGGER.info("Analytics server port: " + analyticsServerPort);
-				LOGGER.info("Environment: " + environment);
+				workers.allowCoreThreadTimeOut(true);
+				logConfig();
+				startTicker();
+			}
+			return (config = new AnalyticsConfiguration(this));
+		}
+
+		private void startTicker() {
+			if (showPoolStatusTicker) {
 				this.scheduledService = Executors.newScheduledThreadPool(1);
 				scheduledService.scheduleAtFixedRate(new Runnable() {
 					@Override
 					public void run() {
-						LOGGER.debug("Pool status: " + workers.toString());
+						LOGGER.info("[ pool size = " + workers.getPoolSize() + ", active threads = " + workers.getActiveCount() + ", queue remaining capacity = "
+								+ workers.getQueue().remainingCapacity() + " ]");
 					}
-				}, 0, 2, TimeUnit.MINUTES);
+				}, 0, tickerInterval, TimeUnit.SECONDS);
 			}
+		}
 
-			return (config = new AnalyticsConfiguration(this));
+		private void logConfig() {
+			LOGGER.info("**********Analytics Configuration************");
+			LOGGER.info("Workers count min: " + workerCountMin);
+			LOGGER.info("Workers count max: " + workerCountMax);
+			LOGGER.info("Workers keep alive time: " + workerKeepAliveTime + " seconds");
+			LOGGER.info("Task Queue size: " + taskQueueSize);
+			LOGGER.info("Analytics server url: " + analyticsServerUrl);
+			LOGGER.info("Analytics server port: " + analyticsServerPort);
+			LOGGER.info("Environment: " + environment);
+			LOGGER.info("Status Ticker enabled: " + showPoolStatusTicker);
+			LOGGER.info("Ticker interval: " + tickerInterval + " seconds");
 		}
 	}
 
@@ -190,6 +205,7 @@ public class AnalyticsConfiguration {
 		this.isAnlayticsEnabled = builder.isAnlayticsEnabled;
 		this.workers = builder.workers;
 		this.scheduledService = builder.scheduledService;
+		this.showPoolStatusTicker = builder.showPoolStatusTicker;
 	}
 
 	public String getAnalyticsServerUrl() {
@@ -219,8 +235,10 @@ public class AnalyticsConfiguration {
 	public void shutdown() {
 		try {
 			MessengerPool.terminate();
+			if (scheduledService != null) {
+				scheduledService.shutdown();
+			}
 			workers.shutdown();
-			scheduledService.shutdown();
 			while (!workers.awaitTermination(30, TimeUnit.SECONDS)) {
 				LOGGER.debug("Waiting to theads to finish...");
 			}
