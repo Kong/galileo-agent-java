@@ -31,20 +31,17 @@ import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SE
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_TOKEN;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.CLIENT_IP_ADDRESS;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.ENVIRONMENT;
+import static com.mashape.analytics.agent.common.AnalyticsConstants.SHOW_POOL_STATUS_TICKER;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.SOCKET_POOL_SIZE_MAX;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.SOCKET_POOL_SIZE_MIN;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.SOCKET_POOL_UPDATE_INTERVAL;
+import static com.mashape.analytics.agent.common.AnalyticsConstants.STATUS_TICKER_INTERVAL;
 import static com.mashape.analytics.agent.common.AnalyticsConstants.WORKER_QUEUE_COUNT;
 
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -57,7 +54,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
-import com.mashape.analytics.agent.common.Util;
+import com.mashape.analytics.agent.connection.pool.AnalyticsConfiguration;
 import com.mashape.analytics.agent.connection.pool.SendAnalyticsTask;
 import com.mashape.analytics.agent.mapper.AnalyticsDataMapper;
 import com.mashape.analytics.agent.modal.Entry;
@@ -72,26 +69,12 @@ import com.mashape.analytics.agent.wrapper.ResponseInterceptorWrapper;
 
 public class AnalyticsFilter implements Filter {
 
-	final static Logger logger = Logger.getLogger(AnalyticsFilter.class);
-
-	private BlockingQueue<Runnable> blockingQueue;
-	private ThreadPoolExecutor worker;
-	private String analyticsServerUrl;
-	private String environment = "";
-	private String analyticsServerPort;
-	private String analyticsToken;
-	private boolean isAnlayticsEnabled = false;
+	final static Logger LOGGER = Logger.getLogger(AnalyticsFilter.class);
+	private AnalyticsConfiguration analyticsConfiguration;
 
 	@Override
 	public void destroy() {
-		try {
-			worker.shutdown();
-			while (!worker.awaitTermination(30, TimeUnit.SECONDS)) {
-				logger.debug("Waiting to theads to finish...");
-			}
-		} catch (InterruptedException e) {
-			logger.error("Error during shutdown of analytics pool", e);
-		}
+		analyticsConfiguration.shutdown();
 	}
 
 	/**
@@ -103,7 +86,7 @@ public class AnalyticsFilter implements Filter {
 	 */
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
-		if (isAnlayticsEnabled) {
+		if (analyticsConfiguration.isAnlayticsEnabled()) {
 			long sendStartTime = System.currentTimeMillis();
 			Date requestReceivedTime = new Date();
 			RequestInterceptorWrapper request = new RequestInterceptorWrapper((HttpServletRequest) req);
@@ -140,61 +123,35 @@ public class AnalyticsFilter implements Filter {
 		try {
 			long recvStartTime = System.currentTimeMillis();
 			Map<String, Object> messageProperties = new HashMap<String, Object>();
-			messageProperties.put(ANALYTICS_SERVER_URL, analyticsServerUrl);
-			messageProperties.put(ANALYTICS_SERVER_PORT, analyticsServerPort);
 			Entry analyticsData = new AnalyticsDataMapper(request, response).getAnalyticsData(requestReceivedTime, sendTime, waitTime);
 			long recvEndTime = System.currentTimeMillis();
 			analyticsData.getTimings().setReceive(recvEndTime - recvStartTime);
 			analyticsData.setTime((recvEndTime - recvStartTime) + sendTime + waitTime);
 			messageProperties.put(ANALYTICS_DATA, analyticsData);
-			messageProperties.put(ANALYTICS_TOKEN, analyticsToken);
 			messageProperties.put(CLIENT_IP_ADDRESS, request.getRemoteAddr());
-			messageProperties.put(ENVIRONMENT, environment);
-			worker.execute(new SendAnalyticsTask(messageProperties));
-		} catch (RejectedExecutionException e) {
-			logger.error("Queue is full, dropping the data", e);
+			analyticsConfiguration.getWorkers().execute(new SendAnalyticsTask(messageProperties));
 		} catch (Throwable x) {
-			logger.error("Failed to send analytics data", x);
+			LOGGER.error("Failed to send Analytics data", x);
 		}
 	}
 
 	/**
-	 * Thread pools and socket pools are created
+	 * Analytics configuration setup
 	 */
 	@Override
 	public void init(FilterConfig config) throws ServletException {
-		if (isAnlayticsEnabled = isAnalyticsFlagEnabled()) {
-			if (!(Util.notBlank(analyticsServerUrl = config.getInitParameter(ANALYTICS_SERVER_URL))
-					&& Util.notBlank(analyticsServerPort = config.getInitParameter(ANALYTICS_SERVER_PORT)) && Util.notBlank(analyticsToken = System.getProperty(ANALYTICS_TOKEN)))) {
-				isAnlayticsEnabled = false;
-				logger.error("Analytics URl or Port or Token not set");
-				return;
-			}
-			int poolSize = getEnvVarOrDefault(WORKER_QUEUE_COUNT, 5000);
-			int socketPoolMin = getEnvVarOrDefault(SOCKET_POOL_SIZE_MIN, 2);
-			int socketPoolMax = getEnvVarOrDefault(SOCKET_POOL_SIZE_MAX, 4);
-			int poolUpdateInterval = getEnvVarOrDefault(SOCKET_POOL_UPDATE_INTERVAL, 20);
-			environment = getEnvironment();
-			blockingQueue = new LinkedBlockingQueue<Runnable>(poolSize);
-			worker = new ThreadPoolExecutor(socketPoolMin, socketPoolMax, poolUpdateInterval, TimeUnit.MILLISECONDS, blockingQueue);
-		}
+		analyticsConfiguration = new AnalyticsConfiguration.Builder()
+			.isAnlayticsEnabled(System.getProperty(ANALYTICS_ENABLED))
+			.analyticsServerUrl(config.getInitParameter(ANALYTICS_SERVER_URL))
+			.analyticsServerPort(config.getInitParameter(ANALYTICS_SERVER_PORT))
+			.analyticsToken(System.getProperty(ANALYTICS_TOKEN))
+			.environment(System.getProperty(ENVIRONMENT))
+			.workerCountMin(System.getProperty(SOCKET_POOL_SIZE_MIN))
+			.workerCountMax(System.getProperty(SOCKET_POOL_SIZE_MAX))
+			.workerKeepAliveTime(System.getProperty(SOCKET_POOL_UPDATE_INTERVAL))
+			.taskQueueSize(System.getProperty(WORKER_QUEUE_COUNT))
+			.showPoolStatusTicker(System.getProperty(SHOW_POOL_STATUS_TICKER))
+			.tickerInterval(System.getProperty(STATUS_TICKER_INTERVAL))
+			.build();
 	}
-
-	private String getEnvironment() {
-		String val = System.getProperty(ENVIRONMENT);
-		return Util.notBlank(val) ? val : "";
-	}
-
-	private int getEnvVarOrDefault(String name, int defaultVal) {
-		String val = System.getProperty(name);
-		if (Util.notBlank(val)) {
-			return Integer.parseInt(val);
-		}
-		return defaultVal;
-	}
-
-	private boolean isAnalyticsFlagEnabled() {
-		return (Boolean.parseBoolean(System.getProperty(ANALYTICS_ENABLED)));
-	}
-
 }

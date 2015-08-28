@@ -41,4 +41,6 @@ public class AnalyticsConstants {
 	public static final String ENVIRONMENT = "analytics.environment";
 	public static final String ALF_VERSION = "1.0.0";
 	public static final String ALF_VERSION_PREFIX = "alf_1.0.0 ";
+	public static final String SHOW_POOL_STATUS_TICKER = "analytics.status.ticker";
+	public static final String STATUS_TICKER_INTERVAL = "analytics.ticker.interval";
 }

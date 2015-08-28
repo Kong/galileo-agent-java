@@ -46,7 +46,7 @@ import com.mashape.analytics.agent.wrapper.RequestInterceptorWrapper;
 import com.mashape.analytics.agent.wrapper.ResponseInterceptorWrapper;
 
 /**
- *  Maps the analytics data to HAR format
+ * Maps the analytics data to HAR format
  *
  */
 public class AnalyticsDataMapper {

@@ -22,7 +22,10 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.servlet.AsyncContext;
@@ -44,13 +47,18 @@ import javax.servlet.http.Part;
 
 import mockit.Expectations;
 import mockit.Injectable;
+import mockit.Mock;
+import mockit.MockUp;
 import mockit.Mocked;
 import mockit.NonStrictExpectations;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.zeromq.ZContext;
+import org.zeromq.ZMQ.Socket;
 
 import com.mashape.analytics.agent.connection.pool.Messenger;
 import com.mashape.analytics.agent.connection.pool.Executor;
@@ -69,40 +77,29 @@ public class AnalyticsFilterTest {
 	@Mocked
 	private FilterConfig config;
 
-	
 	@Mocked("doFilter")
 	private FilterChain chain;
-	
+
 	@Mocked
 	private ThreadPoolExecutor mokedExecutors;
-	
-	@Mocked
-	private ExecutorService analyticsServicexeExecutor; 
 
+	@Mocked
+	private ExecutorService analyticsServicexeExecutor;
+
+	@Mocked
+	private ScheduledExecutorService scheduExecutorService;
 
 	@Mocked("getProperty")
 	private System mockedSystem;
 
+	@Mocked("newScheduledThreadPool")
+	private Executors executors;
+
 	@Mocked
 	private AnalyticsDataMapper mapper;
-	
+
 	private AtomicInteger val = new AtomicInteger(0);
 
-
-	@Injectable
-	private  Executor messanger  = new Messenger() {
-		
-		@Override
-		public void terminate() {
-			val.addAndGet(-1);
-		}
-		
-		@Override
-		public void execute(Map<String, Object> analyticsData) {
-			val.addAndGet(2);
-		}
-	};
-	
 	@Test
 	public void test() throws IOException, ServletException {
 
@@ -110,29 +107,29 @@ public class AnalyticsFilterTest {
 
 			{
 				System.getProperty(ANALYTICS_ENABLED);
-				result=  "true";
+				result = "true";
 				config.getInitParameter(ANALYTICS_SERVER_URL);
 				result = "analytics.com";
 				config.getInitParameter(ANALYTICS_SERVER_PORT);
 				result = "5000";
 				System.getProperty(ANALYTICS_TOKEN);
-				result= "abcedf";
+				result = "abcedf";
 				System.getProperty(WORKER_QUEUE_COUNT);
-				result= "2";
+				result = "2";
 				System.getProperty(SOCKET_POOL_SIZE_MIN);
-				result= "5";
+				result = "5";
 				System.getProperty(SOCKET_POOL_SIZE_MAX);
-				result= "10";
+				result = "10";
 				System.getProperty(SOCKET_POOL_UPDATE_INTERVAL);
-				result= "5";
+				result = "5";
 				System.getProperty(ENVIRONMENT);
-				result= "TEST";
-				chain.doFilter((RequestInterceptorWrapper) any,
-						(ResponseInterceptorWrapper) any);
-				new AnalyticsDataMapper((RequestInterceptorWrapper) any,
-						(ResponseInterceptorWrapper) any).getAnalyticsData(
-						(Date) any, anyLong, anyLong);
+				result = "TEST";
+				chain.doFilter((RequestInterceptorWrapper) any, (ResponseInterceptorWrapper) any);
+				new AnalyticsDataMapper((RequestInterceptorWrapper) any, (ResponseInterceptorWrapper) any).getAnalyticsData((Date) any, anyLong, anyLong);
 				result = getEntry();
+				Executors.newScheduledThreadPool(anyInt);
+				result = scheduExecutorService;
+				scheduExecutorService.scheduleAtFixedRate((Runnable) any, anyInt, anyInt, (TimeUnit) any);
 				mokedExecutors.execute((Runnable) any);
 			}
 		};
@@ -147,8 +144,7 @@ public class AnalyticsFilterTest {
 		}
 
 	}
-	
-	
+
 	@Test
 	public void testExceptionSuppressed() throws IOException, ServletException {
 
@@ -156,27 +152,27 @@ public class AnalyticsFilterTest {
 
 			{
 				System.getProperty(ANALYTICS_ENABLED);
-				result=  "true";
+				result = "true";
 				config.getInitParameter(ANALYTICS_SERVER_URL);
 				result = "analytics.com";
 				config.getInitParameter(ANALYTICS_SERVER_PORT);
 				result = "5000";
 				System.getProperty(ANALYTICS_TOKEN);
-				result= "abcedf";
+				result = "abcedf";
 				System.getProperty(WORKER_QUEUE_COUNT);
-				result= "2";
+				result = "2";
 				System.getProperty(SOCKET_POOL_SIZE_MIN);
-				result= "5";
+				result = "5";
 				System.getProperty(SOCKET_POOL_SIZE_MAX);
-				result= "10";
+				result = "10";
 				System.getProperty(SOCKET_POOL_UPDATE_INTERVAL);
-				result= "5";
-				chain.doFilter((RequestInterceptorWrapper) any,
-						(ResponseInterceptorWrapper) any);
-				new AnalyticsDataMapper((RequestInterceptorWrapper) any,
-						(ResponseInterceptorWrapper) any).getAnalyticsData(
-						(Date) any, anyLong, anyLong);
+				result = "5";
+				chain.doFilter((RequestInterceptorWrapper) any, (ResponseInterceptorWrapper) any);
+				new AnalyticsDataMapper((RequestInterceptorWrapper) any, (ResponseInterceptorWrapper) any).getAnalyticsData((Date) any, anyLong, anyLong);
 				result = new Throwable();
+				Executors.newScheduledThreadPool(anyInt);
+				result = scheduExecutorService;
+				scheduExecutorService.scheduleAtFixedRate((Runnable) any, anyInt, anyInt, (TimeUnit) any);
 
 			}
 		};
@@ -197,31 +193,31 @@ public class AnalyticsFilterTest {
 
 		new NonStrictExpectations() {
 
-			{	
+			{
 				System.getProperty(ANALYTICS_ENABLED);
-				result=  "true";
+				result = "true";
 				config.getInitParameter(ANALYTICS_SERVER_URL);
 				result = "analytics.com";
 				config.getInitParameter(ANALYTICS_SERVER_PORT);
 				result = "5000";
 				System.getProperty(ANALYTICS_TOKEN);
-				result= "abcedf";
+				result = "abcedf";
 				System.getProperty(WORKER_QUEUE_COUNT);
-				result= null;
+				result = null;
 				System.getProperty(SOCKET_POOL_SIZE_MIN);
-				result= null;
+				result = null;
 				System.getProperty(SOCKET_POOL_SIZE_MAX);
-				result= null;
+				result = null;
 				System.getProperty(SOCKET_POOL_UPDATE_INTERVAL);
-				result= null;
+				result = null;
 				System.getProperty(ENVIRONMENT);
-				result= "TEST";
-				chain.doFilter((RequestInterceptorWrapper) any,
-						(ResponseInterceptorWrapper) any);
-				new AnalyticsDataMapper((RequestInterceptorWrapper) any,
-						(ResponseInterceptorWrapper) any).getAnalyticsData(
-						(Date) any, anyLong, anyLong);
+				result = "TEST";
+				chain.doFilter((RequestInterceptorWrapper) any, (ResponseInterceptorWrapper) any);
+				new AnalyticsDataMapper((RequestInterceptorWrapper) any, (ResponseInterceptorWrapper) any).getAnalyticsData((Date) any, anyLong, anyLong);
 				result = getEntry();
+				Executors.newScheduledThreadPool(anyInt);
+				result = scheduExecutorService;
+				scheduExecutorService.scheduleAtFixedRate((Runnable) any, anyInt, anyInt, (TimeUnit) any);
 				mokedExecutors.execute((Runnable) any);
 			}
 		};
@@ -236,17 +232,16 @@ public class AnalyticsFilterTest {
 		}
 
 	}
-	
+
 	@Test
 	public void testAnalyticsDisabled() throws IOException, ServletException {
 
-		new Expectations() {
+		new NonStrictExpectations() {
 
-			{	
+			{
 				System.getProperty(ANALYTICS_ENABLED);
 				result = null;
-				chain.doFilter((RequestInterceptorWrapper) any,
-						(ResponseInterceptorWrapper) any);
+				chain.doFilter((RequestInterceptorWrapper) any, (ResponseInterceptorWrapper) any);
 			}
 		};
 
@@ -261,19 +256,16 @@ public class AnalyticsFilterTest {
 
 	}
 
-
 	private Entry getEntry() {
 		Entry entry = new Entry();
 		entry.setTimings(new Timings());
 		return entry;
 	}
-	
 
 	private ServletRequest req = new HttpServletRequest() {
 
 		@Override
-		public AsyncContext startAsync(ServletRequest arg0, ServletResponse arg1)
-				throws IllegalStateException {
+		public AsyncContext startAsync(ServletRequest arg0, ServletResponse arg1) throws IllegalStateException {
 
 			return null;
 		}
@@ -285,8 +277,7 @@ public class AnalyticsFilterTest {
 		}
 
 		@Override
-		public void setCharacterEncoding(String arg0)
-				throws UnsupportedEncodingException {
+		public void setCharacterEncoding(String arg0) throws UnsupportedEncodingException {
 
 		}
 
@@ -659,13 +650,12 @@ public class AnalyticsFilterTest {
 		}
 
 		@Override
-		public boolean authenticate(HttpServletResponse arg0)
-				throws IOException, ServletException {
+		public boolean authenticate(HttpServletResponse arg0) throws IOException, ServletException {
 
 			return false;
 		}
 	};
-	
+
 	private ServletResponse res = new HttpServletResponse() {
 
 		@Override
@@ -864,6 +854,5 @@ public class AnalyticsFilterTest {
 
 		}
 	};
-
 
 }

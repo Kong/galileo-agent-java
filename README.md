@@ -31,13 +31,13 @@ The agent is a custom servlet filter which intercepts the request and response a
 <dependency>
   <groupId>com.mashape.analytics.agent</groupId>
   <artifactId>mashape-analytics</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
 </dependency>
 ``` 
 
 ### Without Maven
 
-- Download the [jar](https://oss.sonatype.org/content/repositories/releases/com/mashape/analytics/agent//mashape-analytics/)
+- Download the [jar](https://oss.sonatype.org/content/repositories/releases/com/mashape/analytics/agent/mashape-analytics/)
 - clone from [Github](https://github.com/Mashape/analytics-agent-java)
 
 ## Usage
@@ -50,12 +50,14 @@ Add following arguments to the server
 | Property                          | Value                                                                             | Default |
 | --------------------------------- | --------------------------------------------------------------------------------- | ------- |
 | `analytics.token`                 | Mashape Analytics Access Token                                                    | `-`     |
-| `analytics.socket.min`            | Minimum number of threads/sockets to opened for connection to analytics server    | `2`    |
-| `analytics.socket.max`            | Maximum number of threads/sockets allowed to live in pool                         | `4`    |
-| `analytics.socket.keepalivetime`  | When the number of threads are greater than the min, this is the maximum time that excess idle threads will wait for new tasks before terminating | `-` |
+| `analytics.socket.min`            | Minimum number of threads/sockets to opened for connection to analytics server    | `0`    |
+| `analytics.socket.max`            | Maximum number of threads/sockets allowed to live in pool                         | `2 * # of processor`    |
+| `analytics.socket.keepalivetime`  | When the number of threads are greater than the min, this is the maximum time in seconds that excess idle threads will wait for new tasks before terminating | `5` |
 | `analytics.queue.size`            | Size of the queue for holding the tasks of transferring data to analytics server  | `5000`   |
-| `analytics.enabled.flag`          | Set to `true` to enable analytics                                                 | `-`     |
+| `analytics.enabled.flag`          | Set to `true` to enable analytics                                                 | `false`     |
 | `analytics.environment`           | Server environment name                                                           | `""`    |
+| `analytics.status.ticker`           | Set to `true` to log pool status                                                           | `false`    |
+| `analytics.ticker.interval`           | Time interval in seconds for Pool Status Ticker                                        | `300`    |
   
 Update `web.xml`:
 

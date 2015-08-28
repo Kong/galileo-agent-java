@@ -41,7 +41,6 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
-import org.zeromq.ZMQ.Context;
 import org.zeromq.ZMQ.Socket;
 
 import com.google.gson.Gson;
@@ -58,27 +57,37 @@ public class Messenger implements Executor {
 
 	private static Logger LOGGER = Logger.getLogger(Messenger.class);
 
-	private Context context;
+	private final ZContext context;
 	private Socket socket;
 
-	public Messenger() {
-		context = ZMQ.context(1);
-		socket = context.socket(ZMQ.PUSH);
-		LOGGER.debug("Socket created: " + socket.toString());
+	public Messenger(ZContext context) {
+		this.context = context;
+		socket = getSocket();
+	}
+
+	private Socket getSocket() {
+		if (socket == null) {
+			socket = context.createSocket(ZMQ.PUSH);
+			socket.setLinger(1000);
+			socket.connect("tcp://" + AnalyticsConfiguration.getConfig().getAnalyticsServerUrl() + ":"
+					+ AnalyticsConfiguration.getConfig().getAnalyticsServerPort());
+			LOGGER.debug("Socket created: " + socket);
+		}
+		return socket;
 	}
 
 	public void execute(Map<String, Object> analyticsData) {
 		int tryLeft = 3;
 		while (tryLeft > 0) {
-			try{
+			try {
 				send(analyticsData);
 				break;
-			}catch (Exception e) {
-				if(tryLeft  > 0){
-					socket.close();
-					socket = context.socket(ZMQ.PUSH);
-					LOGGER.error("Failed to send data, trying again:", e);
-				}else{
+			} catch (Exception e) {
+				if (tryLeft > 0) {
+					context.destroySocket(socket);
+					socket = getSocket();
+					LOGGER.error("Failed to send data, creating a new socket and trying again: " + socket, e);
+				} else {
 					LOGGER.error("Failed to send data, dropping data", e);
 				}
 				tryLeft--;
@@ -87,34 +96,27 @@ public class Messenger implements Executor {
 	}
 
 	private void send(Map<String, Object> analyticsData) {
-			Message msg = getMessage(analyticsData);
-			String data = ALF_VERSION_PREFIX + new Gson().toJson(msg);
-			String analyticsServerUrl = analyticsData.get(ANALYTICS_SERVER_URL).toString();
-			String port = analyticsData.get(ANALYTICS_SERVER_PORT).toString();
-			socket.connect("tcp://" + analyticsServerUrl + ":" + port);
-			socket.send(data);
-			LOGGER.debug("Message sent:" + data);
-			//socket.close();
+		Message msg = getMessage(analyticsData);
+		socket = getSocket();
+		String data = ALF_VERSION_PREFIX + new Gson().toJson(msg);
+		socket.send(data);
+		LOGGER.debug("Message sent by Thread: " + Thread.currentThread().getName() + " using Socket: " + socket);
 	}
 
 	public void terminate() {
 		if (socket != null) {
-			LOGGER.debug("Closing socket:" + socket.toString());
-			socket.close();
-		}
-		if (context != null) {
-			context.close();
+			LOGGER.debug("Socket destroyed " + socket);
+			context.destroySocket(socket);
 		}
 	}
 
 	public Message getMessage(Map<String, Object> analyticsData) {
 		Entry entry = (Entry) analyticsData.get(ANALYTICS_DATA);
-		String token = analyticsData.get(ANALYTICS_TOKEN).toString();
 		Message message = new Message();
 		message.setHar(setHar(entry));
-		message.setServiceToken(token);
+		message.setServiceToken(AnalyticsConfiguration.getConfig().getAnalyticsToken());
 		message.setClientIPAddress(analyticsData.get(CLIENT_IP_ADDRESS).toString());
-		message.setEnvironment(analyticsData.get(ENVIRONMENT).toString());
+		message.setEnvironment(AnalyticsConfiguration.getConfig().getEnvironment());
 		message.setVersion(ALF_VERSION);
 		return message;
 	}
@@ -141,8 +143,9 @@ public class Messenger implements Executor {
 	}
 
 	@Override
-	protected void finalize(){
+	protected void finalize() throws Throwable {
 		this.terminate();
 		LOGGER.debug("Messanger resources destroyed:" + this.toString());
+		super.finalize();
 	}
 }
