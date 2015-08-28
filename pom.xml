@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.mashape.analytics.agent</groupId>
 	<artifactId>mashape-analytics</artifactId>
-	<version>1.0.1</version>
+	<version>1.0.2-SNAPSHOT</version>
 	<name>mashape-analytics</name>
 	<description>Java Agent for Mashape Analytics (https://analytics.mashape.com)</description>
 	<url>https://analytics.mashape.com</url>
