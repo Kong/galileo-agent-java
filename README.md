@@ -1,10 +1,10 @@
-# Mashape Analytics Java Agent [![Build Status][travis-image]][travis-url]
+# Mashape Galileo Java Agent [![Build Status][travis-image]][travis-url]
 
-> for more information on Mashape Analytics, please visit [apianalytics.com](https://www.apianalytics.com)
+> for more information on Mashape Galileo, please visit [getgalileo.io](https://getgalileo.io/)
 
 ## About
 
-The agent is a custom servlet filter which intercepts the request and response and sends it to API Analytics server asynchronously to generate analytics information. It needs a web container to run, to send data from a app running in Java SE environment please use our stand alone proxy or use one of our data collection APIs.
+The agent is a custom servlet filter which intercepts the request and response and sends it to Galileo Collector server asynchronously to generate analytics information. It needs a web container to run, to send data from a app running in Java SE environment please use our stand alone proxy or use one of our data collection APIs.
 
 ## Dependencies
 
@@ -19,9 +19,9 @@ The agent is a custom servlet filter which intercepts the request and response a
 - `jmockit-1.7`
 - `junit-4.12`
 - `unirest-java-1.4.5`
-- Jetty
+- `Jetty`
 
-*see [pom.xml](https://github.com/Mashape/analytics-agent-java/blob/master/pom.xml#L48-L117) for dependencies*
+*see [pom.xml](https://github.com/Mashape/galileo-agent-java/blob/master/pom.xml#L48-L117) for dependencies*
 
 ## Installation
 
@@ -29,16 +29,16 @@ The agent is a custom servlet filter which intercepts the request and response a
 
 ```xml
 <dependency>
-  <groupId>com.mashape.analytics.agent</groupId>
-  <artifactId>mashape-analytics</artifactId>
-  <version>1.0.1</version>
+  <groupId>com.mashape.galileo.agent</groupId>
+  <artifactId>galileo-analytics</artifactId>
+  <version>1.0.0</version>
 </dependency>
 ``` 
 
 ### Without Maven
 
-- Download the [jar](https://oss.sonatype.org/content/repositories/releases/com/mashape/analytics/agent/mashape-analytics/)
-- clone from [Github](https://github.com/Mashape/analytics-agent-java)
+- Download the [jar](https://oss.sonatype.org/content/repositories/releases/com/mashape/galileo/agent/galileo-analytics/)
+- clone from [Github](https://github.com/Mashape/galileo-agent-java)
 
 ## Usage
 
@@ -47,36 +47,44 @@ To use the filter you would need to add Analytics filter to web descriptor and s
 
 Add following arguments to the server
 
-| Property                          | Value                                                                             | Default |
-| --------------------------------- | --------------------------------------------------------------------------------- | ------- |
-| `analytics.token`                 | Mashape Analytics Access Token                                                    | `-`     |
-| `analytics.socket.min`            | Minimum number of threads/sockets to opened for connection to analytics server    | `0`    |
-| `analytics.socket.max`            | Maximum number of threads/sockets allowed to live in pool                         | `2 * # of processor`    |
-| `analytics.socket.keepalivetime`  | When the number of threads are greater than the min, this is the maximum time in seconds that excess idle threads will wait for new tasks before terminating | `5` |
-| `analytics.queue.size`            | Size of the queue for holding the tasks of transferring data to analytics server  | `5000`   |
-| `analytics.enabled.flag`          | Set to `true` to enable analytics                                                 | `false`     |
-| `analytics.environment`           | Server environment name                                                           | `""`    |
-| `analytics.status.ticker`           | Set to `true` to log pool status                                                           | `false`    |
-| `analytics.ticker.interval`           | Time interval in seconds for Pool Status Ticker                                        | `300`    |
-  
+| Property                          | Value                                                                             | Default | Min | Max|
+| --------------------------------- | --------------------------------------------------------------------------------- | ------- |----|----|
+| `galileo.service_token`                 |Galileo Access Token                           | `-`     | `-`    | `-`   |
+| `galileo.use_https`                 |Send Analytics data over HTTPS | `false`     | `false`    | `true`   |
+| `galileo.connection_count`            | Minimum number of connections to Collector    | `40`    | `1`  | `1024` |
+| `galileo.workers_count`            | Maximum number working thread sending data to Collector   | `2 * # of processor` | `1`    | `any positive number` |
+| `galileo.connection_timeout`  | Timeout in seconds before aborting the current connection | `30` | `0` | `60` |
+| `galileo.batch_size`            | Total ALF count in batch before flushing | `1000`   | `1`     | `any positive number` |
+| `galileo.retry_count`            | Number of retries in case of failures | `0`   | `0`     | `10` |  
+| `galileo.enabled`          | Set to `true` to enable analytics     | `false`     | `false`    | `true`  |
+| `galileo.environment`           | Galileo Environment Slug	        | `""`    | `-`    | `-`   |
+| `galileo.log_bodies`            | Capture & send the full bodies of request & response, valid values (all, none, request, response)  | `none` | `none`    | `all`     |
+| `galileo.batch_size_mb`           | Total size in MB of ALF batch when data would be flushed | `500`    | `1`    | `depends on plan`   |
+| `galileo.body_size_mb`           | Max size in MB allowed per request/response raw body | `10`    | `1`    | `depends on plan`   |
+| `galileo.log_status`           | Set to `true` to log connection status   | `false`    | `false`    | `true`   |
+| `galileo.log_status_interval`           | Time interval in seconds between connection status log   | `300` | `1` | `any positive number` |
+
+
 Update `web.xml`:
 
 ```xml
 <filter>
-  <filter-name>apianalytics-filter</filter-name>
-  <filter-class>com.mashape.analytics.agent.filter.AnalyticsFilter</filter-class>
-  <init-param>
-    <param-name>analytics.server.url</param-name>
-    <param-value>socket.analytics.mashape.com</param-value>
-  </init-param>
-  <init-param>
-    <param-name>analytics.server.port</param-name>
-    <param-value>5500</param-value>
-  </init-param>
+	<filter-name>galileo-filter</filter-name>
+	<filter-class>com.mashape.galileo.agent.filter.AnalyticsFilter</filter-class>
+	<!-- optional -->
+	<init-param>
+		<param-name>galileo.host</param-name>
+		<param-value>collector.galileo.mashape.com</param-value>
+	</init-param>
+	<init-param>
+	<!-- optional -->
+	<param-name>galileo.port</param-name>
+	 	<param-value>80</param-value>
+	</init-param>
 </filter>
 <filter-mapping>
-  <filter-name>apianalytics-filter</filter-name>
-  <url-pattern>/*</url-pattern>
+	<filter-name>galileo-filter</filter-name>
+	<url-pattern>/*</url-pattern>
 </filter-mapping> 
 ```
 
@@ -84,7 +92,7 @@ Update `web.xml`:
 
 Copyright Mashape Inc, 2015.
 
-Licensed under [the MIT License](https://github.com/mashape/analytics-agent-java/blob/master/LICENSE)
+Licensed under [the MIT License](https://github.com/mashape/galileo-agent-java/blob/master/LICENSE)
 
-[travis-url]: https://travis-ci.org/Mashape/analytics-agent-java
+[travis-url]: https://travis-ci.org/Mashape/galileo-agent-java
 [travis-image]: https://travis-ci.org/Mashape/analytics-agent-java.svg?style=flat

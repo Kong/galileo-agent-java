@@ -1,11 +1,12 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.mashape.analytics.agent</groupId>
-	<artifactId>mashape-analytics</artifactId>
-	<version>1.0.2-SNAPSHOT</version>
-	<name>mashape-analytics</name>
-	<description>Java Agent for Mashape Analytics (https://analytics.mashape.com)</description>
-	<url>https://analytics.mashape.com</url>
+	<groupId>com.mashape.galileo.agent</groupId>
+	<artifactId>galileo-analytics</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<name>galileo-analytics</name>
+	<description>Java Agent for Mashape Galileo (https://www.apianalytics.com)</description>
+	<url>https://www.apianalytics.com</url>
 
 	<parent>
 		<groupId>org.sonatype.oss</groupId>
@@ -22,9 +23,9 @@
 	</licenses>
 
 	<scm>
-		<url>https://github.com/Mashape/analytics-agent-java</url>
-		<connection>scm:git:git@github.com:Mashape/analytics-agent-java.git</connection>
-		<developerConnection>scm:git:git@github.com:Mashape/analytics-agent-java.git</developerConnection>
+		<url>https://github.com/Mashape/galileo-agent-java</url>
+		<connection>scm:git:git@github.com:Mashape/galileo-agent-java.git</connection>
+		<developerConnection>scm:git:git@github.com:Mashape/galileo-agent-java.git</developerConnection>
 	</scm>
 
 	<developers>
@@ -51,26 +52,17 @@
 			<version>3.0.1</version>
 			<scope>provided</scope>
 		</dependency>
-
-		<dependency>
-			<groupId>org.zeromq</groupId>
-			<artifactId>jeromq</artifactId>
-			<version>0.3.4</version>
-		</dependency>
-
 		<dependency>
 			<artifactId>guava</artifactId>
 			<groupId>com.google.guava</groupId>
 			<type>jar</type>
 			<version>14.0.1</version>
 		</dependency>
-
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
 			<version>2.3.1</version>
 		</dependency>
-
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
@@ -84,7 +76,6 @@
 			<version>1.7</version>
 			<scope>test</scope>
 		</dependency>
-
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -98,21 +89,23 @@
 			<version>9.3.0.M1</version>
 			<scope>test</scope>
 		</dependency>
-
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-webapp</artifactId>
 			<version>9.3.0.M1</version>
 			<scope>test</scope>
 		</dependency>
-
 		<dependency>
-			<groupId>com.mashape.unirest</groupId>
-			<artifactId>unirest-java</artifactId>
-			<version>1.4.5</version>
-			<scope>test</scope>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.3</version>
+			<scope>provided</scope>
 		</dependency>
-
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-mapper-asl</artifactId>
+			<version>1.9.13</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -129,7 +122,7 @@
 						</goals>
 						<configuration>
 							<schemaFiles>analyticsHar.xsd</schemaFiles>
-							<packageName>com.mashape.analytics.agent.modal</packageName>
+							<packageName>com.mashape.galileo.agent.modal</packageName>
 						</configuration>
 					</execution>
 				</executions>

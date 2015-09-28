@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.mashape.com/analytics"
-	xmlns:tns="http://www.mashape.com/analytics" elementFormDefault="qualified">
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.mashape.com/galileo"
+	xmlns:tns="http://www.mashape.com/galileo" elementFormDefault="qualified">
 
-	<element name="Message" type="tns:Message"></element>
+	<element name="ALF" type="tns:ALF"></element>
 
-	<complexType name="Message">
+	<complexType name="ALF">
 		<sequence>
 			<element name="version" type="string"></element>
 			<element name="serviceToken" type="string"></element>
 			<element name="environment" type="string"></element>
-			<element name="clientIPAddress" type="string"></element>
 			<element name="har" type="tns:Har"></element>
 		</sequence>
 	</complexType>
@@ -22,7 +21,6 @@
 
 	<complexType name="Log">
 		<sequence>
-			<element name="version" type="string"></element>
 			<element name="creator" type="tns:Creator"></element>
 			<element name="entries" type="tns:Entry" maxOccurs="unbounded"
 				minOccurs="0">
@@ -35,12 +33,13 @@
 			<element name="send" type="long"></element>
 			<element name="wait" type="long"></element>
 			<element name="receive" type="long"></element>
+			<element name="blocked" type="long"></element>
+			<element name="connect" type="long"></element>
 		</sequence>
 	</complexType>
 
 	<complexType name="Content">
 		<sequence>
-			<element name="size" type="int"></element>
 			<element name="mimeType" type="string"></element>
 			<element name="encoding" type="string" maxOccurs="1"
 				minOccurs="0">
@@ -72,16 +71,13 @@
 			<element name="queryString" type="tns:NameValuePair"
 				maxOccurs="unbounded" minOccurs="0">
 			</element>
-			<element name="headers" type="tns:NameValuePair" maxOccurs="unbounded"
-				minOccurs="0">
+			<element name="headers" type="tns:NameValuePair"
+				maxOccurs="unbounded" minOccurs="0">
 			</element>
 			<element name="headersSize" type="int"></element>
 			<element name="bodySize" type="int"></element>
-			<element name="content" type="tns:Content" maxOccurs="1"
-				minOccurs="0">
-			</element>
-			<element name="cookies" type="tns:Cookie" maxOccurs="unbounded"
-				minOccurs="0"></element>
+			<element name="bodyCaptured" type="boolean"></element>
+			<element name="postData" type="tns:PostData"></element>
 		</sequence>
 	</complexType>
 
@@ -90,18 +86,15 @@
 			<element name="status" type="int"></element>
 			<element name="statusText" type="string"></element>
 			<element name="httpVersion" type="string"></element>
-			<element name="headers" type="tns:NameValuePair" maxOccurs="unbounded"
-				minOccurs="0">
+			<element name="headers" type="tns:NameValuePair"
+				maxOccurs="unbounded" minOccurs="0">
 			</element>
 			<element name="headersSize" type="int"></element>
 			<element name="bodySize" type="int"></element>
 			<element name="content" type="tns:Content" maxOccurs="1"
 				minOccurs="0">
 			</element>
-			<element name="cookies" type="tns:Cookie" maxOccurs="unbounded"
-				minOccurs="0">
-			</element>
-			<element name="redirectURL" type="string"></element>
+			<element name="bodyCaptured" type="boolean"></element>
 		</sequence>
 	</complexType>
 
@@ -113,10 +106,7 @@
 			<element name="request" type="tns:Request"></element>
 			<element name="response" type="tns:Response"></element>
 			<element name="timings" type="tns:Timings"></element>
-			<element name="cache" type="tns:Cache" maxOccurs="unbounded"
-				minOccurs="0">
-			</element>
-			<element name="connection" type="string"></element>
+			<element name="clientIPAddress" type="string"></element>
 		</sequence>
 	</complexType>
 
@@ -148,6 +138,14 @@
 			<element name="beforeRequest" type="tns:CacheEntry"></element>
 			<element name="afterRequest" type="tns:CacheEntry"></element>
 			<element name="comment" type="string"></element>
+		</sequence>
+	</complexType>
+
+	<complexType name="PostData">
+		<sequence>
+			<element name="mimeType" type="string"></element>
+			<element name="text" type="string"></element>
+			<element name="encoding" type="string"></element>
 		</sequence>
 	</complexType>
 </schema>
