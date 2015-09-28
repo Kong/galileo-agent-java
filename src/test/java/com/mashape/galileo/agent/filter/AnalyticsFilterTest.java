@@ -1,14 +1,14 @@
-package com.mashape.analytics.agent.filter;
+package com.mashape.galileo.agent.filter;
 
-import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_ENABLED;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_PORT;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_URL;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_TOKEN;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.ENVIRONMENT;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.SOCKET_POOL_SIZE_MAX;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.SOCKET_POOL_SIZE_MIN;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.SOCKET_POOL_UPDATE_INTERVAL;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.WORKER_QUEUE_COUNT;
+import static com.mashape.galileo.agent.common.AnalyticsConstants.ANALYTICS_ENABLED;
+import static com.mashape.galileo.agent.common.AnalyticsConstants.ANALYTICS_SERVER_PORT;
+import static com.mashape.galileo.agent.common.AnalyticsConstants.ANALYTICS_SERVER_URL;
+import static com.mashape.galileo.agent.common.AnalyticsConstants.ANALYTICS_TOKEN;
+import static com.mashape.galileo.agent.common.AnalyticsConstants.ENVIRONMENT;
+import static com.mashape.galileo.agent.common.AnalyticsConstants.SOCKET_POOL_SIZE_MAX;
+import static com.mashape.galileo.agent.common.AnalyticsConstants.SOCKET_POOL_SIZE_MIN;
+import static com.mashape.galileo.agent.common.AnalyticsConstants.SOCKET_POOL_UPDATE_INTERVAL;
+import static com.mashape.galileo.agent.common.AnalyticsConstants.WORKER_QUEUE_COUNT;
 import static org.junit.Assert.fail;
 
 import java.io.BufferedReader;
@@ -45,28 +45,19 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
 
-import mockit.Expectations;
-import mockit.Injectable;
-import mockit.Mock;
-import mockit.MockUp;
 import mockit.Mocked;
 import mockit.NonStrictExpectations;
 import mockit.Tested;
 import mockit.integration.junit4.JMockit;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.zeromq.ZContext;
-import org.zeromq.ZMQ.Socket;
 
-import com.mashape.analytics.agent.connection.pool.Messenger;
-import com.mashape.analytics.agent.connection.pool.Executor;
-import com.mashape.analytics.agent.mapper.AnalyticsDataMapper;
-import com.mashape.analytics.agent.modal.Entry;
-import com.mashape.analytics.agent.modal.Timings;
-import com.mashape.analytics.agent.wrapper.RequestInterceptorWrapper;
-import com.mashape.analytics.agent.wrapper.ResponseInterceptorWrapper;
+import com.mashape.galileo.agent.mapper.AnalyticsDataMapper;
+import com.mashape.galileo.agent.modal.Entry;
+import com.mashape.galileo.agent.modal.Timings;
+import com.mashape.galileo.agent.wrapper.RequestInterceptorWrapper;
+import com.mashape.galileo.agent.wrapper.ResponseInterceptorWrapper;
 
 @RunWith(JMockit.class)
 public class AnalyticsFilterTest {
@@ -125,7 +116,7 @@ public class AnalyticsFilterTest {
 				System.getProperty(ENVIRONMENT);
 				result = "TEST";
 				chain.doFilter((RequestInterceptorWrapper) any, (ResponseInterceptorWrapper) any);
-				new AnalyticsDataMapper((RequestInterceptorWrapper) any, (ResponseInterceptorWrapper) any).getAnalyticsData((Date) any, anyLong, anyLong);
+				new AnalyticsDataMapper((RequestInterceptorWrapper) any, (ResponseInterceptorWrapper) any).getAnalyticsData((Date) any, anyLong, anyLong, anyBoolean);
 				result = getEntry();
 				Executors.newScheduledThreadPool(anyInt);
 				result = scheduExecutorService;
@@ -168,7 +159,7 @@ public class AnalyticsFilterTest {
 				System.getProperty(SOCKET_POOL_UPDATE_INTERVAL);
 				result = "5";
 				chain.doFilter((RequestInterceptorWrapper) any, (ResponseInterceptorWrapper) any);
-				new AnalyticsDataMapper((RequestInterceptorWrapper) any, (ResponseInterceptorWrapper) any).getAnalyticsData((Date) any, anyLong, anyLong);
+				new AnalyticsDataMapper((RequestInterceptorWrapper) any, (ResponseInterceptorWrapper) any).getAnalyticsData((Date) any, anyLong, anyLong, anyBoolean);
 				result = new Throwable();
 				Executors.newScheduledThreadPool(anyInt);
 				result = scheduExecutorService;
@@ -213,7 +204,7 @@ public class AnalyticsFilterTest {
 				System.getProperty(ENVIRONMENT);
 				result = "TEST";
 				chain.doFilter((RequestInterceptorWrapper) any, (ResponseInterceptorWrapper) any);
-				new AnalyticsDataMapper((RequestInterceptorWrapper) any, (ResponseInterceptorWrapper) any).getAnalyticsData((Date) any, anyLong, anyLong);
+				new AnalyticsDataMapper((RequestInterceptorWrapper) any, (ResponseInterceptorWrapper) any).getAnalyticsData((Date) any, anyLong, anyLong, anyBoolean);
 				result = getEntry();
 				Executors.newScheduledThreadPool(anyInt);
 				result = scheduExecutorService;

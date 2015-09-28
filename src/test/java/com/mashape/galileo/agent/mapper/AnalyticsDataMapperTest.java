@@ -1,7 +1,8 @@
-package com.mashape.analytics.agent.mapper;
+package com.mashape.galileo.agent.mapper;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 import java.io.UnsupportedEncodingException;
@@ -27,10 +28,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.google.common.io.BaseEncoding;
-import com.mashape.analytics.agent.mapper.AnalyticsDataMapper;
-import com.mashape.analytics.agent.wrapper.RequestInterceptorWrapper;
-import com.mashape.analytics.agent.wrapper.ResponseInterceptorWrapper;
-import com.mashape.analytics.agent.modal.Entry;
+import com.mashape.galileo.agent.modal.Entry;
+import com.mashape.galileo.agent.mapper.AnalyticsDataMapper;
+import com.mashape.galileo.agent.wrapper.RequestInterceptorWrapper;
+import com.mashape.galileo.agent.wrapper.ResponseInterceptorWrapper;
 
 @RunWith(JMockit.class)
 public class AnalyticsDataMapperTest {
@@ -95,6 +96,8 @@ public class AnalyticsDataMapperTest {
 				result = 200;
 				response.getCharacterEncoding();
 				result = "UTF-8";
+				response.getSize();
+				result = 8;
 				response.getClone();
 				result = "response".getBytes();
 				response.getContentType();
@@ -103,7 +106,7 @@ public class AnalyticsDataMapperTest {
 			}
 		};
 		
-		Entry entry = mapper.getAnalyticsData(new Date(), 50, 50);
+		Entry entry = mapper.getAnalyticsData(new Date(), 50, 50, true);
 		assertNotNull(entry);
 		assertNotNull(entry.getStartedDateTime());
 		assertNotNull(entry.getRequest());
@@ -160,9 +163,89 @@ public class AnalyticsDataMapperTest {
 	}
 
 	@Test
-	@Ignore
-	public void testGetAnalyticsData() {
-		fail("Not yet implemented");
+	public void testAnalyticsDataMapperNodBody() throws UnsupportedEncodingException {
+		new NonStrictExpectations() {
+			{
+				request.getRemoteAddr();
+				result = "remotehost";
+				request.getLocalAddr();
+				result = "localhost";
+				request.getHeaderNames();
+				result = getHeaderNames();
+				request.getHeaders("H1");
+				result = Collections.enumeration(headerMap.get("H1"));
+				response.getHeaderNames();
+				result = getHeaderResponseNames();
+				response.getHeaders("H1");
+				result = headerMap.get("H1");
+				request.getContentLength();
+				result = "it is payload".getBytes().length;
+				request.getMethod();
+				result = "POST";
+				request.getRequestURL();
+				result = new StringBuffer("http://remotehost/todo");
+				request.getProtocol();
+				result = "HTTP 1.0";
+				request.getCharacterEncoding();
+				result = "UTF-8";
+				request.getContentType();
+				result = "application/json";
+				request.getPayload();
+				result = "it is payload";
+				response.getBufferSize();
+				result = 5;
+				response.getStatus();
+				result = 200;
+				response.getCharacterEncoding();
+				result = "UTF-8";
+				response.getSize();
+				result = 8;
+				response.getClone();
+				result = "response".getBytes();
+				response.getContentType();
+				result = "application/json";
+				
+			}
+		};
+		
+		Entry entry = mapper.getAnalyticsData(new Date(), 50, 50, false);
+		assertNotNull(entry);
+		assertNotNull(entry.getStartedDateTime());
+		assertNotNull(entry.getRequest());
+		assertNotNull(entry.getResponse());
+		assertNotNull(entry.getTimings());
+		assertEquals("localhost", entry.getServerIPAddress());
+		
+		assertNotNull(entry.getRequest().getMethod());
+		assertNotNull(entry.getRequest().getUrl());
+		assertNotNull(entry.getRequest().getHttpVersion());
+		assertNotNull(entry.getRequest().getHeaders());
+		assertNotNull(entry.getRequest().getHeadersSize());
+		assertNotNull(entry.getRequest().getContent());
+		assertNotNull(entry.getRequest().getBodySize());
+		
+		
+		assertNull(entry.getRequest().getContent().getText());
+		assertEquals(13, entry.getRequest().getBodySize());
+		assertEquals("http://remotehost/todo", entry.getRequest().getUrl());
+		assertEquals(1, entry.getRequest().getHeaders().size());
+		assertEquals("H1", entry.getRequest().getHeaders().get(0).getName());
+		assertEquals("V1", entry.getRequest().getHeaders().get(0).getValue());
+		assertEquals("http://remotehost/todo", entry.getRequest().getUrl());
+		assertEquals("POST", entry.getRequest().getMethod());
+		assertEquals(12, entry.getRequest().getHeadersSize());
+		assertEquals("HTTP 1.0", entry.getRequest().getHttpVersion());
+		
+		assertNull(entry.getResponse().getContent().getText());
+		assertEquals(8, entry.getResponse().getBodySize());
+		assertEquals(1, entry.getRequest().getHeaders().size());
+		assertEquals("H1", entry.getResponse().getHeaders().get(0).getName());
+		assertEquals("V1", entry.getResponse().getHeaders().get(0).getValue());
+		assertEquals(12, entry.getResponse().getHeadersSize());
+		assertEquals("HTTP 1.0", entry.getResponse().getHttpVersion());
+		assertEquals(8, entry.getResponse().getContent().getSize());
+		assertEquals("application/json", entry.getResponse().getContent().getMimeType());
+		
 	}
 
 }

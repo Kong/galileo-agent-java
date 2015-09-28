@@ -21,34 +21,49 @@ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.mashape.analytics.agent.connection.pool;
 
-import java.util.Map;
+package com.mashape.galileo.agent.connection.pool;
 
 import org.apache.log4j.Logger;
+import org.zeromq.ZContext;
 
-import com.mashape.analytics.agent.filter.AnalyticsFilter;
+import com.mashape.galileo.agent.filter.AnalyticsFilter;
 
 /*
- * Task use a pooled Messenger to send data
+ * Messenger pool with each messenger having their own zmq socket 
  */
-public class SendAnalyticsTask implements Runnable {
+public class MessengerPool {
 
-	final static Logger LOGGER = Logger.getLogger(AnalyticsFilter.class);
+	final static Logger logger = Logger.getLogger(MessengerPool.class);
+	private static final ZContext context = new ZContext();
 
-	private Map<String, Object> analyticsData;
+	private static final ThreadLocal<Messenger> MESSANGERPOOL = new ThreadLocal<Messenger>() {
 
-	public SendAnalyticsTask(Map<String, Object> analyticsData) {
-		this.analyticsData = analyticsData;
-		LOGGER.debug("New task created:" + this.toString());
-	}
-
-	public void run() {
-		try {
-			MessengerPool.get().execute(analyticsData);
-		} catch (Exception e) {
-			LOGGER.error("Failed to send data", e);
+		@Override
+		public void remove() {
+			Messenger messenger = MESSANGERPOOL.get();
+			logger.debug("Messenger removed: " + messenger.toString() + " for thread: " + Thread.currentThread().getName());
+			messenger.terminate();
+			super.remove();
 		}
 
+		@Override
+		protected Messenger initialValue() {
+			Messenger messenger = new Messenger(context);
+			logger.debug("Messenger Created: " + messenger.toString() + " for thread: " + Thread.currentThread().getName());
+			return messenger;
+		}
+	};
+
+	public static Messenger get() {
+		return MESSANGERPOOL.get();
+	}
+
+	public static void remove() {
+		MESSANGERPOOL.remove();
+	}
+
+	public static void terminate() {
+		context.destroy();
 	}
 }

@@ -22,7 +22,7 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.mashape.analytics.agent.common;
+package com.mashape.galileo.agent.common;
 
 public class AnalyticsConstants {
 	public static final String ANALYTICS_SERVER_URL = "analytics.server.url";
@@ -37,6 +37,7 @@ public class AnalyticsConstants {
 	public static final String AGENT_NAME = "mashape-analytics-agent-java";
 	public static final String AGENT_VERSION = "1.0";
 	public static final String ANALYTICS_ENABLED = "analytics.enabled.flag";
+	public static final String SEND_BODY = "analytics.sendbody.flag";
 	public static final String CLIENT_IP_ADDRESS = "clientIpAddress";
 	public static final String ENVIRONMENT = "analytics.environment";
 	public static final String ALF_VERSION = "1.0.0";

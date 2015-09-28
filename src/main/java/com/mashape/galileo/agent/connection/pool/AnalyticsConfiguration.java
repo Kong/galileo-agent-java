@@ -22,7 +22,7 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.mashape.analytics.agent.connection.pool;
+package com.mashape.galileo.agent.connection.pool;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
-import com.mashape.analytics.agent.common.Util;
+import com.mashape.galileo.agent.common.Util;
 
 /***
  * 
@@ -54,26 +54,35 @@ public class AnalyticsConfiguration {
 	private final String analyticsServerPort;
 	private final String analyticsToken;
 	private boolean isAnlayticsEnabled;
+	private boolean sendBody;
 	private ThreadPoolExecutor workers;
 	private ScheduledExecutorService scheduledService;
 	private boolean showPoolStatusTicker;
+	private int socketLinger = SOCKET_LINGER;
+	private int socketSendTimeout = SOCKET_SEND_TIMEOUT;
 
+	public static final String DEFAULT_ANALYTICS_SERVER_URL = "socket.analytics.mashape.com";
+	public static final String DEFAULT_ANALYTICS_SERVER_PORT = "5500";
 	public static final int DEFAULT_TASK_QUEUE_SIZE = 5000;
 	public static final int DEFAULT_WORKER_COUNT_MIN = 0;
 	public static final int DEFAULT_WORKER_COUNT_MAX = Runtime.getRuntime().availableProcessors() * 2;
 	public static final int DEFAULT_WORKER_KEEPALIVE_TIME = 5;
+	public static final int MAX_WORKER_KEEPALIVE_TIME = 300;
 	public static final int DEFAULT_TICKER_INTERVAL_TIME = 300;
+	public static final int SOCKET_SEND_TIMEOUT = 5000;
+	public static final int SOCKET_LINGER = 1000;
 
 	private static AnalyticsConfiguration config;
 
 	final static Logger LOGGER = Logger.getLogger(AnalyticsConfiguration.class);
 
 	public static class Builder {
-		private String analyticsServerUrl;
+		private String analyticsServerUrl = DEFAULT_ANALYTICS_SERVER_URL;
 		private String environment = "";
-		private String analyticsServerPort;
+		private String analyticsServerPort = DEFAULT_ANALYTICS_SERVER_PORT;
 		private String analyticsToken;
 		private boolean isAnlayticsEnabled = false;
+		private boolean sendBody = true;
 		private int workerCountMin = DEFAULT_WORKER_COUNT_MIN;
 		private int workerCountMax = DEFAULT_WORKER_COUNT_MAX;
 		private int taskQueueSize = DEFAULT_TASK_QUEUE_SIZE;
@@ -85,7 +94,9 @@ public class AnalyticsConfiguration {
 		private int tickerInterval = DEFAULT_TICKER_INTERVAL_TIME;
 
 		public Builder analyticsServerUrl(String analyticsServerUrl) {
-			this.analyticsServerUrl = analyticsServerUrl;
+			if (Util.notBlank(analyticsServerUrl)) {
+				this.analyticsServerUrl = analyticsServerUrl;
+			}
 			return this;
 		}
 
@@ -97,7 +108,9 @@ public class AnalyticsConfiguration {
 		}
 
 		public Builder analyticsServerPort(String analyticsServerPort) {
-			this.analyticsServerPort = analyticsServerPort;
+			 if(Util.notBlank(analyticsServerPort)){
+				 this.analyticsServerPort = analyticsServerPort; 
+			 }
 			return this;
 		}
 
@@ -108,6 +121,11 @@ public class AnalyticsConfiguration {
 
 		public Builder isAnlayticsEnabled(String isAnlayticsEnabled) {
 			this.isAnlayticsEnabled = Boolean.parseBoolean(isAnlayticsEnabled);
+			return this;
+		}
+		
+		public Builder sendBody(String sendBody) {
+			this.sendBody = Boolean.parseBoolean(sendBody);
 			return this;
 		}
 
@@ -127,7 +145,7 @@ public class AnalyticsConfiguration {
 		}
 
 		public Builder workerKeepAliveTime(String workerKeepAliveTime) {
-			this.workerKeepAliveTime = Util.getEnvVarOrDefault(workerKeepAliveTime, DEFAULT_WORKER_KEEPALIVE_TIME);
+			this.workerKeepAliveTime = Util.getEnvVarOrDefault(workerKeepAliveTime, DEFAULT_WORKER_KEEPALIVE_TIME, MAX_WORKER_KEEPALIVE_TIME);
 			return this;
 		}
 
@@ -144,9 +162,9 @@ public class AnalyticsConfiguration {
 		public AnalyticsConfiguration build() {
 			if (!this.isAnlayticsEnabled) {
 				LOGGER.info("Analytics disabled");
-			} else if (!(Util.notBlank(this.analyticsServerUrl) && Util.notBlank(this.analyticsServerPort) && Util.notBlank(this.analyticsToken))) {
+			} else if (!Util.notBlank(this.analyticsToken)) {
 				isAnlayticsEnabled = false;
-				LOGGER.error("Analytics URl or Port or Token not set");
+				LOGGER.error("Analytics Token not set");
 			} else {
 				blockingQueue = new ArrayBlockingQueue<Runnable>(this.taskQueueSize);
 				workers = new ThreadPoolExecutor(this.workerCountMin, this.workerCountMax, this.workerKeepAliveTime, TimeUnit.SECONDS, this.blockingQueue, new RejectedExecutionHandler() {
@@ -203,6 +221,7 @@ public class AnalyticsConfiguration {
 		this.analyticsServerPort = builder.analyticsServerPort;
 		this.analyticsToken = builder.analyticsToken;
 		this.isAnlayticsEnabled = builder.isAnlayticsEnabled;
+		this.sendBody = builder.sendBody;
 		this.workers = builder.workers;
 		this.scheduledService = builder.scheduledService;
 		this.showPoolStatusTicker = builder.showPoolStatusTicker;
@@ -226,6 +245,18 @@ public class AnalyticsConfiguration {
 
 	public boolean isAnlayticsEnabled() {
 		return isAnlayticsEnabled;
+	}
+	
+	public boolean sendBody() {
+		return sendBody;
+	}
+
+	public int getSocketLinger() {
+		return socketLinger;
+	}
+
+	public int getSocketSendTimeout() {
+		return socketSendTimeout;
 	}
 
 	public ThreadPoolExecutor getWorkers() {

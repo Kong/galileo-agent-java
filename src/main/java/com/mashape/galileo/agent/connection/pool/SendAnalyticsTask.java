@@ -21,12 +21,34 @@ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.mashape.analytics.agent.connection.pool;
+package com.mashape.galileo.agent.connection.pool;
 
 import java.util.Map;
 
-public interface Executor {
-	void terminate();
+import org.apache.log4j.Logger;
 
-	void execute(Map<String, Object> analyticsData);
+import com.mashape.galileo.agent.filter.AnalyticsFilter;
+
+/*
+ * Task use a pooled Messenger to send data
+ */
+public class SendAnalyticsTask implements Runnable {
+
+	final static Logger LOGGER = Logger.getLogger(AnalyticsFilter.class);
+
+	private Map<String, Object> analyticsData;
+
+	public SendAnalyticsTask(Map<String, Object> analyticsData) {
+		this.analyticsData = analyticsData;
+		LOGGER.debug("New task created:" + this.toString());
+	}
+
+	public void run() {
+		try {
+			MessengerPool.get().execute(analyticsData);
+		} catch (Exception e) {
+			LOGGER.error("Failed to send data", e);
+		}
+
+	}
 }

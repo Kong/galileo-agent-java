@@ -1,4 +1,4 @@
-package com.mashape.analytics.agent.filter;
+package com.mashape.galileo.agent.filter;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -24,8 +24,9 @@ import org.junit.Test;
 import org.zeromq.ZMQ;
 
 import com.google.gson.Gson;
-import com.mashape.analytics.agent.modal.Entry;
-import com.mashape.analytics.agent.modal.Message;
+import com.mashape.galileo.agent.modal.Entry;
+import com.mashape.galileo.agent.modal.Message;
+import com.mashape.galileo.agent.filter.AnalyticsFilter;
 import com.mashape.unirest.http.Unirest;
 
 public class AnalyticsFilterIntegrationTest {
@@ -38,25 +39,19 @@ public class AnalyticsFilterIntegrationTest {
 	public static void setup() {
 		System.setProperty("analytics.token", "YOUR_SERVICE_TOKEN");
 		System.setProperty("analytics.enabled.flag", "true");
-
-		try {
-			startZMQServer();
-			startJettyServer();
-			Thread.sleep(2000);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 
 	@Test
 	public void test() throws Exception {
+		startZMQServer();
+		startJettyServer();
+		Thread.sleep(2000);
 		Unirest.setTimeouts(0, 0);
 		Unirest.post("http://127.0.0.1:8083/path").header("accept", "application/json").queryString("apiKey", "123").field("parameter", "valuΩΩΩΩe").field("foo", "bar").asString();
 		Unirest.shutdown();
 		while (!dataRecieved.get()) {
 		}
 		Message message = new Gson().fromJson(analyticsData.substring(9), Message.class);
-		System.out.println(analyticsData);
 		assertNotNull(message);
 		assertNotNull(message.getServiceToken());
 		assertNotNull(message.getHar());

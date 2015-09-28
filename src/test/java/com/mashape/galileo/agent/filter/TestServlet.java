@@ -1,4 +1,4 @@
-package com.mashape.analytics.agent.filter;
+package com.mashape.galileo.agent.filter;
 
 import java.io.IOException;
 import java.io.PrintWriter;

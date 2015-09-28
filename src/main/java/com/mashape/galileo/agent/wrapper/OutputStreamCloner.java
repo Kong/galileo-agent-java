@@ -22,7 +22,7 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.mashape.analytics.agent.wrapper;
+package com.mashape.galileo.agent.wrapper;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -31,20 +31,67 @@ import java.io.OutputStream;
 import javax.servlet.ServletOutputStream;
 
 public class OutputStreamCloner extends ServletOutputStream {
-	private OutputStream outputStream;
-	private ByteArrayOutputStream clonedStream = new ByteArrayOutputStream();
+	private ServletOutputStream outputStream;
+	private ByteArrayOutputStream clonedStream = null;
+	protected boolean closed = false;
 
-	public OutputStreamCloner(OutputStream contentStream) {
-		this.outputStream = contentStream;
+	public OutputStreamCloner(ServletOutputStream outputStream) {
+		super();
+		closed = false;
+		this.outputStream = outputStream;
+		clonedStream = new ByteArrayOutputStream();
+	}
+
+	public void close() throws IOException {
+		if (closed) {
+			throw new IOException("This output stream has already been closed");
+		}
+		flush();
+		outputStream.close();
+		clonedStream.close();
+		closed = true;
+	}
+
+	public void flush() throws IOException {
+		if (closed) {
+			throw new IOException("Cannot flush a closed output stream");
+		}
+		outputStream.flush();
+		clonedStream.flush();
 	}
 
 	public byte[] getClone() {
-		return this.clonedStream.toByteArray();
+		return clonedStream.toByteArray();
 	}
 
 	@Override
 	public void write(int data) throws IOException {
-		this.outputStream.write(data);
-		this.clonedStream.write(data);
+		if (closed) {
+			throw new IOException("Cannot write to a closed output stream");
+		}
+		this.outputStream.write((byte) data);
+		this.clonedStream.write((byte) data);
+	}
+ 
+	@Override
+	public void write(byte data[]) throws IOException {
+		write(data, 0, data.length);
+	}
+	
+	@Override
+	public void write(byte data[], int off, int len) throws IOException {
+		if (closed) {
+			throw new IOException("Cannot write to a closed output stream");
+		}
+		this.outputStream.write(data, off, len);
+		this.clonedStream.write(data, off, len);
+	}
+
+	public boolean closed() {
+		return (this.closed);
+	}
+
+	public void reset() {
+		// noop
 	}
 }

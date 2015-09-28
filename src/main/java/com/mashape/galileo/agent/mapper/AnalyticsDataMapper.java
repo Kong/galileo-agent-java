@@ -21,7 +21,7 @@ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.mashape.analytics.agent.mapper;
+package com.mashape.galileo.agent.mapper;
 
 import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
@@ -35,15 +35,14 @@ import java.util.TimeZone;
 import org.apache.log4j.Logger;
 
 import com.google.common.io.BaseEncoding;
-import com.mashape.analytics.agent.modal.Content;
-import com.mashape.analytics.agent.modal.Entry;
-import com.mashape.analytics.agent.modal.Message;
-import com.mashape.analytics.agent.modal.NameValuePair;
-import com.mashape.analytics.agent.modal.Request;
-import com.mashape.analytics.agent.modal.Response;
-import com.mashape.analytics.agent.modal.Timings;
-import com.mashape.analytics.agent.wrapper.RequestInterceptorWrapper;
-import com.mashape.analytics.agent.wrapper.ResponseInterceptorWrapper;
+import com.mashape.galileo.agent.modal.Content;
+import com.mashape.galileo.agent.modal.Entry;
+import com.mashape.galileo.agent.modal.NameValuePair;
+import com.mashape.galileo.agent.modal.Request;
+import com.mashape.galileo.agent.modal.Response;
+import com.mashape.galileo.agent.modal.Timings;
+import com.mashape.galileo.agent.wrapper.RequestInterceptorWrapper;
+import com.mashape.galileo.agent.wrapper.ResponseInterceptorWrapper;
 
 /**
  * Maps the analytics data to HAR format
@@ -57,19 +56,18 @@ public class AnalyticsDataMapper {
 
 	private RequestInterceptorWrapper request;
 	private ResponseInterceptorWrapper response;
-	Message message;
 
 	public AnalyticsDataMapper(RequestInterceptorWrapper request, ResponseInterceptorWrapper response) {
 		this.request = (RequestInterceptorWrapper) request;
 		this.response = (ResponseInterceptorWrapper) response;
 	}
 
-	public Entry getAnalyticsData(Date requestReceivedTime, long sendTime, long waitTime) {
+	public Entry getAnalyticsData(Date requestReceivedTime, long sendTime, long waitTime, boolean sendBody) {
 		Entry entry = new Entry();
 		entry.setServerIPAddress(request.getLocalAddr());
 		entry.setStartedDateTime(dateAsIso(requestReceivedTime));
-		entry.setRequest(mapRequest());
-		entry.setResponse(mapResponse());
+		entry.setRequest(mapRequest(sendBody));
+		entry.setResponse(mapResponse(sendBody));
 		entry.setTimings(mapTimings(requestReceivedTime, sendTime, waitTime));
 		entry.setConnection("");
 		entry.getCache();
@@ -120,10 +118,10 @@ public class AnalyticsDataMapper {
 		responseHar.setHeadersSize(size);
 	}
 
-	private Request mapRequest() {
+	private Request mapRequest(boolean sendBody) {
 		Request requestHar = new Request();
 		requestHar.setBodySize(request.getContentLength());
-		requestHar.setContent(mapRequestContent());
+		requestHar.setContent(mapRequestContent(sendBody));
 		requestHar.setMethod(request.getMethod());
 		requestHar.setUrl(request.getRequestURL().toString());
 		requestHar.setHttpVersion(request.getProtocol());
@@ -148,7 +146,7 @@ public class AnalyticsDataMapper {
 		}
 	}
 
-	private Content mapRequestContent() {
+	private Content mapRequestContent(boolean sendBody) {
 		Content content = new Content();
 		content.setEncoding(request.getCharacterEncoding());
 		String mimeType = request.getContentType();
@@ -157,7 +155,7 @@ public class AnalyticsDataMapper {
 			content.setMimeType(request.getContentType());
 		}
 		content.setSize(request.getPayload().length());
-		if (request.getPayload().length() > 0) {
+		if (request.getPayload().length() > 0 && sendBody) {
 			try {
 				content.setText(BaseEncoding.base64().encode(request.getPayload().getBytes(request.getCharacterEncoding() == null ? "UTF-8"
 						: request.getCharacterEncoding())));
@@ -168,10 +166,10 @@ public class AnalyticsDataMapper {
 		return content;
 	}
 
-	private Response mapResponse() {
+	private Response mapResponse(boolean sendBody) {
 		Response responseHar = new Response();
 		responseHar.setBodySize(response.getClone().length);
-		responseHar.setContent(mapResponseContent());
+		responseHar.setContent(mapResponseContent(sendBody));
 		responseHar.setHttpVersion(request.getProtocol());
 		responseHar.setStatus(response.getStatus());
 		responseHar.setStatusText(Integer.toString(responseHar.getStatus()));
@@ -180,7 +178,7 @@ public class AnalyticsDataMapper {
 		return responseHar;
 	}
 
-	private Content mapResponseContent() {
+	private Content mapResponseContent(boolean sendBody) {
 		Content content = new Content();
 		content.setEncoding(response.getCharacterEncoding());
 		String mimeType = response.getContentType();
@@ -188,8 +186,8 @@ public class AnalyticsDataMapper {
 		if (mimeType != null && mimeType.length() > 0) {
 			content.setMimeType(mimeType);
 		}
-		content.setSize(response.getClone().length);
-		if (response.getClone().length > 0) {
+		content.setSize(response.getSize());
+		if (response.getSize() > 0 && sendBody) {
 			content.setText(BaseEncoding.base64().encode(response.getClone()));
 		}
 		return content;

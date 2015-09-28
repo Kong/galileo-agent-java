@@ -22,19 +22,19 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.mashape.analytics.agent.connection.pool;
+package com.mashape.galileo.agent.connection.pool;
 
-import static com.mashape.analytics.agent.common.AnalyticsConstants.AGENT_NAME;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.AGENT_VERSION;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.ALF_VERSION;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.ALF_VERSION_PREFIX;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_DATA;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_PORT;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_URL;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_TOKEN;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.CLIENT_IP_ADDRESS;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.ENVIRONMENT;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.HAR_VERSION;
+import static com.mashape.galileo.agent.common.AnalyticsConstants.AGENT_NAME;
+import static com.mashape.galileo.agent.common.AnalyticsConstants.AGENT_VERSION;
+import static com.mashape.galileo.agent.common.AnalyticsConstants.ALF_VERSION;
+import static com.mashape.galileo.agent.common.AnalyticsConstants.ALF_VERSION_PREFIX;
+import static com.mashape.galileo.agent.common.AnalyticsConstants.ANALYTICS_DATA;
+import static com.mashape.galileo.agent.common.AnalyticsConstants.ANALYTICS_SERVER_PORT;
+import static com.mashape.galileo.agent.common.AnalyticsConstants.ANALYTICS_SERVER_URL;
+import static com.mashape.galileo.agent.common.AnalyticsConstants.ANALYTICS_TOKEN;
+import static com.mashape.galileo.agent.common.AnalyticsConstants.CLIENT_IP_ADDRESS;
+import static com.mashape.galileo.agent.common.AnalyticsConstants.ENVIRONMENT;
+import static com.mashape.galileo.agent.common.AnalyticsConstants.HAR_VERSION;
 
 import java.util.Map;
 
@@ -44,11 +44,11 @@ import org.zeromq.ZMQ;
 import org.zeromq.ZMQ.Socket;
 
 import com.google.gson.Gson;
-import com.mashape.analytics.agent.modal.Creator;
-import com.mashape.analytics.agent.modal.Entry;
-import com.mashape.analytics.agent.modal.Har;
-import com.mashape.analytics.agent.modal.Log;
-import com.mashape.analytics.agent.modal.Message;
+import com.mashape.galileo.agent.modal.Creator;
+import com.mashape.galileo.agent.modal.Entry;
+import com.mashape.galileo.agent.modal.Har;
+import com.mashape.galileo.agent.modal.Log;
+import com.mashape.galileo.agent.modal.Message;
 
 /*
  * Opens a connection to Analytics server and sends data
@@ -67,10 +67,11 @@ public class Messenger implements Executor {
 
 	private Socket getSocket() {
 		if (socket == null) {
+			AnalyticsConfiguration config = AnalyticsConfiguration.getConfig();
 			socket = context.createSocket(ZMQ.PUSH);
-			socket.setLinger(1000);
-			socket.connect("tcp://" + AnalyticsConfiguration.getConfig().getAnalyticsServerUrl() + ":"
-					+ AnalyticsConfiguration.getConfig().getAnalyticsServerPort());
+			socket.setLinger(config.getSocketLinger());
+			socket.setSendTimeOut(config.getSocketSendTimeout());
+			socket.connect("tcp://" + config.getAnalyticsServerUrl() + ":" + config.getAnalyticsServerPort());
 			LOGGER.debug("Socket created: " + socket);
 		}
 		return socket;
@@ -99,8 +100,11 @@ public class Messenger implements Executor {
 		Message msg = getMessage(analyticsData);
 		socket = getSocket();
 		String data = ALF_VERSION_PREFIX + new Gson().toJson(msg);
-		socket.send(data);
-		LOGGER.debug("Message sent by Thread: " + Thread.currentThread().getName() + " using Socket: " + socket);
+		if (socket.send(data)) {
+			LOGGER.debug("Message sent by Thread: " + Thread.currentThread().getName() + " using Socket: " + socket);
+		} else {
+			new RuntimeException("Failed to send message");
+		}
 	}
 
 	public void terminate() {

@@ -1,4 +1,4 @@
-package com.mashape.analytics.agent.connection.pool;
+package com.mashape.galileo.agent.connection.pool;
 
 import static org.junit.Assert.assertEquals;
 
@@ -16,6 +16,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.zeromq.ZContext;
+
+import com.mashape.galileo.agent.connection.pool.Messenger;
+import com.mashape.galileo.agent.connection.pool.MessengerPool;
+import com.mashape.galileo.agent.connection.pool.SendAnalyticsTask;
 
 @RunWith(JMockit.class)
 public class SendAnalyticsTaskTest {

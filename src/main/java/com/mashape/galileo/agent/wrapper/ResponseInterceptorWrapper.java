@@ -22,7 +22,7 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.mashape.analytics.agent.wrapper;
+package com.mashape.galileo.agent.wrapper;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -39,11 +39,25 @@ public class ResponseInterceptorWrapper extends HttpServletResponseWrapper {
 
 	private ServletOutputStream contentStream;
 	private PrintWriter writer;
-	private OutputStreamCloner cloner;
-	private Map<String, String> headerMap = new HashMap<String, String>();
+	private OutputStreamCloner clonerStream;
+	private HttpServletResponse orignalResponse = null;
 
 	public ResponseInterceptorWrapper(HttpServletResponse response) {
 		super(response);
+		orignalResponse = response;
+	}
+
+	public void finishResponse() {
+		try {
+			if (writer != null) {
+				writer.close();
+			} else {
+				if (clonerStream != null) {
+					clonerStream.close();
+				}
+			}
+		} catch (IOException e) {
+		}
 	}
 
 	@Override
@@ -51,61 +65,45 @@ public class ResponseInterceptorWrapper extends HttpServletResponseWrapper {
 		if (writer != null) {
 			writer.flush();
 		} else if (contentStream != null) {
-			cloner.flush();
+			clonerStream.flush();
 		}
 	}
 
 	public byte[] getClone() {
-		if (cloner != null) {
-			return cloner.getClone();
+		if (clonerStream != null) {
+			return clonerStream.getClone();
 		} else {
 			return new byte[0];
 		}
 	}
 
 	public ServletOutputStream getOutputStream() throws IOException {
-		if (this.writer != null) {
+		if (writer != null) {
 			throw new IllegalStateException("getOutputStream called after getWriter");
 		}
 
-		if (this.contentStream == null) {
-			this.contentStream = getResponse().getOutputStream();
-			this.cloner = new OutputStreamCloner(this.contentStream);
+		if (contentStream == null) {
+			contentStream = orignalResponse.getOutputStream();
+			clonerStream = new OutputStreamCloner(contentStream);
 		}
-		return this.cloner;
+		return clonerStream;
 	}
 
 	public PrintWriter getWriter() throws IOException {
-		if (this.contentStream != null) {
+		if (writer != null) {
+			return (writer);
+		}
+
+		if (contentStream != null) {
 			throw new IllegalStateException("getWriter called after getOutputStream ");
 		}
 
-		if (writer == null) {
-			cloner = new OutputStreamCloner(getResponse().getOutputStream());
-			writer = new PrintWriter(new OutputStreamWriter(cloner, getResponse().getCharacterEncoding()), true);
-		}
+		clonerStream = new OutputStreamCloner(orignalResponse.getOutputStream());
+		writer = new PrintWriter(new OutputStreamWriter(clonerStream, orignalResponse.getCharacterEncoding()), true);
 		return writer;
 	}
 
-	@Override
-	public Collection<String> getHeaderNames() {
-		Collection<String> names = super.getHeaderNames();
-		for (String name : headerMap.keySet()) {
-			names.add(name);
-		}
-		return names;
-	}
-
-	@Override
-	public Collection<String> getHeaders(String name) {
-		Collection<String> values = super.getHeaders(name);
-		if (headerMap.containsKey(name)) {
-			values.add(headerMap.get(name));
-		}
-		return values;
-	}
-
 	public int getSize() {
-		return this.cloner.getClone().length;
+		return clonerStream.getClone().length;
 	}
 }

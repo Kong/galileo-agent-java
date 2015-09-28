@@ -22,21 +22,22 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.mashape.analytics.agent.filter;
+package com.mashape.galileo.agent.filter;
 
-import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_DATA;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_ENABLED;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_PORT;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_SERVER_URL;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.ANALYTICS_TOKEN;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.CLIENT_IP_ADDRESS;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.ENVIRONMENT;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.SHOW_POOL_STATUS_TICKER;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.SOCKET_POOL_SIZE_MAX;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.SOCKET_POOL_SIZE_MIN;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.SOCKET_POOL_UPDATE_INTERVAL;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.STATUS_TICKER_INTERVAL;
-import static com.mashape.analytics.agent.common.AnalyticsConstants.WORKER_QUEUE_COUNT;
+import static com.mashape.galileo.agent.common.AnalyticsConstants.ANALYTICS_DATA;
+import static com.mashape.galileo.agent.common.AnalyticsConstants.ANALYTICS_ENABLED;
+import static com.mashape.galileo.agent.common.AnalyticsConstants.ANALYTICS_SERVER_PORT;
+import static com.mashape.galileo.agent.common.AnalyticsConstants.ANALYTICS_SERVER_URL;
+import static com.mashape.galileo.agent.common.AnalyticsConstants.ANALYTICS_TOKEN;
+import static com.mashape.galileo.agent.common.AnalyticsConstants.CLIENT_IP_ADDRESS;
+import static com.mashape.galileo.agent.common.AnalyticsConstants.ENVIRONMENT;
+import static com.mashape.galileo.agent.common.AnalyticsConstants.SHOW_POOL_STATUS_TICKER;
+import static com.mashape.galileo.agent.common.AnalyticsConstants.SOCKET_POOL_SIZE_MAX;
+import static com.mashape.galileo.agent.common.AnalyticsConstants.SOCKET_POOL_SIZE_MIN;
+import static com.mashape.galileo.agent.common.AnalyticsConstants.SOCKET_POOL_UPDATE_INTERVAL;
+import static com.mashape.galileo.agent.common.AnalyticsConstants.STATUS_TICKER_INTERVAL;
+import static com.mashape.galileo.agent.common.AnalyticsConstants.WORKER_QUEUE_COUNT;
+import static com.mashape.galileo.agent.common.AnalyticsConstants.SEND_BODY;
 
 import java.io.IOException;
 import java.util.Date;
@@ -54,12 +55,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
-import com.mashape.analytics.agent.connection.pool.AnalyticsConfiguration;
-import com.mashape.analytics.agent.connection.pool.SendAnalyticsTask;
-import com.mashape.analytics.agent.mapper.AnalyticsDataMapper;
-import com.mashape.analytics.agent.modal.Entry;
-import com.mashape.analytics.agent.wrapper.RequestInterceptorWrapper;
-import com.mashape.analytics.agent.wrapper.ResponseInterceptorWrapper;
+import com.mashape.galileo.agent.modal.Entry;
+import com.mashape.galileo.agent.connection.pool.AnalyticsConfiguration;
+import com.mashape.galileo.agent.connection.pool.SendAnalyticsTask;
+import com.mashape.galileo.agent.mapper.AnalyticsDataMapper;
+import com.mashape.galileo.agent.wrapper.RequestInterceptorWrapper;
+import com.mashape.galileo.agent.wrapper.ResponseInterceptorWrapper;
 
 /**
  * AnalyticsFilter is a custom filter designed to intercept http request and
@@ -93,6 +94,7 @@ public class AnalyticsFilter implements Filter {
 			ResponseInterceptorWrapper response = new ResponseInterceptorWrapper((HttpServletResponse) res);
 			long waitStartTime = System.currentTimeMillis();
 			chain.doFilter(request, response);
+			response.finishResponse();
 			long waitEndTime = System.currentTimeMillis();
 			callAsyncAnalytics(requestReceivedTime, request, response, waitStartTime - sendStartTime, waitEndTime - waitStartTime);
 		} else {
@@ -123,7 +125,7 @@ public class AnalyticsFilter implements Filter {
 		try {
 			long recvStartTime = System.currentTimeMillis();
 			Map<String, Object> messageProperties = new HashMap<String, Object>();
-			Entry analyticsData = new AnalyticsDataMapper(request, response).getAnalyticsData(requestReceivedTime, sendTime, waitTime);
+			Entry analyticsData = new AnalyticsDataMapper(request, response).getAnalyticsData(requestReceivedTime, sendTime, waitTime, true);
 			long recvEndTime = System.currentTimeMillis();
 			analyticsData.getTimings().setReceive(recvEndTime - recvStartTime);
 			analyticsData.setTime((recvEndTime - recvStartTime) + sendTime + waitTime);
@@ -145,6 +147,7 @@ public class AnalyticsFilter implements Filter {
 			.analyticsServerUrl(config.getInitParameter(ANALYTICS_SERVER_URL))
 			.analyticsServerPort(config.getInitParameter(ANALYTICS_SERVER_PORT))
 			.analyticsToken(System.getProperty(ANALYTICS_TOKEN))
+			.sendBody(System.getProperty(SEND_BODY))
 			.environment(System.getProperty(ENVIRONMENT))
 			.workerCountMin(System.getProperty(SOCKET_POOL_SIZE_MIN))
 			.workerCountMax(System.getProperty(SOCKET_POOL_SIZE_MAX))

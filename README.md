@@ -1,10 +1,10 @@
-# Mashape Analytics Java Agent [![Build Status][travis-image]][travis-url]
+# Mashape Galileo Java Agent [![Build Status][travis-image]][travis-url]
 
-> for more information on Mashape Analytics, please visit [apianalytics.com](https://www.apianalytics.com)
+> for more information on Mashape Galileo, please visit [apianalytics.com](https://www.apianalytics.com)
 
 ## About
 
-The agent is a custom servlet filter which intercepts the request and response and sends it to API Analytics server asynchronously to generate analytics information. It needs a web container to run, to send data from a app running in Java SE environment please use our stand alone proxy or use one of our data collection APIs.
+The agent is a custom servlet filter which intercepts the request and response and sends it to Galileo Analytics server asynchronously to generate analytics information. It needs a web container to run, to send data from a app running in Java SE environment please use our stand alone proxy or use one of our data collection APIs.
 
 ## Dependencies
 
@@ -21,7 +21,7 @@ The agent is a custom servlet filter which intercepts the request and response a
 - `unirest-java-1.4.5`
 - Jetty
 
-*see [pom.xml](https://github.com/Mashape/analytics-agent-java/blob/master/pom.xml#L48-L117) for dependencies*
+*see [pom.xml](https://github.com/Mashape/galileo-agent-java/blob/master/pom.xml#L48-L117) for dependencies*
 
 ## Installation
 
@@ -30,15 +30,15 @@ The agent is a custom servlet filter which intercepts the request and response a
 ```xml
 <dependency>
   <groupId>com.mashape.analytics.agent</groupId>
-  <artifactId>mashape-analytics</artifactId>
-  <version>1.0.1</version>
+  <artifactId>mashape-galileo</artifactId>
+  <version>1.0.0</version>
 </dependency>
 ``` 
 
 ### Without Maven
 
-- Download the [jar](https://oss.sonatype.org/content/repositories/releases/com/mashape/analytics/agent/mashape-analytics/)
-- clone from [Github](https://github.com/Mashape/analytics-agent-java)
+- Download the [jar](https://oss.sonatype.org/content/repositories/releases/com/mashape/galileo/agent/galileo-analytics/)
+- clone from [Github](https://github.com/Mashape/galileo-agent-java)
 
 ## Usage
 
@@ -49,7 +49,7 @@ Add following arguments to the server
 
 | Property                          | Value                                                                             | Default |
 | --------------------------------- | --------------------------------------------------------------------------------- | ------- |
-| `analytics.token`                 | Mashape Analytics Access Token                                                    | `-`     |
+| `analytics.token`                 | Mashape Galileo Access Token                                                    | `-`     |
 | `analytics.socket.min`            | Minimum number of threads/sockets to opened for connection to analytics server    | `0`    |
 | `analytics.socket.max`            | Maximum number of threads/sockets allowed to live in pool                         | `2 * # of processor`    |
 | `analytics.socket.keepalivetime`  | When the number of threads are greater than the min, this is the maximum time in seconds that excess idle threads will wait for new tasks before terminating | `5` |
@@ -64,15 +64,7 @@ Update `web.xml`:
 ```xml
 <filter>
   <filter-name>apianalytics-filter</filter-name>
-  <filter-class>com.mashape.analytics.agent.filter.AnalyticsFilter</filter-class>
-  <init-param>
-    <param-name>analytics.server.url</param-name>
-    <param-value>socket.analytics.mashape.com</param-value>
-  </init-param>
-  <init-param>
-    <param-name>analytics.server.port</param-name>
-    <param-value>5500</param-value>
-  </init-param>
+  <filter-class>com.mashape.galileo.agent.filter.AnalyticsFilter</filter-class>
 </filter>
 <filter-mapping>
   <filter-name>apianalytics-filter</filter-name>
