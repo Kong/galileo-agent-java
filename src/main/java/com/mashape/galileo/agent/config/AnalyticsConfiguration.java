@@ -268,7 +268,7 @@ public class AnalyticsConfiguration {
 		}
 
 		private void logConfig() {
-			LOGGER.info("**********Galilleo Agent configuration************");
+			LOGGER.info("**********Galileo Agent configuration************");
 			LOGGER.info("host: " + analyticsServerHost);
 			LOGGER.info("port: " + analyticsServerPort);
 			LOGGER.info("protocol: " + ((useHttps) ? "https" : "http"));
