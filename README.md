@@ -95,4 +95,4 @@ Copyright Mashape Inc, 2015.
 Licensed under [the MIT License](https://github.com/mashape/galileo-agent-java/blob/master/LICENSE)
 
 [travis-url]: https://travis-ci.org/Mashape/galileo-agent-java
-[travis-image]: https://travis-ci.org/Mashape/analytics-agent-java.svg?style=flat
+[travis-image]: https://travis-ci.org/Mashape/galileo-agent-java.svg?style=flat
