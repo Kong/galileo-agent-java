@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.mashape.galileo.agent</groupId>
 	<artifactId>galileo-analytics</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1-SNAPSHOT</version>
 	<name>galileo-analytics</name>
 	<description>Java Agent for Mashape Galileo (https://www.apianalytics.com)</description>
 	<url>https://www.apianalytics.com</url>
